@@ -6,10 +6,14 @@ These instructions apply to the whole repository. Read this file together with t
 
 Tripster gives a group one shared place to plan a trip. Members create trips, invite travelers, suggest lodging/activities/places to visit/restaurants, vote Yes/Maybe/No, explicitly add selected suggestions to an itinerary, schedule itinerary items, and record and split shared expenses.
 
+### Problem and target users
+
+Trip planning often gets scattered across group chats, maps, notes, and spreadsheets. Suggestions can be lost, group preferences are hard to compare, itinerary details are difficult to coordinate, and one person may end up tracking shared expenses. Tripster brings these activities into one shared trip workspace. It is for friends, families, classmates, and other groups planning a trip together.
+
 ### Product source of truth
 
-- **PRD:** Project 2 Proposal for Tripster (course deliverable; currently not checked into this repository). The proposal defines the problem, target users, and eight user stories. Add the approved PRD file/link here when the team publishes it.
-- **Prototype/mockup:** Claude Web Artifact/Figma mockup from P1/P2 planning (link not present in this repository yet). Add the exact prototype link and a short screen inventory here when available. Until then, do not claim an implementation matches a mockup; use the interaction requirements below and keep visual choices conservative.
+- **PRD reference:** Richard Chen's **Project 2 Proposal — Tripster**, supplied in the course project materials and summarized in this file. Its scope is the problem and target users above and the eight user stories below. No separate PRD file or shareable URL has been added to the repository.
+- **Design reference:** No separate visual mockup/prototype link is available in the repository. The UI description below translates the Project 2 Proposal into the screens and interactions the app needs; it does not claim pixel-level fidelity to an existing mockup. If a prototype is created later, add its link and update the screen descriptions to match it.
 - **Issues and sprint board:** [Tripster GitHub Issues](https://github.com/RGChen030699/Tripster/issues) and [Tripster Agile Board](https://github.com/users/RGChen030699/projects/1/views/1).
 - If the PRD, mockup, issue, and these instructions conflict, pause the affected behavior and raise the conflict in the issue/PR. Do not silently choose a new product rule.
 
@@ -36,13 +40,13 @@ The Scrum board also contains an approved extra feature to edit or remove a sugg
 
 ## Stack and architecture
 
-The repository currently contains only a README, so there is no implemented stack or established architecture to preserve yet. The following is the **proposed planning baseline from the HW3 context document**, not a claim about installed dependencies. Confirm it with the project team before scaffolding or adding packages; then update this section to match the committed lockfile and code.
+The repository currently contains only a README, so there is no implemented stack or established architecture to preserve yet. The following is the **proposed planning baseline from the HW3 context document**, not a claim about installed dependencies. As the solo developer, choose/adopt the stack before scaffolding or adding packages; then update this section to match the committed lockfile and code.
 
 - Frontend: Next.js 15.x, React 19.x, TypeScript 5.x, Tailwind CSS 4.x.
 - Backend: Next.js App Router and Route Handlers with JSON APIs.
 - Database: PostgreSQL 16.x with Prisma 6.x and checked-in migrations.
-- Authentication: Auth.js (NextAuth.js) with a database-backed session, after confirming the chosen stable release and adapter. Use one documented auth approach throughout.
-- Validation: one team-approved schema validation library at API boundaries (Zod is the proposed choice).
+- Authentication: Auth.js (NextAuth.js) with a database-backed session, after selecting a stable release and adapter. Use one documented auth approach throughout.
+- Validation: one schema validation library at API boundaries (Zod is the proposed choice).
 - Unit/component tests: Vitest and React Testing Library.
 - End-to-end tests: Playwright for critical user flows.
 - API documentation: OpenAPI 3.x; expose generated documentation in development if API routes are used.
@@ -67,7 +71,19 @@ Keep business rules in feature/domain services, not page components. Check autho
 
 ## Design references and expected interaction
 
-Use the team's approved prototype as the visual source of truth once its link is added above. The mockup itself is not currently in the repository, so do not invent unsupported screen details or claim pixel-level fidelity.
+Use the PRD-derived UI description below as the functional design reference. It describes required screens and behavior, not colors, typography, or exact layout. Make visual choices consistent and accessible, and revise this section if you later create a mockup.
+
+### UI description
+
+- **Trip list/home:** Show the trips the signed-in user belongs to, with each trip's name, destination, and dates. Provide a clear action to create a trip and useful empty/loading/error states.
+- **Create trip:** A focused form collects trip name, destination, start date, and end date. Validate required fields and prevent an end date earlier than the start date. The creator becomes the organizer/member.
+- **Trip workspace:** Present the trip summary and its members, and provide clear navigation between suggestions, itinerary, and expenses. Members should be able to understand which trip they are viewing.
+- **Members:** Let the organizer add travelers using the invitation method selected for the project. Show current members and prevent duplicate membership.
+- **Suggestions:** Let a member create a suggestion with its name, one of four categories (lodging, activity, place to visit, restaurant), and optional details. List suggestions in the trip workspace with their voting controls and current Yes/Maybe/No totals.
+- **Voting and Add:** Make Yes, Maybe, and No distinct choices and show the member's current vote. Keep **Add** as a separate, explicit action. Voting never adds an item. After Add is selected, show the linked item in the itinerary.
+- **Itinerary:** Group or order itinerary items by trip day and time. Make unscheduled items clear and let members assign a date and optional time within the trip range.
+- **Expenses and balances:** Let a member enter an expense and select the payer and participating trip members. Show each expense's split and a per-member summary of paid amount, share, and net balance.
+- **Shared interaction states:** Forms and lists should communicate loading, empty, validation, success, and error states. Destructive actions need clear confirmation.
 
 Expected components and behavior from the PRD:
 
@@ -121,9 +137,9 @@ Use the framework already committed to the repository. If none exists, use the p
 - Commit messages use Conventional Commits: `<type>(<scope>): <imperative summary> (#<issue-number>)`; examples: `feat(voting): allow members to change votes (#5)`, `fix(expenses): preserve cents in equal splits (#10)`, `docs(setup): explain local configuration (#11)`.
 - Keep a change focused on its issue. Reference the issue in branch and commit names; in the pull request body include `Closes #<number>` when the PR completes that issue.
 - Open a pull request against the repository's default branch. Include the issue link, summary, acceptance criteria addressed, test commands/results, and screenshots or a short recording for UI changes.
-- Request review from the project partner before merge. Address comments and confirm relevant checks pass. If branch protection or a reviewer is unavailable, document that clearly rather than implying a review occurred.
+- Because this is an approved solo project, review your own pull request diff against its issue and acceptance criteria before merging; confirm automated checks pass. Do not describe this as an independent peer review. Follow any course-specific submission/review requirements.
 - Do not commit directly to the default branch for feature work unless the team explicitly documents an exception.
-- Keep issue titles action-oriented and use their acceptance criteria as the definition of done. Coordinate ownership and progress through the board and standups.
+- Keep issue titles action-oriented and use their acceptance criteria as the definition of done. Maintain your own progress on the board and record standup/retrospective notes if required by the course.
 
 ## Security, privacy, and accessibility
 
@@ -137,7 +153,7 @@ Use the framework already committed to the repository. If none exists, use the p
 
 ## Do
 
-- Read the relevant issue, acceptance checklist, PRD section, and mockup before coding.
+- Read the relevant issue, acceptance checklist, and PRD section before coding; consult a mockup if one becomes available.
 - Ask for clarification in the issue when a requirement is ambiguous or references conflict.
 - Reuse established libraries, components, validation, styling, and data-access patterns.
 - Add tests for behavior and edge cases, especially access control and expense calculations.
