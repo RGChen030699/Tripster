@@ -167,3 +167,6 @@ Use the framework already committed to the repository. If none exists, use the p
 - Do not add a dependency when the approved stack already provides the needed capability.
 - Do not silently change product behavior, expand issue scope, or modify unrelated files.
 - Do not hard-code credentials, expose secrets in logs, or claim unverified stack versions, tests, reviews, deployments, or design comparisons.
+## Current prototype scope: username authentication
+For Sprint 1 Issue #1, use a username (not an email address) and a temporary in-memory user/session store behind a replaceable interface. Do not introduce a database for this prototype. Accounts and sessions reset when the process restarts; do not describe them as persistent. Hash passwords and keep session tokens out of logs. A later persistence issue can replace the store.
+For tests, use the repository's configured runner when one exists. If a runtime or TypeScript loader error prevents tests from running, distinguish it from an assertion failure, fix the compatibility issue, rerun the same command, and report the final result only from test output.
