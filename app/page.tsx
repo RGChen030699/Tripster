@@ -1,8 +1,14 @@
-export default function HomePage() {
-  return (
-    <main className="mx-auto max-w-lg px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Tripster</h1>
-      <p className="mt-3 text-stone-700">A shared place to plan a trip.</p>
-    </main>
-  );
+import { cookies } from "next/headers";
+
+import { AccountHome } from "@/components/account-home";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/cookies";
+import { getAuthService } from "@/lib/auth/container";
+
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
+  const session = await getAuthService().getSession(token);
+  return <AccountHome email={session.ok ? session.user.email : null} />;
 }
