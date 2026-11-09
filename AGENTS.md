@@ -40,34 +40,26 @@ The Scrum board also contains an approved extra feature to edit or remove a sugg
 
 ## Stack and architecture
 
-The repository currently contains only a README, so there is no implemented stack or established architecture to preserve yet. The following is the **proposed planning baseline from the HW3 context document**, not a claim about installed dependencies. As the solo developer, choose/adopt the stack before scaffolding or adding packages; then update this section to match the committed lockfile and code.
+Versions below are the ones resolved in `package-lock.json` for this repository. Do not upgrade them or add a second library for the same job without an issue explaining why. Never invent a version in documentation when it cannot be verified from the repository.
 
-- Frontend: Next.js 15.x, React 19.x, TypeScript 5.x, Tailwind CSS 4.x.
+- Frontend: Next.js 15.5.29, React 19.3.1, TypeScript 5.9.3, Tailwind CSS 4.3.5.
 - Backend: Next.js App Router and Route Handlers with JSON APIs.
-- Database: PostgreSQL 16.x with Prisma 6.x and checked-in migrations.
-- Authentication: Auth.js (NextAuth.js) with a database-backed session, after selecting a stable release and adapter. Use one documented auth approach throughout.
-- Validation: one schema validation library at API boundaries (Zod is the proposed choice).
-- Unit/component tests: Vitest and React Testing Library.
-- End-to-end tests: Playwright for critical user flows.
-- API documentation: OpenAPI 3.x; expose generated documentation in development if API routes are used.
-- CI: GitHub Actions for formatting/lint, type checking, and relevant automated tests.
-
-Use exact package versions from the package manifest and lockfile; do not upgrade frameworks or introduce a second library for the same job without an issue explaining why. Never invent a version in documentation when it cannot be verified from the repository.
+- Validation: Zod 3.25.76 at API boundaries.
+- Unit/component tests: Vitest 5.1.0 and React Testing Library 16.3.3.
+- End-to-end tests: Playwright is not installed yet. Add it when the trip-planning journey exists.
+- PostgreSQL, Prisma, and Auth.js are not installed. Issue #1 keeps accounts and sessions in memory.
 
 ### Architecture and folders
 
-Until the app scaffold exists, use this as a suggested organization, adapting it to the framework's generated conventions rather than moving files just to match this list:
+The app follows the Next.js App Router layout:
 
 - `app/` — route segments, layouts, and pages.
 - `app/api/` — Route Handlers, request parsing, and response mapping.
-- `components/` — shared presentation components without domain/data-access logic.
-- `features/trips/`, `features/suggestions/`, `features/itinerary/`, `features/expenses/` — feature-specific UI and domain operations.
-- `lib/` — shared auth, database client, validation, and utilities.
-- `prisma/` — schema and migrations.
-- `tests/` — unit/integration helpers and fixtures; keep colocated tests if the established project convention prefers that.
-- `e2e/` — Playwright user journeys.
+- `components/` — shared presentation components without domain or data-access logic.
+- `lib/auth/` — account validation, password hashing, the user and session store interfaces, and the auth service.
+- Colocated `*.test.ts` / `*.test.tsx` files — Vitest and React Testing Library.
 
-Keep business rules in feature/domain services, not page components. Check authorization and validate input at the server/API boundary. Keep database access behind the project's established data-access pattern. Prefer small changes that follow the actual codebase once it exists.
+`features/trips/`, `features/suggestions/`, `features/itinerary/`, `features/expenses/`, `prisma/`, and `e2e/` are not part of the account issue. Keep business rules in `lib/auth`, not in page components. Check authentication on the server and validate input at the API boundary. Keep account storage behind `UserStore`.
 
 ## Design references and expected interaction
 
@@ -167,6 +159,9 @@ Use the framework already committed to the repository. If none exists, use the p
 - Do not add a dependency when the approved stack already provides the needed capability.
 - Do not silently change product behavior, expand issue scope, or modify unrelated files.
 - Do not hard-code credentials, expose secrets in logs, or claim unverified stack versions, tests, reviews, deployments, or design comparisons.
-## Current prototype scope: username authentication
-For Sprint 1 Issue #1, use a username (not an email address) and a temporary in-memory user/session store behind a replaceable interface. Do not introduce a database for this prototype. Accounts and sessions reset when the process restarts; do not describe them as persistent. Hash passwords and keep session tokens out of logs. A later persistence issue can replace the store.
+
+## Current prototype scope: email authentication
+
+For Sprint 1 Issue #1, the account identifier is an email address used as the username, with a temporary in-memory user and session store behind a replaceable interface. Do not introduce a database for this prototype. Accounts and sessions reset when the process restarts; do not describe them as persistent. Hash passwords and keep session tokens out of logs. A later persistence issue can replace the store.
+
 For tests, use the repository's configured runner when one exists. If a runtime or TypeScript loader error prevents tests from running, distinguish it from an assertion failure, fix the compatibility issue, rerun the same command, and report the final result only from test output.
