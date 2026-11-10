@@ -4,11 +4,29 @@ export class InMemoryExpenseStore implements ExpenseStore {
   private readonly expenses = new Map<string, StoredExpense>();
 
   async add(expense: StoredExpense): Promise<void> {
-    void expense;
+    this.expenses.set(expense.id, cloneExpense(expense));
   }
 
   async listByTrip(tripId: string): Promise<StoredExpense[]> {
-    void tripId;
-    return [];
+    const listed: StoredExpense[] = [];
+    for (const expense of this.expenses.values()) {
+      if (expense.tripId === tripId) {
+        listed.push(cloneExpense(expense));
+      }
+    }
+    return listed;
   }
+}
+
+function cloneExpense(expense: StoredExpense): StoredExpense {
+  return {
+    id: expense.id,
+    tripId: expense.tripId,
+    amountCents: expense.amountCents,
+    currency: expense.currency,
+    description: expense.description,
+    date: expense.date,
+    payerId: expense.payerId,
+    participantIds: [...expense.participantIds],
+  };
 }
