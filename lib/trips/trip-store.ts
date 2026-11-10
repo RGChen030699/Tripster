@@ -1,21 +1,72 @@
 import type { StoredMembership, StoredTrip, TripStore } from "@/lib/trips/types";
 
 export class InMemoryTripStore implements TripStore {
-  async createWithOrganizer(_trip: StoredTrip, _organizerId: string): Promise<void> {}
+  private readonly trips = new Map<string, StoredTrip>();
+  private readonly memberships = new Map<string, StoredMembership>();
 
-  async findById(_id: string): Promise<StoredTrip | null> {
-    return null;
+  async createWithOrganizer(trip: StoredTrip, organizerId: string): Promise<void> {
+    const stored = cloneTrip(trip);
+    this.trips.set(stored.id, stored);
+    this.memberships.set(membershipKey(stored.id, organizerId), {
+      tripId: stored.id,
+      userId: organizerId,
+      role: "organizer",
+    });
   }
 
-  async listForUser(_userId: string): Promise<StoredTrip[]> {
-    return [];
+  async findById(id: string): Promise<StoredTrip | null> {
+    const trip = this.trips.get(id);
+    return trip ? cloneTrip(trip) : null;
   }
 
-  async findMembership(_tripId: string, _userId: string): Promise<StoredMembership | null> {
-    return null;
+  async listForUser(userId: string): Promise<StoredTrip[]> {
+    const trips: StoredTrip[] = [];
+    for (const membership of this.memberships.values()) {
+      if (membership.userId !== userId) {
+        continue;
+      }
+      const trip = this.trips.get(membership.tripId);
+      if (trip) {
+        trips.push(cloneTrip(trip));
+      }
+    }
+    return trips;
   }
 
-  async membersOf(_tripId: string): Promise<StoredMembership[]> {
-    return [];
+  async findMembership(tripId: string, userId: string): Promise<StoredMembership | null> {
+    const membership = this.memberships.get(membershipKey(tripId, userId));
+    return membership ? cloneMembership(membership) : null;
   }
+
+  async membersOf(tripId: string): Promise<StoredMembership[]> {
+    const members: StoredMembership[] = [];
+    for (const membership of this.memberships.values()) {
+      if (membership.tripId === tripId) {
+        members.push(cloneMembership(membership));
+      }
+    }
+    return members;
+  }
+}
+
+function membershipKey(tripId: string, userId: string): string {
+  return `${tripId}\u0000${userId}`;
+}
+
+function cloneTrip(trip: StoredTrip): StoredTrip {
+  return {
+    id: trip.id,
+    name: trip.name,
+    destination: trip.destination,
+    startDate: trip.startDate,
+    endDate: trip.endDate,
+  };
+}
+
+function cloneMembership(membership: StoredMembership): StoredMembership {
+  return {
+    tripId: membership.tripId,
+    userId: membership.userId,
+    role: membership.role,
+  };
 }

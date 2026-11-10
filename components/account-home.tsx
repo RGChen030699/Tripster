@@ -11,6 +11,7 @@ const secondaryLinkClassName =
 
 export function AccountHome({
   email,
+  trips = [],
 }: {
   email: string | null;
   trips?: TripSummary[];
@@ -32,6 +33,38 @@ export function AccountHome({
           <div className="mt-4">
             <LogoutButton />
           </div>
+        </section>
+      ) : null}
+      {email ? (
+        <section className="rounded-lg border border-stone-200 bg-white p-6" aria-labelledby="trips-heading">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="trips-heading" className="text-lg font-semibold">
+              Your trips
+            </h2>
+            <Link href="/trips/new" className={primaryLinkClassName}>
+              Create a trip
+            </Link>
+          </div>
+          {trips.length === 0 ? (
+            <p className="mt-3 text-stone-700">You have no trips yet.</p>
+          ) : (
+            <ul className="mt-4 flex flex-col gap-4">
+              {trips.map((trip) => (
+                <li key={trip.id}>
+                  <Link
+                    href={`/trips/${trip.id}`}
+                    className="font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+                  >
+                    {trip.name}
+                  </Link>
+                  <p className="mt-1">{trip.destination}</p>
+                  <p className="text-sm text-stone-700">
+                    {trip.startDate} to {trip.endDate}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       ) : (
         <section className="rounded-lg border border-stone-200 bg-white p-6" aria-labelledby="welcome-heading">
