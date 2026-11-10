@@ -18,6 +18,8 @@ const state = vi.hoisted(() => ({
       address: null,
       link: null,
       authorEmail: "ada@example.com",
+      votes: { yes: 0, maybe: 0, no: 0 },
+      myVote: null,
     },
   ],
 }));

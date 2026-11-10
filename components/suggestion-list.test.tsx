@@ -1,10 +1,14 @@
 // @vitest-environment jsdom
 
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { SuggestionList } from "@/components/suggestion-list";
 import type { SuggestionView } from "@/lib/suggestions/types";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => {} }),
+}));
 
 const pastel: SuggestionView = {
   id: "suggestion-1",
@@ -14,6 +18,8 @@ const pastel: SuggestionView = {
   address: "Rua da Prata",
   link: "https://example.com/nata",
   authorEmail: "ada@example.com",
+  votes: { yes: 1, maybe: 0, no: 0 },
+  myVote: "yes",
 };
 
 const miradouro: SuggestionView = {
@@ -24,11 +30,13 @@ const miradouro: SuggestionView = {
   address: null,
   link: null,
   authorEmail: "bryce@example.com",
+  votes: { yes: 0, maybe: 0, no: 0 },
+  myVote: null,
 };
 
 describe("SuggestionList", () => {
   it("shows the suggestion, its category, and its author", () => {
-    render(<SuggestionList suggestions={[pastel, miradouro]} />);
+    render(<SuggestionList tripId="trip-1" suggestions={[pastel, miradouro]} />);
 
     expect(screen.getByRole("heading", { name: "Pastel de nata" })).toBeInTheDocument();
     expect(screen.getByText("Restaurant")).toBeInTheDocument();
@@ -44,8 +52,17 @@ describe("SuggestionList", () => {
     expect(screen.getByText("Suggested by bryce@example.com")).toBeInTheDocument();
   });
 
+  it("shows the member's vote and the totals", () => {
+    render(<SuggestionList tripId="trip-1" suggestions={[pastel]} />);
+
+    expect(screen.getByRole("button", { name: "Yes" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Yes 1")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Maybe" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "No" })).toHaveAttribute("aria-pressed", "false");
+  });
+
   it("shows an empty state", () => {
-    render(<SuggestionList suggestions={[]} />);
+    render(<SuggestionList tripId="trip-1" suggestions={[]} />);
 
     expect(screen.getByText("No suggestions yet.")).toBeInTheDocument();
   });

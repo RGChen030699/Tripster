@@ -2,11 +2,14 @@ import { randomUUID } from "node:crypto";
 
 import type { Logger, UserStore } from "@/lib/auth/types";
 import type { TripStore } from "@/lib/trips/types";
+import type { ItineraryListResult, ItineraryStore } from "@/lib/itinerary/types";
 import type {
   CreateSuggestionResult,
   SuggestionListResult,
   SuggestionStore,
   SuggestionView,
+  VoteResult,
+  VoteStore,
 } from "@/lib/suggestions/types";
 import { parseSuggestionInput } from "@/lib/suggestions/validation";
 
@@ -14,12 +17,23 @@ const TRIP_NOT_FOUND = "Trip not found.";
 
 export class SuggestionService {
   private readonly suggestions: SuggestionStore;
+  private readonly votes: VoteStore;
+  private readonly itinerary: ItineraryStore;
   private readonly trips: TripStore;
   private readonly users: UserStore;
   private readonly logger: Logger;
 
-  constructor(suggestions: SuggestionStore, trips: TripStore, users: UserStore, logger: Logger) {
+  constructor(
+    suggestions: SuggestionStore,
+    votes: VoteStore,
+    itinerary: ItineraryStore,
+    trips: TripStore,
+    users: UserStore,
+    logger: Logger,
+  ) {
     this.suggestions = suggestions;
+    this.votes = votes;
+    this.itinerary = itinerary;
     this.trips = trips;
     this.users = users;
     this.logger = logger;
@@ -73,6 +87,8 @@ export class SuggestionService {
         address: stored.address,
         link: stored.link,
         authorEmail: author.email,
+        votes: { yes: 0, maybe: 0, no: 0 },
+        myVote: null,
       },
     };
   }
@@ -98,8 +114,31 @@ export class SuggestionService {
         address: suggestion.address,
         link: suggestion.link,
         authorEmail: author.email,
+        votes: { yes: 0, maybe: 0, no: 0 },
+        myVote: null,
       });
     }
     return { ok: true, suggestions };
+  }
+
+  async vote(
+    userId: string,
+    tripId: string,
+    suggestionId: string,
+    choice: unknown,
+  ): Promise<VoteResult> {
+    void userId;
+    void tripId;
+    void suggestionId;
+    void choice;
+    void this.votes;
+    void this.itinerary;
+    return { ok: false, status: 501, error: "Not implemented." };
+  }
+
+  async listItinerary(userId: string, tripId: string): Promise<ItineraryListResult> {
+    void userId;
+    void tripId;
+    return { ok: false, status: 501, error: "Not implemented." };
   }
 }

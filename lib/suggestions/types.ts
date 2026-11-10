@@ -13,6 +13,20 @@ export type StoredSuggestion = {
   link: string | null;
 };
 
+export type VoteChoice = "yes" | "maybe" | "no";
+
+export type VoteTotals = {
+  yes: number;
+  maybe: number;
+  no: number;
+};
+
+export type StoredVote = {
+  suggestionId: string;
+  userId: string;
+  choice: VoteChoice;
+};
+
 export type SuggestionView = {
   id: string;
   category: SuggestionCategory;
@@ -21,6 +35,8 @@ export type SuggestionView = {
   address: string | null;
   link: string | null;
   authorEmail: string;
+  votes: VoteTotals;
+  myVote: VoteChoice | null;
 };
 
 export type SuggestionFailure = {
@@ -32,6 +48,15 @@ export type SuggestionFailure = {
 export type CreateSuggestionResult = { ok: true; suggestion: SuggestionView } | SuggestionFailure;
 
 export type SuggestionListResult = { ok: true; suggestions: SuggestionView[] } | SuggestionFailure;
+
+export type VoteResult =
+  | { ok: true; vote: { choice: VoteChoice }; votes: VoteTotals }
+  | SuggestionFailure;
+
+export interface VoteStore {
+  set(vote: StoredVote): Promise<void>;
+  listBySuggestion(suggestionId: string): Promise<StoredVote[]>;
+}
 
 export interface SuggestionStore {
   create(suggestion: StoredSuggestion): Promise<void>;

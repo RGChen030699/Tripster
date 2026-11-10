@@ -7,7 +7,14 @@ const CATEGORY_LABELS: Record<SuggestionCategory, string> = {
   restaurant: "Restaurant",
 };
 
-export function SuggestionList({ suggestions }: { suggestions: SuggestionView[] }) {
+export function SuggestionList({
+  tripId,
+  suggestions,
+}: {
+  tripId: string;
+  suggestions: SuggestionView[];
+}) {
+  void tripId;
   if (suggestions.length === 0) {
     return <p className="text-stone-700">No suggestions yet.</p>;
   }

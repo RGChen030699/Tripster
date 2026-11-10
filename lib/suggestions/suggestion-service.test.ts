@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { InMemoryUserStore } from "@/lib/auth/user-store";
+import { InMemoryItineraryStore } from "@/lib/itinerary/itinerary-store";
 import { SuggestionService } from "@/lib/suggestions/suggestion-service";
 import { InMemorySuggestionStore } from "@/lib/suggestions/suggestion-store";
+import { InMemoryVoteStore } from "@/lib/suggestions/vote-store";
 import { TripService } from "@/lib/trips/trip-service";
 import { InMemoryTripStore } from "@/lib/trips/trip-store";
 
@@ -33,7 +35,13 @@ async function setup() {
   }
   await tripService.addMember("user-1", created.trip.id, "bryce@example.com");
   const messages: string[] = [];
-  const service = new SuggestionService(new InMemorySuggestionStore(), trips, users, {
+  const service = new SuggestionService(
+    new InMemorySuggestionStore(),
+    new InMemoryVoteStore(),
+    new InMemoryItineraryStore(),
+    trips,
+    users,
+    {
     info(message: string) {
       messages.push(message);
     },
@@ -141,5 +149,78 @@ describe("SuggestionService", () => {
     expect(hiddenList).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hiddenList)).not.toContain("Pastel");
     expect(JSON.stringify(hiddenList)).not.toContain("Lisbon");
+  });
+
+  it("keeps one current vote per member and does not create an itinerary item", async () => {
+    const { service, tripId, messages } = await setup();
+    const created = await service.createSuggestion("user-1", tripId, SUGGESTION);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    const yes = await service.vote("user-1", tripId, created.suggestion.id, "yes");
+    expect(yes).toEqual({
+      ok: true,
+      vote: { choice: "yes" },
+      votes: { yes: 1, maybe: 0, no: 0 },
+    });
+
+    const changed = await service.vote("user-1", tripId, created.suggestion.id, "maybe");
+    expect(changed).toEqual({
+      ok: true,
+      vote: { choice: "maybe" },
+      votes: { yes: 0, maybe: 1, no: 0 },
+    });
+
+    const other = await service.vote("user-2", tripId, created.suggestion.id, "no");
+    expect(other).toMatchObject({
+      ok: true,
+      votes: { yes: 0, maybe: 1, no: 1 },
+    });
+
+    const ada = await service.listSuggestions("user-1", tripId);
+    expect(ada).toMatchObject({
+      ok: true,
+      suggestions: [{ id: created.suggestion.id, myVote: "maybe", votes: { yes: 0, maybe: 1, no: 1 } }],
+    });
+    const bryce = await service.listSuggestions("user-2", tripId);
+    expect(bryce).toMatchObject({
+      ok: true,
+      suggestions: [{ myVote: "no" }],
+    });
+
+    await expect(service.listItinerary("user-1", tripId)).resolves.toEqual({ ok: true, items: [] });
+    expect(messages).toContain("vote recorded");
+    expect(messages.join(" ")).not.toContain("ada@example.com");
+  });
+
+  it("rejects a bad choice, a missing suggestion, and a non-member", async () => {
+    const { service, tripId } = await setup();
+    const created = await service.createSuggestion("user-1", tripId, SUGGESTION);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    await expect(service.vote("user-1", tripId, created.suggestion.id, "absolutely")).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Choose Yes, Maybe, or No.",
+    });
+
+    const missing = await service.vote("user-1", tripId, "missing-suggestion", "yes");
+    expect(missing).toEqual({ ok: false, status: 404, error: "Suggestion not found." });
+    expect(JSON.stringify(missing)).not.toContain("Pastel");
+
+    const hidden = await service.vote("someone-else", tripId, created.suggestion.id, "yes");
+    expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(hidden)).not.toContain("Pastel");
+    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+
+    const hiddenItinerary = await service.listItinerary("someone-else", tripId);
+    expect(hiddenItinerary).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(hiddenItinerary)).not.toContain("Pastel");
+    expect(JSON.stringify(hiddenItinerary)).not.toContain("Lisbon");
   });
 });

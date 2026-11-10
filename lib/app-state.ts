@@ -2,8 +2,10 @@ import { AuthService } from "@/lib/auth/auth-service";
 import { createConsoleLogger } from "@/lib/auth/logger";
 import { InMemorySessionStore } from "@/lib/auth/session-store";
 import { InMemoryUserStore } from "@/lib/auth/user-store";
+import { InMemoryItineraryStore } from "@/lib/itinerary/itinerary-store";
 import { SuggestionService } from "@/lib/suggestions/suggestion-service";
 import { InMemorySuggestionStore } from "@/lib/suggestions/suggestion-store";
+import { InMemoryVoteStore } from "@/lib/suggestions/vote-store";
 import { TripService } from "@/lib/trips/trip-service";
 import { InMemoryTripStore } from "@/lib/trips/trip-store";
 
@@ -48,7 +50,14 @@ function createAppState(): AppState {
   return {
     auth: new AuthService(users, new InMemorySessionStore(), logger),
     trips: new TripService(trips, users, logger),
-    suggestions: new SuggestionService(new InMemorySuggestionStore(), trips, users, logger),
+    suggestions: new SuggestionService(
+      new InMemorySuggestionStore(),
+      new InMemoryVoteStore(),
+      new InMemoryItineraryStore(),
+      trips,
+      users,
+      logger,
+    ),
   };
 }
 
@@ -109,6 +118,16 @@ function isSuggestionService(value: unknown): value is SuggestionService {
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  const candidate = value as { createSuggestion?: unknown; listSuggestions?: unknown };
-  return typeof candidate.createSuggestion === "function" && typeof candidate.listSuggestions === "function";
+  const candidate = value as {
+    createSuggestion?: unknown;
+    listSuggestions?: unknown;
+    vote?: unknown;
+    listItinerary?: unknown;
+  };
+  return (
+    typeof candidate.createSuggestion === "function" &&
+    typeof candidate.listSuggestions === "function" &&
+    typeof candidate.vote === "function" &&
+    typeof candidate.listItinerary === "function"
+  );
 }
