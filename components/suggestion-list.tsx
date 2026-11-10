@@ -1,4 +1,5 @@
 import { AddToItineraryButton } from "@/components/add-to-itinerary-button";
+import { SuggestionOwnerActions } from "@/components/suggestion-owner-actions";
 import { VoteControls } from "@/components/vote-controls";
 import type { SuggestionCategory, SuggestionView } from "@/lib/suggestions/types";
 
@@ -18,7 +19,6 @@ export function SuggestionList({
   suggestions: SuggestionView[];
   viewerEmail?: string;
 }) {
-  void viewerEmail;
   if (suggestions.length === 0) {
     return <p className="text-stone-700">No suggestions yet.</p>;
   }
@@ -49,6 +49,9 @@ export function SuggestionList({
             myVote={suggestion.myVote}
           />
           <AddToItineraryButton tripId={tripId} suggestionId={suggestion.id} />
+          {viewerEmail === suggestion.authorEmail ? (
+            <SuggestionOwnerActions tripId={tripId} suggestion={suggestion} />
+          ) : null}
         </li>
       ))}
     </ul>

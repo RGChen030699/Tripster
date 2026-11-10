@@ -11,7 +11,9 @@ import type {
 import type {
   CreateSuggestionResult,
   RemoveSuggestionResult,
+  StoredSuggestion,
   StoredVote,
+  SuggestionFailure,
   SuggestionListResult,
   UpdateSuggestionResult,
   SuggestionStore,
@@ -144,7 +146,7 @@ export class SuggestionService {
       return { ok: false, status: 404, error: TRIP_NOT_FOUND };
     }
     const suggestion = await this.suggestions.findById(suggestionId);
-    if (!suggestion || suggestion.tripId !== tripId) {
+    if (!suggestion || suggestion.tripId !== tripId || suggestion.removed) {
       return { ok: false, status: 404, error: SUGGESTION_NOT_FOUND };
     }
     const parsed = parseVoteChoice(choice);
@@ -195,7 +197,7 @@ export class SuggestionService {
       return { ok: false, status: 404, error: TRIP_NOT_FOUND };
     }
     const suggestion = await this.suggestions.findById(suggestionId);
-    if (!suggestion || suggestion.tripId !== tripId) {
+    if (!suggestion || suggestion.tripId !== tripId || suggestion.removed) {
       return { ok: false, status: 404, error: SUGGESTION_NOT_FOUND };
     }
 
@@ -222,11 +224,26 @@ export class SuggestionService {
       link: unknown;
     },
   ): Promise<UpdateSuggestionResult> {
-    void userId;
-    void tripId;
-    void suggestionId;
-    void input;
-    return { ok: false, status: 501, error: "Not implemented." };
+    const access = await this.authorAccess(userId, tripId, suggestionId);
+    if (!access.ok) {
+      return access;
+    }
+    const parsed = parseSuggestionInput(input);
+    if (!parsed.ok) {
+      return parsed;
+    }
+    const next = {
+      ...access.suggestion,
+      category: parsed.category,
+      name: parsed.name,
+      description: parsed.description,
+      address: parsed.address,
+      link: parsed.link,
+    };
+    await this.suggestions.update(next);
+    this.logger.info("suggestion updated");
+    const suggestion = await this.present(next, userId);
+    return suggestion ? { ok: true, suggestion } : { ok: false, status: 404, error: TRIP_NOT_FOUND };
   }
 
   async removeSuggestion(
@@ -234,10 +251,56 @@ export class SuggestionService {
     tripId: string,
     suggestionId: string,
   ): Promise<RemoveSuggestionResult> {
-    void userId;
-    void tripId;
-    void suggestionId;
-    return { ok: false, status: 501, error: "Not implemented." };
+    const access = await this.authorAccess(userId, tripId, suggestionId);
+    if (!access.ok) {
+      return access;
+    }
+    await this.suggestions.remove(suggestionId);
+    this.logger.info("suggestion removed");
+    return { ok: true };
+  }
+
+  private async authorAccess(
+    userId: string,
+    tripId: string,
+    suggestionId: string,
+  ): Promise<{ ok: true; suggestion: StoredSuggestion } | SuggestionFailure> {
+    const membership = await this.trips.findMembership(tripId, userId);
+    if (!membership) {
+      return { ok: false, status: 404, error: TRIP_NOT_FOUND };
+    }
+    const suggestion = await this.suggestions.findById(suggestionId);
+    if (!suggestion || suggestion.tripId !== tripId || suggestion.removed) {
+      return { ok: false, status: 404, error: SUGGESTION_NOT_FOUND };
+    }
+    if (suggestion.authorId !== userId) {
+      return {
+        ok: false,
+        status: 403,
+        error: "Only the person who suggested this can change it.",
+      };
+    }
+    return { ok: true, suggestion };
+  }
+
+  private async present(suggestion: StoredSuggestion, userId: string): Promise<SuggestionView | null> {
+    const author = await this.users.findById(suggestion.authorId);
+    if (!author) {
+      return null;
+    }
+    const recorded = await this.votes.listBySuggestion(suggestion.id);
+    const mine = recorded.find((vote) => vote.userId === userId);
+    return {
+      id: suggestion.id,
+      category: suggestion.category,
+      name: suggestion.name,
+      description: suggestion.description,
+      address: suggestion.address,
+      link: suggestion.link,
+      authorEmail: author.email,
+      votes: countVotes(recorded),
+      myVote: mine?.choice ?? null,
+    };
   }
 }
 

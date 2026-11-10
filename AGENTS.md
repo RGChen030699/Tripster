@@ -171,7 +171,7 @@ Trips use the same temporary in-memory approach behind `TripStore`. Creating a t
 
 The organizer adds a traveler by the email address of an existing account. An unknown email is a clear error. The same person cannot be added twice. Only the organizer can add members. A member who is not the organizer, and anyone outside the trip, cannot add members.
 
-Suggestions use the same temporary in-memory approach behind `SuggestionStore`. A member can add a suggestion with one category — lodging, activity, place to visit, or restaurant — a name, and optional description, address, and link. Members of that trip can see the suggestion and its author. Someone outside the trip cannot create or list suggestions. Restarting the process drops suggestions along with trips and accounts.
+Suggestions use the same temporary in-memory approach behind `SuggestionStore`. A member can add a suggestion with one category — lodging, activity, place to visit, or restaurant — a name, and optional description, address, and link. Members of that trip can see the suggestion and its author. Someone outside the trip cannot create or list suggestions. The author can edit those fields or remove the suggestion after confirming. A removed suggestion leaves the suggestion list and its vote totals. Editing or removing it does not add or remove an itinerary item. Restarting the process drops suggestions along with trips and accounts.
 
 A member can vote Yes, Maybe, or No on a suggestion. Each member has one current vote and can change it. Totals count each member once and are visible to trip members. Voting does not create an itinerary item. Someone outside the trip cannot vote or read totals. Restarting the process drops votes too.
 

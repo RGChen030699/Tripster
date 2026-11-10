@@ -36,7 +36,7 @@ export default async function SuggestionsPage({ params }: { params: Promise<{ id
         <p className="mt-3 text-lg">{trip.trip.name}</p>
       </div>
       <SuggestionForm tripId={id} />
-      <SuggestionList tripId={id} suggestions={listed.suggestions} />
+      <SuggestionList tripId={id} viewerEmail={session.user.email} suggestions={listed.suggestions} />
       <Link
         href={`/trips/${id}`}
         className="font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"

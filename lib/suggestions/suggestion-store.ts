@@ -8,17 +8,24 @@ export class InMemorySuggestionStore implements SuggestionStore {
   }
 
   async update(suggestion: StoredSuggestion): Promise<void> {
-    void suggestion;
+    if (!this.suggestions.has(suggestion.id)) {
+      return;
+    }
+    this.suggestions.set(suggestion.id, cloneSuggestion(suggestion));
   }
 
   async remove(id: string): Promise<void> {
-    void id;
+    const existing = this.suggestions.get(id);
+    if (!existing) {
+      return;
+    }
+    this.suggestions.set(id, cloneSuggestion({ ...existing, removed: true }));
   }
 
   async listByTrip(tripId: string): Promise<StoredSuggestion[]> {
     const listed: StoredSuggestion[] = [];
     for (const suggestion of this.suggestions.values()) {
-      if (suggestion.tripId === tripId) {
+      if (suggestion.tripId === tripId && suggestion.removed !== true) {
         listed.push(cloneSuggestion(suggestion));
       }
     }
