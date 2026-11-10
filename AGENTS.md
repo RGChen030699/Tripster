@@ -59,7 +59,7 @@ The app follows the Next.js App Router layout:
 - `lib/auth/` — account validation, password hashing, the user and session store interfaces, and the auth service.
 - `lib/trips/` — trip validation, the trip store, and trip membership rules.
 - `lib/suggestions/` — suggestion validation, the suggestion store, votes, and member-only suggestion rules.
-- `lib/itinerary/` — the itinerary store. A vote does not create an item.
+- `lib/itinerary/` — the itinerary store. An explicit Add creates one linked item. A vote does not.
 - Colocated `*.test.ts` / `*.test.tsx` files — Vitest and React Testing Library.
 
 `features/itinerary/`, `features/expenses/`, `prisma/`, and `e2e/` are not part of the account, trip-setup, or suggestion issues. Keep business rules in `lib/auth`, `lib/trips`, and `lib/suggestions`, not in page components. Check authentication and trip membership on the server and validate input at the API boundary. Keep account storage behind `UserStore`, trip storage behind `TripStore`, and suggestion storage behind `SuggestionStore`.
@@ -173,6 +173,8 @@ The organizer adds a traveler by the email address of an existing account. An un
 
 Suggestions use the same temporary in-memory approach behind `SuggestionStore`. A member can add a suggestion with one category — lodging, activity, place to visit, or restaurant — a name, and optional description, address, and link. Members of that trip can see the suggestion and its author. Someone outside the trip cannot create or list suggestions. Restarting the process drops suggestions along with trips and accounts.
 
-A member can vote Yes, Maybe, or No on a suggestion. Each member has one current vote and can change it. Totals count each member once and are visible to trip members. Voting does not create an itinerary item. The itinerary store stays empty until a member explicitly adds a suggestion. Someone outside the trip cannot vote or read totals. Restarting the process drops votes too.
+A member can vote Yes, Maybe, or No on a suggestion. Each member has one current vote and can change it. Totals count each member once and are visible to trip members. Voting does not create an itinerary item. Someone outside the trip cannot vote or read totals. Restarting the process drops votes too.
+
+A member selects **Add** to put a suggestion on the itinerary. The item keeps the source suggestion id and stays unscheduled; this step has no day or time. Adding the same suggestion again does not create a second item. A Yes vote on a suggestion that was never added still leaves it off the itinerary. Someone outside the trip cannot add or read itinerary items. Restarting the process drops those items too.
 
 For tests, use the repository's configured runner when one exists. If a runtime or TypeScript loader error prevents tests from running, distinguish it from an assertion failure, fix the compatibility issue, rerun the same command, and report the final result only from test output.
