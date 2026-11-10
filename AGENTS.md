@@ -57,9 +57,10 @@ The app follows the Next.js App Router layout:
 - `app/api/` — Route Handlers, request parsing, and response mapping.
 - `components/` — shared presentation components without domain or data-access logic.
 - `lib/auth/` — account validation, password hashing, the user and session store interfaces, and the auth service.
+- `lib/trips/` — trip validation, the trip store, and trip membership rules.
 - Colocated `*.test.ts` / `*.test.tsx` files — Vitest and React Testing Library.
 
-`features/trips/`, `features/suggestions/`, `features/itinerary/`, `features/expenses/`, `prisma/`, and `e2e/` are not part of the account issue. Keep business rules in `lib/auth`, not in page components. Check authentication on the server and validate input at the API boundary. Keep account storage behind `UserStore`.
+`features/suggestions/`, `features/itinerary/`, `features/expenses/`, `prisma/`, and `e2e/` are not part of the account or trip-setup issues. Keep business rules in `lib/auth` and `lib/trips`, not in page components. Check authentication and trip membership on the server and validate input at the API boundary. Keep account storage behind `UserStore` and trip storage behind `TripStore`.
 
 ## Design references and expected interaction
 
@@ -163,5 +164,7 @@ Use the framework already committed to the repository. If none exists, use the p
 ## Current prototype scope: email authentication
 
 For Sprint 1 Issue #1, the account identifier is an email address used as the username, with a temporary in-memory user and session store behind a replaceable interface. Do not introduce a database for this prototype. Accounts and sessions reset when the process restarts; do not describe them as persistent. Hash passwords and keep session tokens out of logs. A later persistence issue can replace the store.
+
+Trips use the same temporary in-memory approach behind `TripStore`. Creating a trip records the creator as the organizer and a member in that same action. Restarting the process drops trips along with accounts. Trip details are available only to members of that trip.
 
 For tests, use the repository's configured runner when one exists. If a runtime or TypeScript loader error prevents tests from running, distinguish it from an assertion failure, fix the compatibility issue, rerun the same command, and report the final result only from test output.
