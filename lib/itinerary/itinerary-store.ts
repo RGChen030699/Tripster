@@ -8,11 +8,14 @@ export class InMemoryItineraryStore implements ItineraryStore {
   }
 
   async update(item: StoredItineraryItem): Promise<void> {
-    void item;
+    if (!this.items.has(item.id)) {
+      return;
+    }
+    this.items.set(item.id, cloneItem(item));
   }
 
   async remove(id: string): Promise<void> {
-    void id;
+    this.items.delete(id);
   }
 
   async findById(id: string): Promise<StoredItineraryItem | null> {
@@ -41,5 +44,14 @@ export class InMemoryItineraryStore implements ItineraryStore {
 }
 
 function cloneItem(item: StoredItineraryItem): StoredItineraryItem {
-  return { id: item.id, tripId: item.tripId, suggestionId: item.suggestionId };
+  const stored: StoredItineraryItem = {
+    id: item.id,
+    tripId: item.tripId,
+    suggestionId: item.suggestionId,
+  };
+  if (item.date) {
+    stored.date = item.date;
+    stored.startTime = item.startTime ?? null;
+  }
+  return stored;
 }

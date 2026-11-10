@@ -34,7 +34,7 @@ export default async function ItineraryPage({ params }: { params: Promise<{ id: 
         <h1 className="text-3xl font-semibold tracking-tight">Itinerary</h1>
         <p className="mt-3 text-lg">{trip.trip.name}</p>
       </div>
-      <ItineraryList items={listed.items} />
+      <ItineraryList tripId={id} items={listed.items} />
       <Link
         href={`/trips/${id}`}
         className="font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
