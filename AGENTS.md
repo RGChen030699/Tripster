@@ -33,10 +33,10 @@ The Scrum board also contains an approved extra feature to edit or remove a sugg
 ### Non-negotiable behavior
 
 - Votes record preferences only. A Yes vote must never add an item to the itinerary.
-- Adding a suggestion to the itinerary requires an explicit **Add** action and should preserve its link to the source suggestion.
+- Adding a suggestion to the itinerary requires an explicit **Add** action and should preserve its link to the source suggestion. A member can then assign that itinerary item to a date inside the trip range and an optional start time. Unscheduled items stay in their own group without a date or time. Any member can change that schedule or remove the itinerary item after confirming; removing it does not remove the suggestion.
 - Suggestions have one of the agreed categories: lodging, activity, place to visit, or restaurant.
 - Trip-scoped information and mutations must be restricted to authenticated trip members on the server.
-- Expense shares use the split rule documented in the issue/PRD. If equal splitting is the agreed first version, handle cents so participant shares total exactly to the expense amount.
+- Expense shares use the split rule documented in the issue/PRD. If equal splitting is the agreed first version, handle cents so participant shares total exactly to the expense amount. Recording an expense stores a positive amount in integer cents, the description, the date, the payer, and the participating members. The default currency is USD. That record does not calculate shares or balances.
 
 ## Stack and architecture
 
@@ -57,9 +57,12 @@ The app follows the Next.js App Router layout:
 - `app/api/` — Route Handlers, request parsing, and response mapping.
 - `components/` — shared presentation components without domain or data-access logic.
 - `lib/auth/` — account validation, password hashing, the user and session store interfaces, and the auth service.
+- `lib/trips/` — trip validation, the trip store, and trip membership rules.
+- `lib/suggestions/` — suggestion validation, the suggestion store, votes, and member-only suggestion rules.
+- `lib/itinerary/` — the itinerary store. An explicit Add creates one linked item. A vote does not.
 - Colocated `*.test.ts` / `*.test.tsx` files — Vitest and React Testing Library.
 
-`features/trips/`, `features/suggestions/`, `features/itinerary/`, `features/expenses/`, `prisma/`, and `e2e/` are not part of the account issue. Keep business rules in `lib/auth`, not in page components. Check authentication on the server and validate input at the API boundary. Keep account storage behind `UserStore`.
+`features/itinerary/`, `features/expenses/`, `prisma/`, and `e2e/` are not part of the account, trip-setup, or suggestion issues. Keep business rules in `lib/auth`, `lib/trips`, and `lib/suggestions`, not in page components. Check authentication and trip membership on the server and validate input at the API boundary. Keep account storage behind `UserStore`, trip storage behind `TripStore`, and suggestion storage behind `SuggestionStore`.
 
 ## Design references and expected interaction
 
@@ -163,5 +166,15 @@ Use the framework already committed to the repository. If none exists, use the p
 ## Current prototype scope: email authentication
 
 For Sprint 1 Issue #1, the account identifier is an email address used as the username, with a temporary in-memory user and session store behind a replaceable interface. Do not introduce a database for this prototype. Accounts and sessions reset when the process restarts; do not describe them as persistent. Hash passwords and keep session tokens out of logs. A later persistence issue can replace the store.
+
+Trips use the same temporary in-memory approach behind `TripStore`. Creating a trip records the creator as the organizer and a member in that same action. Restarting the process drops trips along with accounts. Trip details are available only to members of that trip.
+
+The organizer adds a traveler by the email address of an existing account. An unknown email is a clear error. The same person cannot be added twice. Only the organizer can add members. A member who is not the organizer, and anyone outside the trip, cannot add members.
+
+Suggestions use the same temporary in-memory approach behind `SuggestionStore`. A member can add a suggestion with one category — lodging, activity, place to visit, or restaurant — a name, and optional description, address, and link. Members of that trip can see the suggestion and its author. Someone outside the trip cannot create or list suggestions. The author can edit those fields or remove the suggestion after confirming. A removed suggestion leaves the suggestion list and its vote totals. Editing or removing it does not add or remove an itinerary item. Restarting the process drops suggestions along with trips and accounts.
+
+A member can vote Yes, Maybe, or No on a suggestion. Each member has one current vote and can change it. Totals count each member once and are visible to trip members. Voting does not create an itinerary item. Someone outside the trip cannot vote or read totals. Restarting the process drops votes too.
+
+A member selects **Add** to put a suggestion on the itinerary. The item keeps the source suggestion id and stays unscheduled; this step has no day or time. Adding the same suggestion again does not create a second item. A Yes vote on a suggestion that was never added still leaves it off the itinerary. Someone outside the trip cannot add or read itinerary items. Restarting the process drops those items too.
 
 For tests, use the repository's configured runner when one exists. If a runtime or TypeScript loader error prevents tests from running, distinguish it from an assertion failure, fix the compatibility issue, rerun the same command, and report the final result only from test output.

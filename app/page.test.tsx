@@ -63,5 +63,9 @@ describe("HomePage", () => {
 
     expect(screen.getByText("ada@example.com")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Log out" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Create a trip" })).toHaveAttribute(
+      "href",
+      "/trips/new",
+    );
   });
 });
