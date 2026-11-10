@@ -1,4 +1,4 @@
-import type { SuggestionCategory } from "@/lib/suggestions/types";
+import type { SuggestionCategory, VoteChoice } from "@/lib/suggestions/types";
 
 const NAME_LIMIT = 120;
 const DESCRIPTION_LIMIT = 500;
@@ -57,6 +57,15 @@ export function parseSuggestionInput(input: {
     address: address.value,
     link: link.value,
   };
+}
+
+export function parseVoteChoice(
+  choice: unknown,
+): { ok: true; choice: VoteChoice } | { ok: false; status: 400; error: string } {
+  if (choice === "yes" || choice === "maybe" || choice === "no") {
+    return { ok: true, choice };
+  }
+  return { ok: false, status: 400, error: "Choose Yes, Maybe, or No." };
 }
 
 function isCategory(value: unknown): value is SuggestionCategory {

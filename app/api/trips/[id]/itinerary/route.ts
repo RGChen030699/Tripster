@@ -1,3 +1,7 @@
+import { errorResponse } from "@/lib/auth/http";
+import { getSuggestionService } from "@/lib/suggestions/container";
+import { requireUser } from "@/lib/trips/http";
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -5,7 +9,15 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
-  void request;
-  void context;
-  return Response.json({ error: "Not implemented." }, { status: 501 });
+  const user = await requireUser(request);
+  if (!user.ok) {
+    return user.response;
+  }
+
+  const { id } = await context.params;
+  const result = await getSuggestionService().listItinerary(user.user.id, id);
+  if (!result.ok) {
+    return errorResponse(result.error, result.status);
+  }
+  return Response.json({ items: result.items });
 }

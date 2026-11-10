@@ -1,3 +1,4 @@
+import { VoteControls } from "@/components/vote-controls";
 import type { SuggestionCategory, SuggestionView } from "@/lib/suggestions/types";
 
 const CATEGORY_LABELS: Record<SuggestionCategory, string> = {
@@ -14,7 +15,6 @@ export function SuggestionList({
   tripId: string;
   suggestions: SuggestionView[];
 }) {
-  void tripId;
   if (suggestions.length === 0) {
     return <p className="text-stone-700">No suggestions yet.</p>;
   }
@@ -38,6 +38,12 @@ export function SuggestionList({
               </a>
             </p>
           ) : null}
+          <VoteControls
+            tripId={tripId}
+            suggestionId={suggestion.id}
+            votes={suggestion.votes}
+            myVote={suggestion.myVote}
+          />
         </li>
       ))}
     </ul>

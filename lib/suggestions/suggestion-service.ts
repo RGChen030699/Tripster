@@ -2,18 +2,21 @@ import { randomUUID } from "node:crypto";
 
 import type { Logger, UserStore } from "@/lib/auth/types";
 import type { TripStore } from "@/lib/trips/types";
-import type { ItineraryListResult, ItineraryStore } from "@/lib/itinerary/types";
+import type { ItineraryItemView, ItineraryListResult, ItineraryStore } from "@/lib/itinerary/types";
 import type {
   CreateSuggestionResult,
+  StoredVote,
   SuggestionListResult,
   SuggestionStore,
   SuggestionView,
   VoteResult,
   VoteStore,
+  VoteTotals,
 } from "@/lib/suggestions/types";
-import { parseSuggestionInput } from "@/lib/suggestions/validation";
+import { parseSuggestionInput, parseVoteChoice } from "@/lib/suggestions/validation";
 
 const TRIP_NOT_FOUND = "Trip not found.";
+const SUGGESTION_NOT_FOUND = "Suggestion not found.";
 
 export class SuggestionService {
   private readonly suggestions: SuggestionStore;
@@ -106,6 +109,8 @@ export class SuggestionService {
       if (!author) {
         continue;
       }
+      const recorded = await this.votes.listBySuggestion(suggestion.id);
+      const mine = recorded.find((vote) => vote.userId === userId);
       suggestions.push({
         id: suggestion.id,
         category: suggestion.category,
@@ -114,8 +119,8 @@ export class SuggestionService {
         address: suggestion.address,
         link: suggestion.link,
         authorEmail: author.email,
-        votes: { yes: 0, maybe: 0, no: 0 },
-        myVote: null,
+        votes: countVotes(recorded),
+        myVote: mine?.choice ?? null,
       });
     }
     return { ok: true, suggestions };
@@ -127,18 +132,57 @@ export class SuggestionService {
     suggestionId: string,
     choice: unknown,
   ): Promise<VoteResult> {
-    void userId;
-    void tripId;
-    void suggestionId;
-    void choice;
-    void this.votes;
-    void this.itinerary;
-    return { ok: false, status: 501, error: "Not implemented." };
+    const membership = await this.trips.findMembership(tripId, userId);
+    if (!membership) {
+      return { ok: false, status: 404, error: TRIP_NOT_FOUND };
+    }
+    const suggestion = await this.suggestions.findById(suggestionId);
+    if (!suggestion || suggestion.tripId !== tripId) {
+      return { ok: false, status: 404, error: SUGGESTION_NOT_FOUND };
+    }
+    const parsed = parseVoteChoice(choice);
+    if (!parsed.ok) {
+      return parsed;
+    }
+
+    await this.votes.set({ suggestionId, userId, choice: parsed.choice });
+    this.logger.info("vote recorded");
+    return {
+      ok: true,
+      vote: { choice: parsed.choice },
+      votes: countVotes(await this.votes.listBySuggestion(suggestionId)),
+    };
   }
 
   async listItinerary(userId: string, tripId: string): Promise<ItineraryListResult> {
-    void userId;
-    void tripId;
-    return { ok: false, status: 501, error: "Not implemented." };
+    const membership = await this.trips.findMembership(tripId, userId);
+    if (!membership) {
+      return { ok: false, status: 404, error: TRIP_NOT_FOUND };
+    }
+
+    const stored = await this.itinerary.listByTrip(tripId);
+    const items: ItineraryItemView[] = [];
+    for (const item of stored) {
+      const suggestion = await this.suggestions.findById(item.suggestionId);
+      if (!suggestion || suggestion.tripId !== tripId) {
+        continue;
+      }
+      items.push({
+        id: item.id,
+        suggestionId: item.suggestionId,
+        name: suggestion.name,
+        category: suggestion.category,
+        unscheduled: true,
+      });
+    }
+    return { ok: true, items };
   }
+}
+
+function countVotes(votes: StoredVote[]): VoteTotals {
+  const totals: VoteTotals = { yes: 0, maybe: 0, no: 0 };
+  for (const vote of votes) {
+    totals[vote.choice] += 1;
+  }
+  return totals;
 }
