@@ -29,4 +29,22 @@ describe("InMemoryItineraryStore", () => {
     await expect(second.findBySuggestion("trip-1", "suggestion-1")).resolves.toBeNull();
     await expect(first.findBySuggestion("trip-1", "suggestion-1")).resolves.toEqual(item);
   });
+
+  it("stores a date and optional time, then removes the itinerary item", async () => {
+    const store = new InMemoryItineraryStore();
+    await store.add(item);
+
+    await store.update({ ...item, date: "2026-11-02", startTime: "09:30" });
+
+    await expect(store.findById("item-1")).resolves.toEqual({
+      ...item,
+      date: "2026-11-02",
+      startTime: "09:30",
+    });
+
+    await store.remove("item-1");
+
+    await expect(store.listByTrip("trip-1")).resolves.toEqual([]);
+    await expect(store.findBySuggestion("trip-1", "suggestion-1")).resolves.toBeNull();
+  });
 });

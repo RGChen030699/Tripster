@@ -8,7 +8,14 @@ const CATEGORY_LABELS: Record<SuggestionCategory, string> = {
   restaurant: "Restaurant",
 };
 
-export function ItineraryList({ items }: { items: ItineraryItemView[] }) {
+export function ItineraryList({
+  items,
+  tripId,
+}: {
+  items: ItineraryItemView[];
+  tripId?: string;
+}) {
+  void tripId;
   if (items.length === 0) {
     return <p className="text-stone-700">Nothing is on the itinerary yet.</p>;
   }

@@ -4,6 +4,8 @@ export type StoredItineraryItem = {
   id: string;
   tripId: string;
   suggestionId: string;
+  date?: string;
+  startTime?: string | null;
 };
 
 export type ItineraryItemView = {
@@ -11,8 +13,18 @@ export type ItineraryItemView = {
   suggestionId: string;
   name: string;
   category: SuggestionCategory;
-  unscheduled: true;
+  unscheduled: boolean;
+  date?: string;
+  startTime?: string | null;
 };
+
+export type ScheduleItineraryResult =
+  | { ok: true; item: ItineraryItemView }
+  | { ok: false; status: number; error: string };
+
+export type RemoveItineraryItemResult =
+  | { ok: true }
+  | { ok: false; status: number; error: string };
 
 export type ItineraryListResult =
   | { ok: true; items: ItineraryItemView[] }
@@ -24,6 +36,9 @@ export type AddItineraryResult =
 
 export interface ItineraryStore {
   add(item: StoredItineraryItem): Promise<void>;
+  update(item: StoredItineraryItem): Promise<void>;
+  remove(id: string): Promise<void>;
   listByTrip(tripId: string): Promise<StoredItineraryItem[]>;
+  findById(id: string): Promise<StoredItineraryItem | null>;
   findBySuggestion(tripId: string, suggestionId: string): Promise<StoredItineraryItem | null>;
 }

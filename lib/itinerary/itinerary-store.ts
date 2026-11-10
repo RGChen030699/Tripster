@@ -7,6 +7,19 @@ export class InMemoryItineraryStore implements ItineraryStore {
     this.items.set(item.id, cloneItem(item));
   }
 
+  async update(item: StoredItineraryItem): Promise<void> {
+    void item;
+  }
+
+  async remove(id: string): Promise<void> {
+    void id;
+  }
+
+  async findById(id: string): Promise<StoredItineraryItem | null> {
+    const item = this.items.get(id);
+    return item ? cloneItem(item) : null;
+  }
+
   async listByTrip(tripId: string): Promise<StoredItineraryItem[]> {
     const listed: StoredItineraryItem[] = [];
     for (const item of this.items.values()) {

@@ -7,6 +7,8 @@ import type {
   ItineraryItemView,
   ItineraryListResult,
   ItineraryStore,
+  RemoveItineraryItemResult,
+  ScheduleItineraryResult,
 } from "@/lib/itinerary/types";
 import type {
   CreateSuggestionResult,
@@ -210,6 +212,30 @@ export class SuggestionService {
     await this.itinerary.add(item);
     this.logger.info("itinerary item added");
     return { ok: true, created: true, item: toItineraryView(item, suggestion) };
+  }
+
+  async scheduleItinerary(
+    userId: string,
+    tripId: string,
+    itemId: string,
+    input: { date: unknown; startTime: unknown },
+  ): Promise<ScheduleItineraryResult> {
+    void userId;
+    void tripId;
+    void itemId;
+    void input;
+    return { ok: false, status: 501, error: "Not implemented." };
+  }
+
+  async removeItineraryItem(
+    userId: string,
+    tripId: string,
+    itemId: string,
+  ): Promise<RemoveItineraryItemResult> {
+    void userId;
+    void tripId;
+    void itemId;
+    return { ok: false, status: 501, error: "Not implemented." };
   }
 
   async updateSuggestion(
