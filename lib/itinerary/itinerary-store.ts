@@ -1,6 +1,10 @@
 import type { ItineraryStore, StoredItineraryItem } from "@/lib/itinerary/types";
 
 export class InMemoryItineraryStore implements ItineraryStore {
+  async add(item: StoredItineraryItem): Promise<void> {
+    void item;
+  }
+
   async listByTrip(tripId: string): Promise<StoredItineraryItem[]> {
     void tripId;
     return [];

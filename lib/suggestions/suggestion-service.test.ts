@@ -223,4 +223,87 @@ describe("SuggestionService", () => {
     expect(JSON.stringify(hiddenItinerary)).not.toContain("Pastel");
     expect(JSON.stringify(hiddenItinerary)).not.toContain("Lisbon");
   });
+
+  it("adds a suggestion once and leaves a voted suggestion off the itinerary", async () => {
+    const { service, tripId, messages } = await setup();
+    const addedSuggestion = await service.createSuggestion("user-1", tripId, SUGGESTION);
+    const votedOnly = await service.createSuggestion("user-2", tripId, {
+      category: "activity",
+      name: "Tram 28",
+      description: undefined,
+      address: undefined,
+      link: undefined,
+    });
+    expect(addedSuggestion.ok).toBe(true);
+    expect(votedOnly.ok).toBe(true);
+    if (!addedSuggestion.ok || !votedOnly.ok) {
+      return;
+    }
+
+    const voted = await service.vote("user-1", tripId, votedOnly.suggestion.id, "yes");
+    expect(voted.ok).toBe(true);
+    const beforeAdd = await service.listItinerary("user-2", tripId);
+    expect(beforeAdd).toEqual({ ok: true, items: [] });
+
+    const created = await service.addToItinerary("user-2", tripId, addedSuggestion.suggestion.id);
+    expect(created).toMatchObject({
+      ok: true,
+      created: true,
+      item: {
+        suggestionId: addedSuggestion.suggestion.id,
+        name: "Pastel de nata",
+        category: "restaurant",
+        unscheduled: true,
+      },
+    });
+    if (!created.ok) {
+      return;
+    }
+    expect(created.item).not.toHaveProperty("date");
+    expect(created.item).not.toHaveProperty("time");
+    expect(messages).toContain("itinerary item added");
+    expect(messages.join(" ")).not.toContain("Pastel de nata");
+
+    const again = await service.addToItinerary("user-1", tripId, addedSuggestion.suggestion.id);
+    expect(again).toMatchObject({
+      ok: true,
+      created: false,
+      item: { id: created.item.id, suggestionId: addedSuggestion.suggestion.id },
+    });
+
+    const listed = await service.listItinerary("user-1", tripId);
+    expect(listed).toEqual({
+      ok: true,
+      items: [
+        {
+          id: created.item.id,
+          suggestionId: addedSuggestion.suggestion.id,
+          name: "Pastel de nata",
+          category: "restaurant",
+          unscheduled: true,
+        },
+      ],
+    });
+    if (listed.ok) {
+      expect(listed.items.map((item) => item.suggestionId)).not.toContain(votedOnly.suggestion.id);
+    }
+  });
+
+  it("does not let someone outside the trip add or read the itinerary", async () => {
+    const { service, tripId } = await setup();
+    const created = await service.createSuggestion("user-1", tripId, SUGGESTION);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    const hidden = await service.addToItinerary("someone-else", tripId, created.suggestion.id);
+    expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(hidden)).not.toContain("Pastel");
+    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+
+    const listed = await service.listItinerary("someone-else", tripId);
+    expect(listed).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(listed)).not.toContain("Pastel");
+  });
 });

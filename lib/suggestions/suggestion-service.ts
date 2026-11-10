@@ -2,7 +2,12 @@ import { randomUUID } from "node:crypto";
 
 import type { Logger, UserStore } from "@/lib/auth/types";
 import type { TripStore } from "@/lib/trips/types";
-import type { ItineraryItemView, ItineraryListResult, ItineraryStore } from "@/lib/itinerary/types";
+import type {
+  AddItineraryResult,
+  ItineraryItemView,
+  ItineraryListResult,
+  ItineraryStore,
+} from "@/lib/itinerary/types";
 import type {
   CreateSuggestionResult,
   StoredVote,
@@ -176,6 +181,17 @@ export class SuggestionService {
       });
     }
     return { ok: true, items };
+  }
+
+  async addToItinerary(
+    userId: string,
+    tripId: string,
+    suggestionId: string,
+  ): Promise<AddItineraryResult> {
+    void userId;
+    void tripId;
+    void suggestionId;
+    return { ok: false, status: 501, error: "Not implemented." };
   }
 }
 

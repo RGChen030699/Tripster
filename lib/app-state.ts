@@ -123,11 +123,13 @@ function isSuggestionService(value: unknown): value is SuggestionService {
     listSuggestions?: unknown;
     vote?: unknown;
     listItinerary?: unknown;
+    addToItinerary?: unknown;
   };
   return (
     typeof candidate.createSuggestion === "function" &&
     typeof candidate.listSuggestions === "function" &&
     typeof candidate.vote === "function" &&
-    typeof candidate.listItinerary === "function"
+    typeof candidate.listItinerary === "function" &&
+    typeof candidate.addToItinerary === "function"
   );
 }

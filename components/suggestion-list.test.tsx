@@ -59,6 +59,8 @@ describe("SuggestionList", () => {
     expect(screen.getByText("Yes 1")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Maybe" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("button", { name: "No" })).toHaveAttribute("aria-pressed", "false");
+    const add = screen.getByRole("button", { name: "Add" });
+    expect(screen.getByRole("group", { name: "Vote" }).contains(add)).toBe(false);
   });
 
   it("shows an empty state", () => {
