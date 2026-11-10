@@ -46,6 +46,10 @@ describe("TripDetail", () => {
       "href",
       "/trips/trip-1/itinerary",
     );
+    expect(screen.getByRole("link", { name: "Expenses" })).toHaveAttribute(
+      "href",
+      "/trips/trip-1/expenses",
+    );
   });
 
   it("hides the add-member form from a member who is not the organizer", () => {

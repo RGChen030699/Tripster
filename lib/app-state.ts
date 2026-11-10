@@ -2,6 +2,8 @@ import { AuthService } from "@/lib/auth/auth-service";
 import { createConsoleLogger } from "@/lib/auth/logger";
 import { InMemorySessionStore } from "@/lib/auth/session-store";
 import { InMemoryUserStore } from "@/lib/auth/user-store";
+import { ExpenseService } from "@/lib/expenses/expense-service";
+import { InMemoryExpenseStore } from "@/lib/expenses/expense-store";
 import { InMemoryItineraryStore } from "@/lib/itinerary/itinerary-store";
 import { SuggestionService } from "@/lib/suggestions/suggestion-service";
 import { InMemorySuggestionStore } from "@/lib/suggestions/suggestion-store";
@@ -15,6 +17,7 @@ type AppState = {
   auth: AuthService;
   trips: TripService;
   suggestions: SuggestionService;
+  expenses: ExpenseService;
 };
 
 export function getAuthService(): AuthService {
@@ -27,6 +30,10 @@ export function getTripService(): TripService {
 
 export function getSuggestionService(): SuggestionService {
   return getAppState().suggestions;
+}
+
+export function getExpenseService(): ExpenseService {
+  return getAppState().expenses;
 }
 
 export function resetAppState(): void {
@@ -45,19 +52,20 @@ function getAppState(): AppState {
 
 function createAppState(): AppState {
   const users = new InMemoryUserStore();
-  const trips = new InMemoryTripStore();
+  const tripStore = new InMemoryTripStore();
   const logger = createConsoleLogger();
   return {
     auth: new AuthService(users, new InMemorySessionStore(), logger),
-    trips: new TripService(trips, users, logger),
+    trips: new TripService(tripStore, users, logger),
     suggestions: new SuggestionService(
       new InMemorySuggestionStore(),
       new InMemoryVoteStore(),
       new InMemoryItineraryStore(),
-      trips,
+      tripStore,
       users,
       logger,
     ),
+    expenses: new ExpenseService(new InMemoryExpenseStore(), tripStore, users, logger),
   };
 }
 
@@ -74,8 +82,13 @@ function isAppState(value: unknown): value is AppState {
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  const candidate = value as { auth?: unknown; trips?: unknown; suggestions?: unknown };
-  return isAuthService(candidate.auth) && isTripService(candidate.trips) && isSuggestionService(candidate.suggestions);
+  const candidate = value as { auth?: unknown; trips?: unknown; suggestions?: unknown; expenses?: unknown };
+  return (
+    isAuthService(candidate.auth) &&
+    isTripService(candidate.trips) &&
+    isSuggestionService(candidate.suggestions) &&
+    isExpenseService(candidate.expenses)
+  );
 }
 
 function isAuthService(value: unknown): value is AuthService {
@@ -112,6 +125,14 @@ function isTripService(value: unknown): value is TripService {
     typeof candidate.getTrip === "function" &&
     typeof candidate.addMember === "function"
   );
+}
+
+function isExpenseService(value: unknown): value is ExpenseService {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const candidate = value as { recordExpense?: unknown; listExpenses?: unknown };
+  return typeof candidate.recordExpense === "function" && typeof candidate.listExpenses === "function";
 }
 
 function isSuggestionService(value: unknown): value is SuggestionService {
