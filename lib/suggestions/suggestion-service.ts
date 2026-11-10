@@ -10,8 +10,10 @@ import type {
 } from "@/lib/itinerary/types";
 import type {
   CreateSuggestionResult,
+  RemoveSuggestionResult,
   StoredVote,
   SuggestionListResult,
+  UpdateSuggestionResult,
   SuggestionStore,
   SuggestionView,
   VoteResult,
@@ -206,6 +208,36 @@ export class SuggestionService {
     await this.itinerary.add(item);
     this.logger.info("itinerary item added");
     return { ok: true, created: true, item: toItineraryView(item, suggestion) };
+  }
+
+  async updateSuggestion(
+    userId: string,
+    tripId: string,
+    suggestionId: string,
+    input: {
+      category: unknown;
+      name: unknown;
+      description: unknown;
+      address: unknown;
+      link: unknown;
+    },
+  ): Promise<UpdateSuggestionResult> {
+    void userId;
+    void tripId;
+    void suggestionId;
+    void input;
+    return { ok: false, status: 501, error: "Not implemented." };
+  }
+
+  async removeSuggestion(
+    userId: string,
+    tripId: string,
+    suggestionId: string,
+  ): Promise<RemoveSuggestionResult> {
+    void userId;
+    void tripId;
+    void suggestionId;
+    return { ok: false, status: 501, error: "Not implemented." };
   }
 }
 

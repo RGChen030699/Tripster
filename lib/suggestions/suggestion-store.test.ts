@@ -34,4 +34,22 @@ describe("InMemorySuggestionStore", () => {
     await expect(second.findById(suggestion.id)).resolves.toBeNull();
     await expect(first.findById(suggestion.id)).resolves.toEqual(suggestion);
   });
+
+  it("updates a suggestion and hides a removed one from the trip list", async () => {
+    const store = new InMemorySuggestionStore();
+    await store.create(suggestion);
+
+    await store.update({ ...suggestion, name: "Custard tart", category: "activity" });
+    await expect(store.findById(suggestion.id)).resolves.toMatchObject({
+      name: "Custard tart",
+      category: "activity",
+    });
+
+    await store.remove(suggestion.id);
+    await expect(store.listByTrip("trip-1")).resolves.toEqual([]);
+    await expect(store.findById(suggestion.id)).resolves.toMatchObject({
+      name: "Custard tart",
+      removed: true,
+    });
+  });
 });

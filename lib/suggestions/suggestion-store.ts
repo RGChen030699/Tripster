@@ -7,6 +7,14 @@ export class InMemorySuggestionStore implements SuggestionStore {
     this.suggestions.set(suggestion.id, cloneSuggestion(suggestion));
   }
 
+  async update(suggestion: StoredSuggestion): Promise<void> {
+    void suggestion;
+  }
+
+  async remove(id: string): Promise<void> {
+    void id;
+  }
+
   async listByTrip(tripId: string): Promise<StoredSuggestion[]> {
     const listed: StoredSuggestion[] = [];
     for (const suggestion of this.suggestions.values()) {
@@ -24,7 +32,7 @@ export class InMemorySuggestionStore implements SuggestionStore {
 }
 
 function cloneSuggestion(suggestion: StoredSuggestion): StoredSuggestion {
-  return {
+  const stored: StoredSuggestion = {
     id: suggestion.id,
     tripId: suggestion.tripId,
     authorId: suggestion.authorId,
@@ -34,4 +42,8 @@ function cloneSuggestion(suggestion: StoredSuggestion): StoredSuggestion {
     address: suggestion.address,
     link: suggestion.link,
   };
+  if (suggestion.removed) {
+    stored.removed = true;
+  }
+  return stored;
 }

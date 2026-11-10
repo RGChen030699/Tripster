@@ -306,4 +306,112 @@ describe("SuggestionService", () => {
     expect(listed).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(listed)).not.toContain("Pastel");
   });
+
+  it("lets the author edit a suggestion without adding it to the itinerary", async () => {
+    const { service, tripId, messages } = await setup();
+    const created = await service.createSuggestion("user-1", tripId, SUGGESTION);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    const edited = await service.updateSuggestion("user-1", tripId, created.suggestion.id, {
+      category: "activity",
+      name: "  Tram 28  ",
+      description: "",
+      address: " Lisbon ",
+      link: "https://example.com/tram",
+    });
+    expect(edited).toMatchObject({
+      ok: true,
+      suggestion: {
+        id: created.suggestion.id,
+        category: "activity",
+        name: "Tram 28",
+        description: null,
+        address: "Lisbon",
+        link: "https://example.com/tram",
+        authorEmail: "ada@example.com",
+      },
+    });
+    expect(messages).toContain("suggestion updated");
+    expect(messages.join(" ")).not.toContain("Tram 28");
+
+    await expect(service.listItinerary("user-1", tripId)).resolves.toEqual({ ok: true, items: [] });
+    const listed = await service.listSuggestions("user-2", tripId);
+    expect(listed).toMatchObject({
+      ok: true,
+      suggestions: [{ id: created.suggestion.id, name: "Tram 28", category: "activity" }],
+    });
+  });
+
+  it("lets the author remove a suggestion without removing its itinerary item", async () => {
+    const { service, tripId } = await setup();
+    const kept = await service.createSuggestion("user-1", tripId, {
+      ...SUGGESTION,
+      name: "Hotel",
+      category: "lodging",
+    });
+    const created = await service.createSuggestion("user-1", tripId, SUGGESTION);
+    expect(kept.ok && created.ok).toBe(true);
+    if (!kept.ok || !created.ok) {
+      return;
+    }
+    await service.vote("user-1", tripId, created.suggestion.id, "yes");
+    await service.vote("user-2", tripId, kept.suggestion.id, "no");
+    const added = await service.addToItinerary("user-1", tripId, created.suggestion.id);
+    expect(added.ok).toBe(true);
+    if (!added.ok) {
+      return;
+    }
+
+    const removed = await service.removeSuggestion("user-1", tripId, created.suggestion.id);
+    expect(removed).toEqual({ ok: true });
+
+    const listed = await service.listSuggestions("user-2", tripId);
+    expect(listed).toMatchObject({
+      ok: true,
+      suggestions: [{ id: kept.suggestion.id, votes: { yes: 0, maybe: 0, no: 1 } }],
+    });
+    if (listed.ok) {
+      expect(listed.suggestions.map((item) => item.id)).not.toContain(created.suggestion.id);
+    }
+
+    const itinerary = await service.listItinerary("user-2", tripId);
+    expect(itinerary).toMatchObject({
+      ok: true,
+      items: [{ id: added.item.id, suggestionId: created.suggestion.id, name: "Pastel de nata" }],
+    });
+  });
+
+  it("rejects edits and removals from another member or a non-member", async () => {
+    const { service, tripId } = await setup();
+    const created = await service.createSuggestion("user-1", tripId, SUGGESTION);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    await expect(
+      service.updateSuggestion("user-2", tripId, created.suggestion.id, SUGGESTION),
+    ).resolves.toEqual({
+      ok: false,
+      status: 403,
+      error: "Only the person who suggested this can change it.",
+    });
+    await expect(service.removeSuggestion("user-2", tripId, created.suggestion.id)).resolves.toEqual({
+      ok: false,
+      status: 403,
+      error: "Only the person who suggested this can change it.",
+    });
+
+    const hidden = await service.updateSuggestion("someone-else", tripId, created.suggestion.id, SUGGESTION);
+    expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(hidden)).not.toContain("Pastel");
+    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+
+    const hiddenRemove = await service.removeSuggestion("someone-else", tripId, created.suggestion.id);
+    expect(hiddenRemove).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(hiddenRemove)).not.toContain("Pastel");
+  });
 });

@@ -63,6 +63,18 @@ describe("SuggestionList", () => {
     expect(screen.getByRole("group", { name: "Vote" }).contains(add)).toBe(false);
   });
 
+  it("offers edit and remove only to the author", () => {
+    const { rerender } = render(
+      <SuggestionList tripId="trip-1" viewerEmail="ada@example.com" suggestions={[pastel]} />,
+    );
+    expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove" })).toBeInTheDocument();
+
+    rerender(<SuggestionList tripId="trip-1" viewerEmail="bryce@example.com" suggestions={[pastel]} />);
+    expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Remove" })).not.toBeInTheDocument();
+  });
+
   it("shows an empty state", () => {
     render(<SuggestionList tripId="trip-1" suggestions={[]} />);
 

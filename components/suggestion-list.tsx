@@ -12,10 +12,13 @@ const CATEGORY_LABELS: Record<SuggestionCategory, string> = {
 export function SuggestionList({
   tripId,
   suggestions,
+  viewerEmail,
 }: {
   tripId: string;
   suggestions: SuggestionView[];
+  viewerEmail?: string;
 }) {
+  void viewerEmail;
   if (suggestions.length === 0) {
     return <p className="text-stone-700">No suggestions yet.</p>;
   }

@@ -11,6 +11,7 @@ export type StoredSuggestion = {
   description: string | null;
   address: string | null;
   link: string | null;
+  removed?: boolean;
 };
 
 export type VoteChoice = "yes" | "maybe" | "no";
@@ -49,6 +50,10 @@ export type CreateSuggestionResult = { ok: true; suggestion: SuggestionView } | 
 
 export type SuggestionListResult = { ok: true; suggestions: SuggestionView[] } | SuggestionFailure;
 
+export type UpdateSuggestionResult = { ok: true; suggestion: SuggestionView } | SuggestionFailure;
+
+export type RemoveSuggestionResult = { ok: true } | SuggestionFailure;
+
 export type VoteResult =
   | { ok: true; vote: { choice: VoteChoice }; votes: VoteTotals }
   | SuggestionFailure;
@@ -60,6 +65,8 @@ export interface VoteStore {
 
 export interface SuggestionStore {
   create(suggestion: StoredSuggestion): Promise<void>;
+  update(suggestion: StoredSuggestion): Promise<void>;
+  remove(id: string): Promise<void>;
   listByTrip(tripId: string): Promise<StoredSuggestion[]>;
   findById(id: string): Promise<StoredSuggestion | null>;
 }
