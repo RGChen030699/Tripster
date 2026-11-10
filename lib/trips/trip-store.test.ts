@@ -26,6 +26,24 @@ describe("InMemoryTripStore", () => {
     });
   });
 
+  it("adds a member who can then see the trip", async () => {
+    const store = new InMemoryTripStore();
+
+    await store.createWithOrganizer(trip, "user-1");
+    await store.addMember(trip.id, "user-2");
+
+    await expect(store.findMembership(trip.id, "user-2")).resolves.toEqual({
+      tripId: trip.id,
+      userId: "user-2",
+      role: "member",
+    });
+    await expect(store.listForUser("user-2")).resolves.toEqual([trip]);
+    await expect(store.membersOf(trip.id)).resolves.toEqual([
+      { tripId: trip.id, userId: "user-1", role: "organizer" },
+      { tripId: trip.id, userId: "user-2", role: "member" },
+    ]);
+  });
+
   it("does not share trips across store instances", async () => {
     const first = new InMemoryTripStore();
     const second = new InMemoryTripStore();

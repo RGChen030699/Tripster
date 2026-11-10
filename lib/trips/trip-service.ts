@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import type { Logger, UserStore } from "@/lib/auth/types";
 import type {
+  AddMemberResult,
   CreateTripResult,
   StoredTrip,
   TripDetails,
@@ -81,5 +82,12 @@ export class TripService {
 
     const details: TripDetails = { ...trip, role: membership.role, members };
     return { ok: true, trip: details };
+  }
+
+  async addMember(userId: string, tripId: string, email: unknown): Promise<AddMemberResult> {
+    void userId;
+    void tripId;
+    void email;
+    return { ok: false, status: 501, error: "Not implemented." };
   }
 }

@@ -4,6 +4,11 @@ export class InMemoryTripStore implements TripStore {
   private readonly trips = new Map<string, StoredTrip>();
   private readonly memberships = new Map<string, StoredMembership>();
 
+  async addMember(tripId: string, userId: string): Promise<void> {
+    void tripId;
+    void userId;
+  }
+
   async createWithOrganizer(trip: StoredTrip, organizerId: string): Promise<void> {
     const stored = cloneTrip(trip);
     this.trips.set(stored.id, stored);

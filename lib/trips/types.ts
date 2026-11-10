@@ -44,8 +44,11 @@ export type TripDetailsResult = { ok: true; trip: TripDetails } | TripFailure;
 
 export type TripListResult = { ok: true; trips: TripSummary[] };
 
+export type AddMemberResult = { ok: true; member: TripMemberView } | TripFailure;
+
 export interface TripStore {
   createWithOrganizer(trip: StoredTrip, organizerId: string): Promise<void>;
+  addMember(tripId: string, userId: string): Promise<void>;
   findById(id: string): Promise<StoredTrip | null>;
   listForUser(userId: string): Promise<StoredTrip[]>;
   findMembership(tripId: string, userId: string): Promise<StoredMembership | null>;

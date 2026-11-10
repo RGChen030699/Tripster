@@ -119,4 +119,103 @@ describe("TripService", () => {
     expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hidden)).not.toContain("Lisbon");
   });
+
+  it("lets the organizer add an existing email and that person sees the trip", async () => {
+    const users = new InMemoryUserStore();
+    await users.create({ id: "user-1", email: "ada@example.com", passwordHash: "hashed-secret" });
+    await users.create({ id: "user-2", email: "bryce@example.com", passwordHash: "hashed-secret" });
+    const messages: string[] = [];
+    const service = new TripService(new InMemoryTripStore(), users, {
+      info(message: string) {
+        messages.push(message);
+      },
+      error(message: string) {
+        messages.push(message);
+      },
+    });
+    const created = await service.createTrip("user-1", VALID);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    const added = await service.addMember("user-1", created.trip.id, "  Bryce@Example.com ");
+
+    expect(added).toEqual({
+      ok: true,
+      member: { email: "bryce@example.com", role: "member" },
+    });
+    expect(messages.join(" ")).not.toContain("bryce@example.com");
+    expect(messages).toContain("member added");
+
+    await expect(service.listTrips("user-2")).resolves.toEqual({
+      ok: true,
+      trips: [{ ...created.trip, role: "member" }],
+    });
+    const details = await service.getTrip("user-2", created.trip.id);
+    expect(details).toMatchObject({
+      ok: true,
+      trip: {
+        destination: "Lisbon",
+        role: "member",
+        members: [
+          { email: "ada@example.com", role: "organizer" },
+          { email: "bryce@example.com", role: "member" },
+        ],
+      },
+    });
+  });
+
+  it("rejects an unknown email, a duplicate member, and a non-organizer", async () => {
+    const users = new InMemoryUserStore();
+    await users.create({ id: "user-1", email: "ada@example.com", passwordHash: "hashed-secret" });
+    await users.create({ id: "user-2", email: "bryce@example.com", passwordHash: "hashed-secret" });
+    await users.create({ id: "user-3", email: "cara@example.com", passwordHash: "hashed-secret" });
+    const trips = new InMemoryTripStore();
+    const service = new TripService(trips, users, { info() {}, error() {} });
+    const created = await service.createTrip("user-1", VALID);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+
+    await expect(service.addMember("user-1", created.trip.id, "missing@example.com")).resolves.toEqual({
+      ok: false,
+      status: 404,
+      error: "No account uses that email address.",
+    });
+
+    await expect(service.addMember("user-1", created.trip.id, "not-an-email")).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Enter a valid email address.",
+    });
+
+    const added = await service.addMember("user-1", created.trip.id, "bryce@example.com");
+    expect(added.ok).toBe(true);
+    await expect(service.addMember("user-1", created.trip.id, "bryce@example.com")).resolves.toEqual({
+      ok: false,
+      status: 409,
+      error: "That person is already on this trip.",
+    });
+    await expect(service.addMember("user-1", created.trip.id, "ada@example.com")).resolves.toEqual({
+      ok: false,
+      status: 409,
+      error: "That person is already on this trip.",
+    });
+
+    await trips.addMember(created.trip.id, "user-2");
+    const denied = await service.addMember("user-2", created.trip.id, "cara@example.com");
+    expect(denied).toEqual({
+      ok: false,
+      status: 403,
+      error: "Only the organizer can add members.",
+    });
+    expect(JSON.stringify(denied)).not.toContain("Lisbon");
+
+    const hidden = await service.addMember("someone-else", created.trip.id, "cara@example.com");
+    expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+    expect(JSON.stringify(hidden)).not.toContain("cara@example.com");
+  });
 });

@@ -32,5 +32,30 @@ describe("TripDetail", () => {
     expect(screen.getByText("2026-11-01 to 2026-11-05")).toBeInTheDocument();
     expect(screen.getByText("ada@example.com")).toBeInTheDocument();
     expect(screen.getByText("Organizer")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add member" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+  });
+
+  it("hides the add-member form from a member who is not the organizer", () => {
+    render(
+      <TripDetail
+        trip={{
+          id: "trip-1",
+          name: "Lisbon week",
+          destination: "Lisbon",
+          startDate: "2026-11-01",
+          endDate: "2026-11-05",
+          role: "member",
+          members: [
+            { email: "ada@example.com", role: "organizer" },
+            { email: "bryce@example.com", role: "member" },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("bryce@example.com")).toBeInTheDocument();
+    expect(screen.getByText("Member")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Add member" })).not.toBeInTheDocument();
   });
 });
