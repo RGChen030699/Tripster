@@ -38,6 +38,10 @@ describe("TripDetail", () => {
     expect(screen.getByText("Organizer")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add member" })).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Suggestions" })).toHaveAttribute(
+      "href",
+      "/trips/trip-1/suggestions",
+    );
   });
 
   it("hides the add-member form from a member who is not the organizer", () => {

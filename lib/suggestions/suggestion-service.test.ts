@@ -1,0 +1,145 @@
+import { describe, expect, it } from "vitest";
+
+import { InMemoryUserStore } from "@/lib/auth/user-store";
+import { SuggestionService } from "@/lib/suggestions/suggestion-service";
+import { InMemorySuggestionStore } from "@/lib/suggestions/suggestion-store";
+import { TripService } from "@/lib/trips/trip-service";
+import { InMemoryTripStore } from "@/lib/trips/trip-store";
+
+const TRIP = {
+  name: "Lisbon week",
+  destination: "Lisbon",
+  startDate: "2026-11-01",
+  endDate: "2026-11-05",
+};
+
+const SUGGESTION = {
+  category: "restaurant",
+  name: "  Pastel de nata  ",
+  description: " A bakery stop ",
+  address: " Rua da Prata ",
+  link: " https://example.com/nata ",
+};
+
+async function setup() {
+  const users = new InMemoryUserStore();
+  await users.create({ id: "user-1", email: "ada@example.com", passwordHash: "hashed-secret" });
+  await users.create({ id: "user-2", email: "bryce@example.com", passwordHash: "hashed-secret" });
+  const trips = new InMemoryTripStore();
+  const tripService = new TripService(trips, users, { info() {}, error() {} });
+  const created = await tripService.createTrip("user-1", TRIP);
+  if (!created.ok) {
+    throw new Error("trip setup failed");
+  }
+  await tripService.addMember("user-1", created.trip.id, "bryce@example.com");
+  const messages: string[] = [];
+  const service = new SuggestionService(new InMemorySuggestionStore(), trips, users, {
+    info(message: string) {
+      messages.push(message);
+    },
+    error(message: string) {
+      messages.push(message);
+    },
+  });
+  return { service, tripId: created.trip.id, messages };
+}
+
+describe("SuggestionService", () => {
+  it("lets a member add a categorized suggestion that other members can see", async () => {
+    const { service, tripId, messages } = await setup();
+
+    const created = await service.createSuggestion("user-1", tripId, SUGGESTION);
+
+    expect(created).toMatchObject({
+      ok: true,
+      suggestion: {
+        category: "restaurant",
+        name: "Pastel de nata",
+        description: "A bakery stop",
+        address: "Rua da Prata",
+        link: "https://example.com/nata",
+        authorEmail: "ada@example.com",
+      },
+    });
+    expect(messages.join(" ")).not.toContain("Pastel de nata");
+    expect(messages).toContain("suggestion created");
+    if (!created.ok) {
+      return;
+    }
+
+    const listed = await service.listSuggestions("user-2", tripId);
+    expect(listed).toMatchObject({
+      ok: true,
+      suggestions: [created.suggestion],
+    });
+  });
+
+  it("accepts each category and stores omitted details as empty", async () => {
+    const { service, tripId } = await setup();
+
+    for (const category of ["lodging", "activity", "place", "restaurant"] as const) {
+      const created = await service.createSuggestion("user-1", tripId, {
+        category,
+        name: category,
+        description: "   ",
+        address: undefined,
+        link: "",
+      });
+      expect(created).toMatchObject({
+        ok: true,
+        suggestion: {
+          category,
+          name: category,
+          description: null,
+          address: null,
+          link: null,
+          authorEmail: "ada@example.com",
+        },
+      });
+    }
+  });
+
+  it("rejects a missing name, an unknown category, and a bad link", async () => {
+    const { service, tripId } = await setup();
+
+    await expect(
+      service.createSuggestion("user-1", tripId, { ...SUGGESTION, name: "  " }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Enter a suggestion name.",
+    });
+
+    await expect(
+      service.createSuggestion("user-1", tripId, { ...SUGGESTION, category: "hotel" }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Choose a category: lodging, activity, place to visit, or restaurant.",
+    });
+
+    await expect(
+      service.createSuggestion("user-1", tripId, { ...SUGGESTION, link: "notaurl" }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Enter a valid link.",
+    });
+  });
+
+  it("hides suggestions from someone who is not a member", async () => {
+    const { service, tripId } = await setup();
+    const created = await service.createSuggestion("user-1", tripId, SUGGESTION);
+    expect(created.ok).toBe(true);
+
+    const hiddenCreate = await service.createSuggestion("someone-else", tripId, SUGGESTION);
+    expect(hiddenCreate).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(hiddenCreate)).not.toContain("Pastel");
+    expect(JSON.stringify(hiddenCreate)).not.toContain("Lisbon");
+
+    const hiddenList = await service.listSuggestions("someone-else", tripId);
+    expect(hiddenList).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(hiddenList)).not.toContain("Pastel");
+    expect(JSON.stringify(hiddenList)).not.toContain("Lisbon");
+  });
+});
