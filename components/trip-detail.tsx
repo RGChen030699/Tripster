@@ -1,5 +1,10 @@
+import Link from "next/link";
+
 import { AddMemberForm } from "@/components/add-member-form";
 import type { TripDetails } from "@/lib/trips/types";
+
+const sectionLinkClassName =
+  "font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
 
 export function TripDetail({ trip }: { trip: TripDetails }) {
   return (
@@ -11,6 +16,11 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
           {trip.startDate} to {trip.endDate}
         </p>
       </div>
+      <nav aria-label="Trip sections" className="flex flex-wrap gap-4">
+        <Link href={`/trips/${trip.id}/suggestions`} className={sectionLinkClassName}>
+          Suggestions
+        </Link>
+      </nav>
       <section aria-labelledby="members-heading">
         <h2 id="members-heading" className="text-lg font-semibold">
           Members

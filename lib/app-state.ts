@@ -2,6 +2,8 @@ import { AuthService } from "@/lib/auth/auth-service";
 import { createConsoleLogger } from "@/lib/auth/logger";
 import { InMemorySessionStore } from "@/lib/auth/session-store";
 import { InMemoryUserStore } from "@/lib/auth/user-store";
+import { SuggestionService } from "@/lib/suggestions/suggestion-service";
+import { InMemorySuggestionStore } from "@/lib/suggestions/suggestion-store";
 import { TripService } from "@/lib/trips/trip-service";
 import { InMemoryTripStore } from "@/lib/trips/trip-store";
 
@@ -10,6 +12,7 @@ const APP_STATE_KEY = "__tripsterAppState";
 type AppState = {
   auth: AuthService;
   trips: TripService;
+  suggestions: SuggestionService;
 };
 
 export function getAuthService(): AuthService {
@@ -18,6 +21,10 @@ export function getAuthService(): AuthService {
 
 export function getTripService(): TripService {
   return getAppState().trips;
+}
+
+export function getSuggestionService(): SuggestionService {
+  return getAppState().suggestions;
 }
 
 export function resetAppState(): void {
@@ -36,10 +43,12 @@ function getAppState(): AppState {
 
 function createAppState(): AppState {
   const users = new InMemoryUserStore();
+  const trips = new InMemoryTripStore();
   const logger = createConsoleLogger();
   return {
     auth: new AuthService(users, new InMemorySessionStore(), logger),
-    trips: new TripService(new InMemoryTripStore(), users, logger),
+    trips: new TripService(trips, users, logger),
+    suggestions: new SuggestionService(new InMemorySuggestionStore(), trips, users, logger),
   };
 }
 
@@ -56,8 +65,8 @@ function isAppState(value: unknown): value is AppState {
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  const candidate = value as { auth?: unknown; trips?: unknown };
-  return isAuthService(candidate.auth) && isTripService(candidate.trips);
+  const candidate = value as { auth?: unknown; trips?: unknown; suggestions?: unknown };
+  return isAuthService(candidate.auth) && isTripService(candidate.trips) && isSuggestionService(candidate.suggestions);
 }
 
 function isAuthService(value: unknown): value is AuthService {
@@ -94,4 +103,12 @@ function isTripService(value: unknown): value is TripService {
     typeof candidate.getTrip === "function" &&
     typeof candidate.addMember === "function"
   );
+}
+
+function isSuggestionService(value: unknown): value is SuggestionService {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const candidate = value as { createSuggestion?: unknown; listSuggestions?: unknown };
+  return typeof candidate.createSuggestion === "function" && typeof candidate.listSuggestions === "function";
 }

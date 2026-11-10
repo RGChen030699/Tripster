@@ -1,5 +1,1 @@
-export function getSuggestionService(): never {
-  throw new Error("Not implemented.");
-}
-
-export function resetSuggestionService(): void {}
+export { getSuggestionService, resetAppState as resetSuggestionService } from "@/lib/app-state";
