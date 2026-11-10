@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { LogoutButton } from "@/components/logout-button";
+import type { TripSummary } from "@/lib/trips/types";
 
 const primaryLinkClassName =
   "inline-flex rounded-md bg-teal-800 px-4 py-2 font-medium text-white outline-none hover:bg-teal-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
@@ -8,7 +9,12 @@ const primaryLinkClassName =
 const secondaryLinkClassName =
   "inline-flex rounded-md border border-stone-300 bg-white px-4 py-2 font-medium text-stone-900 outline-none hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
 
-export function AccountHome({ email }: { email: string | null }) {
+export function AccountHome({
+  email,
+}: {
+  email: string | null;
+  trips?: TripSummary[];
+}) {
   return (
     <main className="mx-auto flex max-w-lg flex-col gap-6 px-6 py-16">
       <div>
