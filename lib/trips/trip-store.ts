@@ -5,8 +5,11 @@ export class InMemoryTripStore implements TripStore {
   private readonly memberships = new Map<string, StoredMembership>();
 
   async addMember(tripId: string, userId: string): Promise<void> {
-    void tripId;
-    void userId;
+    const key = membershipKey(tripId, userId);
+    if (this.memberships.has(key)) {
+      return;
+    }
+    this.memberships.set(key, { tripId, userId, role: "member" });
   }
 
   async createWithOrganizer(trip: StoredTrip, organizerId: string): Promise<void> {

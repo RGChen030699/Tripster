@@ -82,10 +82,16 @@ function isTripService(value: unknown): value is TripService {
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  const candidate = value as { createTrip?: unknown; listTrips?: unknown; getTrip?: unknown };
+  const candidate = value as {
+    createTrip?: unknown;
+    listTrips?: unknown;
+    getTrip?: unknown;
+    addMember?: unknown;
+  };
   return (
     typeof candidate.createTrip === "function" &&
     typeof candidate.listTrips === "function" &&
-    typeof candidate.getTrip === "function"
+    typeof candidate.getTrip === "function" &&
+    typeof candidate.addMember === "function"
   );
 }

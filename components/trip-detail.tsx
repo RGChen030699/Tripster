@@ -1,3 +1,4 @@
+import { AddMemberForm } from "@/components/add-member-form";
 import type { TripDetails } from "@/lib/trips/types";
 
 export function TripDetail({ trip }: { trip: TripDetails }) {
@@ -24,6 +25,7 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
             </li>
           ))}
         </ul>
+        {trip.role === "organizer" ? <AddMemberForm tripId={trip.id} /> : null}
       </section>
     </article>
   );

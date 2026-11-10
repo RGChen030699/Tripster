@@ -1,5 +1,23 @@
+import { z } from "zod";
+
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const MAX_TEXT_LENGTH = 120;
+const emailSchema = z.string().email().max(254);
+
+export type ParsedMemberEmail =
+  | { ok: true; email: string }
+  | { ok: false; status: 400; error: string };
+
+export function parseMemberEmail(email: unknown): ParsedMemberEmail {
+  if (typeof email !== "string") {
+    return { ok: false, status: 400, error: "Enter a valid email address." };
+  }
+  const normalized = email.trim().toLowerCase();
+  if (!emailSchema.safeParse(normalized).success) {
+    return { ok: false, status: 400, error: "Enter a valid email address." };
+  }
+  return { ok: true, email: normalized };
+}
 
 export type ParsedTrip =
   | {

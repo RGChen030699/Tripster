@@ -11,6 +11,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => {} }),
+}));
+
 describe("TripDetail", () => {
   it("shows the trip dates, destination, and organizer", () => {
     render(

@@ -12,9 +12,12 @@ import type {
   TripStore,
   TripSummary,
 } from "@/lib/trips/types";
-import { parseTripInput } from "@/lib/trips/validation";
+import { parseMemberEmail, parseTripInput } from "@/lib/trips/validation";
 
 const TRIP_NOT_FOUND = "Trip not found.";
+const UNKNOWN_EMAIL = "No account uses that email address.";
+const ALREADY_MEMBER = "That person is already on this trip.";
+const ORGANIZER_ONLY = "Only the organizer can add members.";
 
 export class TripService {
   private readonly trips: TripStore;
@@ -85,9 +88,30 @@ export class TripService {
   }
 
   async addMember(userId: string, tripId: string, email: unknown): Promise<AddMemberResult> {
-    void userId;
-    void tripId;
-    void email;
-    return { ok: false, status: 501, error: "Not implemented." };
+    const trip = await this.trips.findById(tripId);
+    const membership = trip ? await this.trips.findMembership(tripId, userId) : null;
+    if (!trip || !membership) {
+      return { ok: false, status: 404, error: TRIP_NOT_FOUND };
+    }
+    if (membership.role !== "organizer") {
+      return { ok: false, status: 403, error: ORGANIZER_ONLY };
+    }
+
+    const parsed = parseMemberEmail(email);
+    if (!parsed.ok) {
+      return parsed;
+    }
+    const user = await this.users.findByEmail(parsed.email);
+    if (!user) {
+      return { ok: false, status: 404, error: UNKNOWN_EMAIL };
+    }
+    const existing = await this.trips.findMembership(tripId, user.id);
+    if (existing) {
+      return { ok: false, status: 409, error: ALREADY_MEMBER };
+    }
+
+    await this.trips.addMember(tripId, user.id);
+    this.logger.info("member added");
+    return { ok: true, member: { email: user.email, role: "member" } };
   }
 }
