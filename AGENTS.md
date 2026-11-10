@@ -167,4 +167,6 @@ For Sprint 1 Issue #1, the account identifier is an email address used as the us
 
 Trips use the same temporary in-memory approach behind `TripStore`. Creating a trip records the creator as the organizer and a member in that same action. Restarting the process drops trips along with accounts. Trip details are available only to members of that trip.
 
+The organizer adds a traveler by the email address of an existing account. An unknown email is a clear error. The same person cannot be added twice. Only the organizer can add members. A member who is not the organizer, and anyone outside the trip, cannot add members.
+
 For tests, use the repository's configured runner when one exists. If a runtime or TypeScript loader error prevents tests from running, distinguish it from an assertion failure, fix the compatibility issue, rerun the same command, and report the final result only from test output.
