@@ -58,9 +58,10 @@ The app follows the Next.js App Router layout:
 - `components/` — shared presentation components without domain or data-access logic.
 - `lib/auth/` — account validation, password hashing, the user and session store interfaces, and the auth service.
 - `lib/trips/` — trip validation, the trip store, and trip membership rules.
+- `lib/suggestions/` — suggestion validation, the suggestion store, and member-only suggestion rules.
 - Colocated `*.test.ts` / `*.test.tsx` files — Vitest and React Testing Library.
 
-`features/suggestions/`, `features/itinerary/`, `features/expenses/`, `prisma/`, and `e2e/` are not part of the account or trip-setup issues. Keep business rules in `lib/auth` and `lib/trips`, not in page components. Check authentication and trip membership on the server and validate input at the API boundary. Keep account storage behind `UserStore` and trip storage behind `TripStore`.
+`features/itinerary/`, `features/expenses/`, `prisma/`, and `e2e/` are not part of the account, trip-setup, or suggestion issues. Keep business rules in `lib/auth`, `lib/trips`, and `lib/suggestions`, not in page components. Check authentication and trip membership on the server and validate input at the API boundary. Keep account storage behind `UserStore`, trip storage behind `TripStore`, and suggestion storage behind `SuggestionStore`.
 
 ## Design references and expected interaction
 
@@ -168,5 +169,7 @@ For Sprint 1 Issue #1, the account identifier is an email address used as the us
 Trips use the same temporary in-memory approach behind `TripStore`. Creating a trip records the creator as the organizer and a member in that same action. Restarting the process drops trips along with accounts. Trip details are available only to members of that trip.
 
 The organizer adds a traveler by the email address of an existing account. An unknown email is a clear error. The same person cannot be added twice. Only the organizer can add members. A member who is not the organizer, and anyone outside the trip, cannot add members.
+
+Suggestions use the same temporary in-memory approach behind `SuggestionStore`. A member can add a suggestion with one category — lodging, activity, place to visit, or restaurant — a name, and optional description, address, and link. Members of that trip can see the suggestion and its author. Someone outside the trip cannot create or list suggestions. Restarting the process drops suggestions along with trips and accounts.
 
 For tests, use the repository's configured runner when one exists. If a runtime or TypeScript loader error prevents tests from running, distinguish it from an assertion failure, fix the compatibility issue, rerun the same command, and report the final result only from test output.
