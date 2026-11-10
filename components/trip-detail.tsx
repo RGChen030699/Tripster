@@ -20,6 +20,9 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
         <Link href={`/trips/${trip.id}/suggestions`} className={sectionLinkClassName}>
           Suggestions
         </Link>
+        <Link href={`/trips/${trip.id}/itinerary`} className={sectionLinkClassName}>
+          Itinerary
+        </Link>
       </nav>
       <section aria-labelledby="members-heading">
         <h2 id="members-heading" className="text-lg font-semibold">

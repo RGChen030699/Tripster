@@ -188,11 +188,38 @@ export class SuggestionService {
     tripId: string,
     suggestionId: string,
   ): Promise<AddItineraryResult> {
-    void userId;
-    void tripId;
-    void suggestionId;
-    return { ok: false, status: 501, error: "Not implemented." };
+    const membership = await this.trips.findMembership(tripId, userId);
+    if (!membership) {
+      return { ok: false, status: 404, error: TRIP_NOT_FOUND };
+    }
+    const suggestion = await this.suggestions.findById(suggestionId);
+    if (!suggestion || suggestion.tripId !== tripId) {
+      return { ok: false, status: 404, error: SUGGESTION_NOT_FOUND };
+    }
+
+    const existing = await this.itinerary.findBySuggestion(tripId, suggestionId);
+    if (existing) {
+      return { ok: true, created: false, item: toItineraryView(existing, suggestion) };
+    }
+
+    const item = { id: randomUUID(), tripId, suggestionId };
+    await this.itinerary.add(item);
+    this.logger.info("itinerary item added");
+    return { ok: true, created: true, item: toItineraryView(item, suggestion) };
   }
+}
+
+function toItineraryView(
+  item: { id: string; suggestionId: string },
+  suggestion: { name: string; category: ItineraryItemView["category"] },
+): ItineraryItemView {
+  return {
+    id: item.id,
+    suggestionId: item.suggestionId,
+    name: suggestion.name,
+    category: suggestion.category,
+    unscheduled: true,
+  };
 }
 
 function countVotes(votes: StoredVote[]): VoteTotals {

@@ -1,3 +1,4 @@
+import { AddToItineraryButton } from "@/components/add-to-itinerary-button";
 import { VoteControls } from "@/components/vote-controls";
 import type { SuggestionCategory, SuggestionView } from "@/lib/suggestions/types";
 
@@ -44,6 +45,7 @@ export function SuggestionList({
             votes={suggestion.votes}
             myVote={suggestion.myVote}
           />
+          <AddToItineraryButton tripId={tripId} suggestionId={suggestion.id} />
         </li>
       ))}
     </ul>
