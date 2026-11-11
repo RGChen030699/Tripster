@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { Logger, UserStore } from "@/lib/auth/types";
 import type {
   ExpenseFailure,
+  BalanceListResult,
   ExpenseListResult,
   ExpenseStore,
   ExpenseView,
@@ -94,6 +95,12 @@ export class ExpenseService {
       }
     }
     return { ok: true, expenses };
+  }
+
+  async listBalances(userId: string, tripId: string): Promise<BalanceListResult> {
+    void userId;
+    void tripId;
+    return { ok: false, status: 501, error: "Not implemented." };
   }
 
   private async memberId(tripId: string, email: string): Promise<string | null> {

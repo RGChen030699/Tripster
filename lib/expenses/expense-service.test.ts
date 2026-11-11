@@ -146,4 +146,62 @@ describe("ExpenseService", () => {
     expect(JSON.stringify(hiddenList)).not.toContain("Taxi");
     expect(JSON.stringify(hiddenList)).not.toContain("Lisbon");
   });
+
+  it("shows paid, share, and net balance when a payer is not a participant", async () => {
+    const users = new InMemoryUserStore();
+    await users.create({ id: "user-1", email: "ada@example.com", passwordHash: "hashed-secret" });
+    await users.create({ id: "user-2", email: "bryce@example.com", passwordHash: "hashed-secret" });
+    await users.create({ id: "user-3", email: "cara@example.com", passwordHash: "hashed-secret" });
+    const trips = new InMemoryTripStore();
+    const tripService = new TripService(trips, users, { info() {}, error() {} });
+    const created = await tripService.createTrip("user-1", TRIP);
+    if (!created.ok) {
+      throw new Error("trip setup failed");
+    }
+    await tripService.addMember("user-1", created.trip.id, "bryce@example.com");
+    await tripService.addMember("user-1", created.trip.id, "cara@example.com");
+    const service = new ExpenseService(new InMemoryExpenseStore(), trips, users, {
+      info() {},
+      error() {},
+    });
+    const tripId = created.trip.id;
+
+    const taxi = await service.recordExpense("user-1", tripId, {
+      amount: "1.00",
+      description: "Taxi",
+      date: "2026-11-02",
+      payerEmail: "ada@example.com",
+      participantEmails: ["bryce@example.com", "cara@example.com"],
+    });
+    expect(taxi.ok).toBe(true);
+    if (taxi.ok) {
+      expect(taxi.expense).not.toHaveProperty("shares");
+    }
+    await service.recordExpense("user-3", tripId, {
+      amount: "0.01",
+      description: "Tip",
+      date: "2026-11-02",
+      payerEmail: "cara@example.com",
+      participantEmails: ["ada@example.com", "bryce@example.com", "cara@example.com"],
+    });
+
+    const balances = await service.listBalances("user-2", tripId);
+    expect(balances).toEqual({
+      ok: true,
+      balances: [
+        { email: "ada@example.com", paidCents: 100, shareCents: 1, balanceCents: 99 },
+        { email: "bryce@example.com", paidCents: 0, shareCents: 50, balanceCents: -50 },
+        { email: "cara@example.com", paidCents: 1, shareCents: 50, balanceCents: -49 },
+      ],
+    });
+    if (balances.ok) {
+      expect(balances.balances.reduce((sum, balance) => sum + balance.shareCents, 0)).toBe(101);
+      expect(balances.balances.reduce((sum, balance) => sum + balance.balanceCents, 0)).toBe(0);
+    }
+
+    const hidden = await service.listBalances("someone-else", tripId);
+    expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
+    expect(JSON.stringify(hidden)).not.toContain("Taxi");
+    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+  });
 });

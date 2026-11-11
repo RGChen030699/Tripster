@@ -131,8 +131,12 @@ function isExpenseService(value: unknown): value is ExpenseService {
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  const candidate = value as { recordExpense?: unknown; listExpenses?: unknown };
-  return typeof candidate.recordExpense === "function" && typeof candidate.listExpenses === "function";
+  const candidate = value as { recordExpense?: unknown; listExpenses?: unknown; listBalances?: unknown };
+  return (
+    typeof candidate.recordExpense === "function" &&
+    typeof candidate.listExpenses === "function" &&
+    typeof candidate.listBalances === "function"
+  );
 }
 
 function isSuggestionService(value: unknown): value is SuggestionService {

@@ -27,6 +27,15 @@ export type RecordExpenseResult = { ok: true; expense: ExpenseView } | ExpenseFa
 
 export type ExpenseListResult = { ok: true; expenses: ExpenseView[] } | ExpenseFailure;
 
+export type MemberBalance = {
+  email: string;
+  paidCents: number;
+  shareCents: number;
+  balanceCents: number;
+};
+
+export type BalanceListResult = { ok: true; balances: MemberBalance[] } | ExpenseFailure;
+
 export type ExpenseFailure = {
   ok: false;
   status: number;
