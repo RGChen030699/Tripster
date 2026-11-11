@@ -46,6 +46,7 @@ Versions below are the ones resolved in `package-lock.json` for this repository.
 - Backend: Next.js App Router and Route Handlers with JSON APIs.
 - Validation: Zod 3.25.76 at API boundaries.
 - Unit/component tests: Vitest 5.1.0 and React Testing Library 16.3.3.
+- API documentation: OpenAPI 3.1 at `openapi/tripster.openapi.json`, served by `GET /api/openapi` outside production.
 - End-to-end tests: Playwright is not installed yet. Add it when the trip-planning journey exists.
 - PostgreSQL, Prisma, and Auth.js are not installed. Issue #1 keeps accounts and sessions in memory.
 
@@ -57,6 +58,7 @@ The app follows the Next.js App Router layout:
 - `app/api/` — Route Handlers, request parsing, and response mapping.
 - `components/` — shared presentation components without domain or data-access logic.
 - `lib/auth/` — account validation, password hashing, the user and session store interfaces, and the auth service.
+- `openapi/` — the checked-in OpenAPI document for the account, trip, suggestion, vote, itinerary, and expense routes.
 - `lib/trips/` — trip validation, the trip store, and trip membership rules.
 - `lib/suggestions/` — suggestion validation, the suggestion store, votes, and member-only suggestion rules.
 - `lib/itinerary/` — the itinerary store. An explicit Add creates one linked item. A vote does not.
