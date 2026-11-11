@@ -11,6 +11,7 @@ import type {
   StoredExpense,
 } from "@/lib/expenses/types";
 import { DEFAULT_CURRENCY } from "@/lib/expenses/types";
+import { memberBalances } from "@/lib/expenses/split";
 import type { TripStore } from "@/lib/trips/types";
 
 const TRIP_NOT_FOUND = "Trip not found.";
@@ -98,9 +99,31 @@ export class ExpenseService {
   }
 
   async listBalances(userId: string, tripId: string): Promise<BalanceListResult> {
-    void userId;
-    void tripId;
-    return { ok: false, status: 501, error: "Not implemented." };
+    const membership = await this.trips.findMembership(tripId, userId);
+    if (!membership) {
+      return { ok: false, status: 404, error: TRIP_NOT_FOUND };
+    }
+    const members = await this.trips.membersOf(tripId);
+    const emails: string[] = [];
+    for (const member of members) {
+      const user = await this.users.findById(member.userId);
+      if (user) {
+        emails.push(user.email);
+      }
+    }
+    const stored = await this.expenses.listByTrip(tripId);
+    const expenses: { amountCents: number; payerEmail: string; participantEmails: string[] }[] = [];
+    for (const expense of stored) {
+      const view = await this.present(expense);
+      if (view) {
+        expenses.push({
+          amountCents: view.amountCents,
+          payerEmail: view.payerEmail,
+          participantEmails: view.participantEmails,
+        });
+      }
+    }
+    return { ok: true, balances: memberBalances(emails, expenses) };
   }
 
   private async memberId(tripId: string, email: string): Promise<string | null> {

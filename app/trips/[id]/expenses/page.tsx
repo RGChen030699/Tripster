@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 
+import { ExpenseBalances } from "@/components/expense-balances";
 import { ExpenseForm } from "@/components/expense-form";
 import { ExpenseList } from "@/components/expense-list";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/cookies";
@@ -28,6 +29,10 @@ export default async function ExpensesPage({ params }: { params: Promise<{ id: s
   if (!listed.ok) {
     return <MissingTrip />;
   }
+  const balances = await getExpenseService().listBalances(session.user.id, id);
+  if (!balances.ok) {
+    return <MissingTrip />;
+  }
 
   return (
     <main className="mx-auto flex max-w-lg flex-col gap-6 px-6 py-16">
@@ -37,6 +42,7 @@ export default async function ExpensesPage({ params }: { params: Promise<{ id: s
       </div>
       <ExpenseForm tripId={id} members={trip.trip.members} />
       <ExpenseList expenses={listed.expenses} />
+      <ExpenseBalances balances={balances.balances} />
       <Link
         href={`/trips/${id}`}
         className="font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
