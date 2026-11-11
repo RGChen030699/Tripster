@@ -36,7 +36,7 @@ The Scrum board also contains an approved extra feature to edit or remove a sugg
 - Adding a suggestion to the itinerary requires an explicit **Add** action and should preserve its link to the source suggestion. A member can then assign that itinerary item to a date inside the trip range and an optional start time. Unscheduled items stay in their own group without a date or time. Any member can change that schedule or remove the itinerary item after confirming; removing it does not remove the suggestion.
 - Suggestions have one of the agreed categories: lodging, activity, place to visit, or restaurant.
 - Trip-scoped information and mutations must be restricted to authenticated trip members on the server.
-- Expense shares use the split rule documented in the issue/PRD. If equal splitting is the agreed first version, handle cents so participant shares total exactly to the expense amount. Recording an expense stores a positive amount in integer cents, the description, the date, the payer, and the participating members. The default currency is USD. That record does not calculate shares or balances.
+- Expense shares use the split rule documented in the issue/PRD. If equal splitting is the agreed first version, handle cents so participant shares total exactly to the expense amount. Recording an expense stores a positive amount in integer cents, the description, the date, the payer, and the participating members. The default currency is USD. An equal split divides that amount across the selected participants. Leftover cents go to the earliest participants so the shares total the expense exactly. Each member can see total paid, share, and net balance. A positive balance is money the group owes that member.
 
 ## Stack and architecture
 
