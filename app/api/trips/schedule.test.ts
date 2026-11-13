@@ -31,10 +31,10 @@ async function registerUser(email: string): Promise<string> {
 }
 
 describe("itinerary schedule routes", () => {
-  beforeEach(() => {
-    resetAuthService();
-    resetTripService();
-    resetSuggestionService();
+  beforeEach(async () => {
+    await resetAuthService();
+    await resetTripService();
+    await resetSuggestionService();
   });
 
   it("rejects an unauthenticated schedule", async () => {

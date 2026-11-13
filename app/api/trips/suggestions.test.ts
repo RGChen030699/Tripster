@@ -50,10 +50,10 @@ async function createLisbon(cookie: string): Promise<string> {
 }
 
 describe("suggestion routes", () => {
-  beforeEach(() => {
-    resetAuthService();
-    resetTripService();
-    resetSuggestionService();
+  beforeEach(async () => {
+    await resetAuthService();
+    await resetTripService();
+    await resetSuggestionService();
   });
 
   it("rejects an unauthenticated suggestion", async () => {

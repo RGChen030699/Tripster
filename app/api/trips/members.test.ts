@@ -42,9 +42,9 @@ async function createLisbon(cookie: string): Promise<string> {
 }
 
 describe("trip member routes", () => {
-  beforeEach(() => {
-    resetAuthService();
-    resetTripService();
+  beforeEach(async () => {
+    await resetAuthService();
+    await resetTripService();
   });
 
   it("rejects an unauthenticated request to add a member", async () => {

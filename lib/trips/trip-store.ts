@@ -1,4 +1,5 @@
-import type { StoredMembership, StoredTrip, TripStore } from "@/lib/trips/types";
+import { getPrisma } from "@/lib/db";
+import type { StoredMembership, StoredTrip, TripRole, TripStore } from "@/lib/trips/types";
 
 export class InMemoryTripStore implements TripStore {
   private readonly trips = new Map<string, StoredTrip>();
@@ -76,5 +77,88 @@ function cloneMembership(membership: StoredMembership): StoredMembership {
     tripId: membership.tripId,
     userId: membership.userId,
     role: membership.role,
+  };
+}
+
+export class PrismaTripStore implements TripStore {
+  async addMember(tripId: string, userId: string): Promise<void> {
+    const existing = await getPrisma().membership.findUnique({
+      where: { tripId_userId: { tripId, userId } },
+    });
+    if (existing) {
+      return;
+    }
+    await getPrisma().membership.create({ data: { tripId, userId, role: "member" } });
+  }
+
+  async createWithOrganizer(trip: StoredTrip, organizerId: string): Promise<void> {
+    const prisma = getPrisma();
+    await prisma.$transaction(async (tx) => {
+      await tx.trip.create({
+        data: {
+          id: trip.id,
+          name: trip.name,
+          destination: trip.destination,
+          startDate: trip.startDate,
+          endDate: trip.endDate,
+        },
+      });
+      await tx.membership.create({
+        data: { tripId: trip.id, userId: organizerId, role: "organizer" },
+      });
+    });
+  }
+
+  async findById(id: string): Promise<StoredTrip | null> {
+    const trip = await getPrisma().trip.findUnique({ where: { id } });
+    return trip ? toTrip(trip) : null;
+  }
+
+  async listForUser(userId: string): Promise<StoredTrip[]> {
+    const memberships = await getPrisma().membership.findMany({
+      where: { userId },
+      orderBy: { trip: { createdAt: "asc" } },
+      include: { trip: true },
+    });
+    return memberships.map((membership) => toTrip(membership.trip));
+  }
+
+  async findMembership(tripId: string, userId: string): Promise<StoredMembership | null> {
+    const membership = await getPrisma().membership.findUnique({
+      where: { tripId_userId: { tripId, userId } },
+    });
+    return membership ? toMembership(membership) : null;
+  }
+
+  async membersOf(tripId: string): Promise<StoredMembership[]> {
+    const memberships = await getPrisma().membership.findMany({
+      where: { tripId },
+      orderBy: [{ role: "desc" }, { createdAt: "asc" }],
+    });
+    return memberships.map(toMembership);
+  }
+}
+
+function toTrip(trip: {
+  id: string;
+  name: string;
+  destination: string;
+  startDate: string;
+  endDate: string;
+}): StoredTrip {
+  return {
+    id: trip.id,
+    name: trip.name,
+    destination: trip.destination,
+    startDate: trip.startDate,
+    endDate: trip.endDate,
+  };
+}
+
+function toMembership(membership: { tripId: string; userId: string; role: string }): StoredMembership {
+  return {
+    tripId: membership.tripId,
+    userId: membership.userId,
+    role: membership.role as TripRole,
   };
 }

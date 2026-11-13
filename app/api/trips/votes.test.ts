@@ -63,10 +63,10 @@ async function suggest(cookie: string, tripId: string): Promise<string> {
 }
 
 describe("vote routes", () => {
-  beforeEach(() => {
-    resetAuthService();
-    resetTripService();
-    resetSuggestionService();
+  beforeEach(async () => {
+    await resetAuthService();
+    await resetTripService();
+    await resetSuggestionService();
   });
 
   it("rejects an unauthenticated vote", async () => {

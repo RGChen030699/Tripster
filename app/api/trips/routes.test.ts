@@ -28,9 +28,9 @@ async function registerUser(email: string): Promise<string> {
 }
 
 describe("trip routes", () => {
-  beforeEach(() => {
-    resetAuthService();
-    resetTripService();
+  beforeEach(async () => {
+    await resetAuthService();
+    await resetTripService();
   });
 
   it("rejects an unauthenticated create", async () => {

@@ -1,12 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { InMemorySessionStore } from "@/lib/auth/session-store";
+import { InMemorySessionStore, PrismaSessionStore } from "@/lib/auth/session-store";
 import type { StoredSession } from "@/lib/auth/types";
+import { resetDatabase } from "@/lib/db";
+import { seedUser } from "@/lib/testing/parents";
 
 const firstSession: StoredSession = { token: "token-1", userId: "user-1" };
 const secondSession: StoredSession = { token: "token-2", userId: "user-1" };
 
 describe("InMemorySessionStore", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
   it("stores a session until that token is deleted", async () => {
     const store = new InMemorySessionStore();
 
@@ -31,8 +37,9 @@ describe("InMemorySessionStore", () => {
   });
 
   it("keeps a session when a new store instance is created", async () => {
-    const first = new InMemorySessionStore();
-    const second = new InMemorySessionStore();
+    await seedUser(firstSession.userId);
+    const first = new PrismaSessionStore();
+    const second = new PrismaSessionStore();
 
     await first.create(firstSession);
 

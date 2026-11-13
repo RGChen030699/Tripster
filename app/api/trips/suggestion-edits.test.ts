@@ -47,10 +47,10 @@ async function registerUser(email: string): Promise<string> {
 }
 
 describe("suggestion edit routes", () => {
-  beforeEach(() => {
-    resetAuthService();
-    resetTripService();
-    resetSuggestionService();
+  beforeEach(async () => {
+    await resetAuthService();
+    await resetTripService();
+    await resetSuggestionService();
   });
 
   it("rejects an unauthenticated edit", async () => {

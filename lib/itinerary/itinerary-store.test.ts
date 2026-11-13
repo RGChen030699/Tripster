@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { InMemoryItineraryStore } from "@/lib/itinerary/itinerary-store";
+import { resetDatabase } from "@/lib/db";
+import { InMemoryItineraryStore, PrismaItineraryStore } from "@/lib/itinerary/itinerary-store";
 import type { StoredItineraryItem } from "@/lib/itinerary/types";
+import { seedSuggestion, seedTrip, seedUser } from "@/lib/testing/parents";
 
 const item: StoredItineraryItem = {
   id: "item-1",
@@ -10,6 +12,10 @@ const item: StoredItineraryItem = {
 };
 
 describe("InMemoryItineraryStore", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
   it("stores one linked item for a suggestion", async () => {
     const store = new InMemoryItineraryStore();
 
@@ -21,8 +27,11 @@ describe("InMemoryItineraryStore", () => {
   });
 
   it("keeps an itinerary item when a new store instance is created", async () => {
-    const first = new InMemoryItineraryStore();
-    const second = new InMemoryItineraryStore();
+    await seedUser("user-1");
+    await seedTrip(item.tripId);
+    await seedSuggestion(item.suggestionId, item.tripId);
+    const first = new PrismaItineraryStore();
+    const second = new PrismaItineraryStore();
 
     await first.add(item);
 

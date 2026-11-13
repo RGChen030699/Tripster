@@ -28,10 +28,10 @@ async function registerUser(email: string): Promise<string> {
 }
 
 describe("expense routes", () => {
-  beforeEach(() => {
-    resetAuthService();
-    resetTripService();
-    resetExpenseService();
+  beforeEach(async () => {
+    await resetAuthService();
+    await resetTripService();
+    await resetExpenseService();
   });
 
   it("rejects an unauthenticated expense", async () => {

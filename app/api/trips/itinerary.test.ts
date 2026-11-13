@@ -56,10 +56,10 @@ async function suggest(cookie: string, tripId: string, name: string, category: s
 }
 
 describe("itinerary routes", () => {
-  beforeEach(() => {
-    resetAuthService();
-    resetTripService();
-    resetSuggestionService();
+  beforeEach(async () => {
+    await resetAuthService();
+    await resetTripService();
+    await resetSuggestionService();
   });
 
   it("rejects an unauthenticated add", async () => {

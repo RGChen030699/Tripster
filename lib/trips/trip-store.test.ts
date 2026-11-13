@@ -1,6 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { InMemoryTripStore } from "@/lib/trips/trip-store";
+import { resetDatabase } from "@/lib/db";
+import { seedUser } from "@/lib/testing/parents";
+import { InMemoryTripStore, PrismaTripStore } from "@/lib/trips/trip-store";
 import type { StoredTrip } from "@/lib/trips/types";
 
 const trip: StoredTrip = {
@@ -12,6 +14,10 @@ const trip: StoredTrip = {
 };
 
 describe("InMemoryTripStore", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
   it("stores a trip and records the creator as the organizer", async () => {
     const store = new InMemoryTripStore();
 
@@ -45,8 +51,9 @@ describe("InMemoryTripStore", () => {
   });
 
   it("keeps a trip when a new store instance is created", async () => {
-    const first = new InMemoryTripStore();
-    const second = new InMemoryTripStore();
+    await seedUser("user-1");
+    const first = new PrismaTripStore();
+    const second = new PrismaTripStore();
 
     await first.createWithOrganizer(trip, "user-1");
 

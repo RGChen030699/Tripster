@@ -1,8 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { InMemoryVoteStore } from "@/lib/suggestions/vote-store";
+import { resetDatabase } from "@/lib/db";
+import { seedSuggestion, seedTrip, seedUser } from "@/lib/testing/parents";
+import { InMemoryVoteStore, PrismaVoteStore } from "@/lib/suggestions/vote-store";
 
 describe("InMemoryVoteStore", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
   it("keeps one current vote per person and suggestion", async () => {
     const store = new InMemoryVoteStore();
 
@@ -18,8 +24,11 @@ describe("InMemoryVoteStore", () => {
   });
 
   it("keeps a vote when a new store instance is created", async () => {
-    const first = new InMemoryVoteStore();
-    const second = new InMemoryVoteStore();
+    await seedUser("user-1");
+    await seedTrip();
+    await seedSuggestion();
+    const first = new PrismaVoteStore();
+    const second = new PrismaVoteStore();
 
     await first.set({ suggestionId: "suggestion-1", userId: "user-1", choice: "yes" });
 

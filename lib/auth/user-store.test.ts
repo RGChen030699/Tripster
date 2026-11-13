@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type { StoredUser } from "@/lib/auth/types";
-import { DuplicateEmailError, InMemoryUserStore } from "@/lib/auth/user-store";
+import { DuplicateEmailError, InMemoryUserStore, PrismaUserStore } from "@/lib/auth/user-store";
+import { resetDatabase } from "@/lib/db";
 
 const user: StoredUser = {
   id: "user-1",
@@ -10,6 +11,10 @@ const user: StoredUser = {
 };
 
 describe("InMemoryUserStore", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
   it("stores a user and returns that user from the same instance", async () => {
     const store = new InMemoryUserStore();
 
@@ -20,8 +25,8 @@ describe("InMemoryUserStore", () => {
   });
 
   it("keeps a user when a new store instance is created", async () => {
-    const first = new InMemoryUserStore();
-    const second = new InMemoryUserStore();
+    const first = new PrismaUserStore();
+    const second = new PrismaUserStore();
 
     await first.create(user);
 

@@ -1,15 +1,16 @@
 import { AuthService } from "@/lib/auth/auth-service";
 import { createConsoleLogger } from "@/lib/auth/logger";
-import { InMemorySessionStore } from "@/lib/auth/session-store";
-import { InMemoryUserStore } from "@/lib/auth/user-store";
+import { PrismaSessionStore } from "@/lib/auth/session-store";
+import { PrismaUserStore } from "@/lib/auth/user-store";
+import { resetDatabase } from "@/lib/db";
 import { ExpenseService } from "@/lib/expenses/expense-service";
-import { InMemoryExpenseStore } from "@/lib/expenses/expense-store";
-import { InMemoryItineraryStore } from "@/lib/itinerary/itinerary-store";
+import { PrismaExpenseStore } from "@/lib/expenses/expense-store";
+import { PrismaItineraryStore } from "@/lib/itinerary/itinerary-store";
 import { SuggestionService } from "@/lib/suggestions/suggestion-service";
-import { InMemorySuggestionStore } from "@/lib/suggestions/suggestion-store";
-import { InMemoryVoteStore } from "@/lib/suggestions/vote-store";
+import { PrismaSuggestionStore } from "@/lib/suggestions/suggestion-store";
+import { PrismaVoteStore } from "@/lib/suggestions/vote-store";
 import { TripService } from "@/lib/trips/trip-service";
-import { InMemoryTripStore } from "@/lib/trips/trip-store";
+import { PrismaTripStore } from "@/lib/trips/trip-store";
 
 const APP_STATE_KEY = "__tripsterAppState";
 
@@ -36,7 +37,8 @@ export function getExpenseService(): ExpenseService {
   return getAppState().expenses;
 }
 
-export function resetAppState(): void {
+export async function resetAppState(): Promise<void> {
+  await resetDatabase();
   writeAppState(createAppState());
 }
 
@@ -51,21 +53,21 @@ function getAppState(): AppState {
 }
 
 function createAppState(): AppState {
-  const users = new InMemoryUserStore();
-  const tripStore = new InMemoryTripStore();
+  const users = new PrismaUserStore();
+  const tripStore = new PrismaTripStore();
   const logger = createConsoleLogger();
   return {
-    auth: new AuthService(users, new InMemorySessionStore(), logger),
+    auth: new AuthService(users, new PrismaSessionStore(), logger),
     trips: new TripService(tripStore, users, logger),
     suggestions: new SuggestionService(
-      new InMemorySuggestionStore(),
-      new InMemoryVoteStore(),
-      new InMemoryItineraryStore(),
+      new PrismaSuggestionStore(),
+      new PrismaVoteStore(),
+      new PrismaItineraryStore(),
       tripStore,
       users,
       logger,
     ),
-    expenses: new ExpenseService(new InMemoryExpenseStore(), tripStore, users, logger),
+    expenses: new ExpenseService(new PrismaExpenseStore(), tripStore, users, logger),
   };
 }
 

@@ -1,6 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { InMemorySuggestionStore } from "@/lib/suggestions/suggestion-store";
+import { resetDatabase } from "@/lib/db";
+import { seedTrip, seedUser } from "@/lib/testing/parents";
+import { InMemorySuggestionStore, PrismaSuggestionStore } from "@/lib/suggestions/suggestion-store";
 import type { StoredSuggestion } from "@/lib/suggestions/types";
 
 const suggestion: StoredSuggestion = {
@@ -15,6 +17,10 @@ const suggestion: StoredSuggestion = {
 };
 
 describe("InMemorySuggestionStore", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
   it("stores a suggestion for its trip", async () => {
     const store = new InMemorySuggestionStore();
 
@@ -26,8 +32,10 @@ describe("InMemorySuggestionStore", () => {
   });
 
   it("keeps a suggestion when a new store instance is created", async () => {
-    const first = new InMemorySuggestionStore();
-    const second = new InMemorySuggestionStore();
+    await seedUser(suggestion.authorId);
+    await seedTrip(suggestion.tripId);
+    const first = new PrismaSuggestionStore();
+    const second = new PrismaSuggestionStore();
 
     await first.create(suggestion);
 

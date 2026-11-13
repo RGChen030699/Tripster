@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { InMemoryExpenseStore } from "@/lib/expenses/expense-store";
+import { resetDatabase } from "@/lib/db";
+import { InMemoryExpenseStore, PrismaExpenseStore } from "@/lib/expenses/expense-store";
 import type { StoredExpense } from "@/lib/expenses/types";
+import { seedTrip, seedUser } from "@/lib/testing/parents";
 
 const expense: StoredExpense = {
   id: "expense-1",
@@ -15,6 +17,10 @@ const expense: StoredExpense = {
 };
 
 describe("InMemoryExpenseStore", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
   it("stores an expense for its trip", async () => {
     const store = new InMemoryExpenseStore();
 
@@ -25,8 +31,11 @@ describe("InMemoryExpenseStore", () => {
   });
 
   it("keeps an expense when a new store instance is created", async () => {
-    const first = new InMemoryExpenseStore();
-    const second = new InMemoryExpenseStore();
+    await seedUser(expense.payerId);
+    await seedUser("user-2");
+    await seedTrip(expense.tripId);
+    const first = new PrismaExpenseStore();
+    const second = new PrismaExpenseStore();
 
     await first.add(expense);
 
