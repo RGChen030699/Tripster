@@ -20,14 +20,14 @@ describe("InMemoryItineraryStore", () => {
     await expect(store.listByTrip("trip-2")).resolves.toEqual([]);
   });
 
-  it("does not share items across store instances", async () => {
+  it("keeps an itinerary item when a new store instance is created", async () => {
     const first = new InMemoryItineraryStore();
     const second = new InMemoryItineraryStore();
 
     await first.add(item);
 
-    await expect(second.findBySuggestion("trip-1", "suggestion-1")).resolves.toBeNull();
-    await expect(first.findBySuggestion("trip-1", "suggestion-1")).resolves.toEqual(item);
+    await expect(second.findBySuggestion("trip-1", "suggestion-1")).resolves.toEqual(item);
+    await expect(second.findById(item.id)).resolves.toEqual(item);
   });
 
   it("stores a date and optional time, then removes the itinerary item", async () => {

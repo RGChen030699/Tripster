@@ -24,13 +24,12 @@ describe("InMemoryExpenseStore", () => {
     await expect(store.listByTrip("trip-2")).resolves.toEqual([]);
   });
 
-  it("does not share expenses across store instances", async () => {
+  it("keeps an expense when a new store instance is created", async () => {
     const first = new InMemoryExpenseStore();
     const second = new InMemoryExpenseStore();
 
     await first.add(expense);
 
-    await expect(second.listByTrip("trip-1")).resolves.toEqual([]);
-    await expect(first.listByTrip("trip-1")).resolves.toEqual([expense]);
+    await expect(second.listByTrip("trip-1")).resolves.toEqual([expense]);
   });
 });

@@ -30,13 +30,12 @@ describe("InMemorySessionStore", () => {
     await expect(store.findByToken(secondSession.token)).resolves.toEqual(secondSession);
   });
 
-  it("does not share sessions across instances", async () => {
+  it("keeps a session when a new store instance is created", async () => {
     const first = new InMemorySessionStore();
     const second = new InMemorySessionStore();
 
     await first.create(firstSession);
 
-    await expect(second.findByToken(firstSession.token)).resolves.toBeNull();
-    await expect(first.findByToken(firstSession.token)).resolves.not.toBeNull();
+    await expect(second.findByToken(firstSession.token)).resolves.toEqual(firstSession);
   });
 });

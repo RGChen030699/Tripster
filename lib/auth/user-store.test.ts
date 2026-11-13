@@ -19,14 +19,14 @@ describe("InMemoryUserStore", () => {
     await expect(store.findById(user.id)).resolves.toEqual(user);
   });
 
-  it("does not keep users created in a different store instance", async () => {
+  it("keeps a user when a new store instance is created", async () => {
     const first = new InMemoryUserStore();
     const second = new InMemoryUserStore();
 
     await first.create(user);
 
-    await expect(second.findByEmail(user.email)).resolves.toBeNull();
-    await expect(first.findByEmail(user.email)).resolves.not.toBeNull();
+    await expect(second.findByEmail(user.email)).resolves.toEqual(user);
+    await expect(second.findById(user.id)).resolves.toEqual(user);
   });
 
   it("rejects a second create for the same email", async () => {

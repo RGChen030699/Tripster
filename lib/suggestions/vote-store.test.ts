@@ -17,14 +17,13 @@ describe("InMemoryVoteStore", () => {
     ]);
   });
 
-  it("does not share votes across store instances", async () => {
+  it("keeps a vote when a new store instance is created", async () => {
     const first = new InMemoryVoteStore();
     const second = new InMemoryVoteStore();
 
     await first.set({ suggestionId: "suggestion-1", userId: "user-1", choice: "yes" });
 
-    await expect(second.listBySuggestion("suggestion-1")).resolves.toEqual([]);
-    await expect(first.listBySuggestion("suggestion-1")).resolves.toEqual([
+    await expect(second.listBySuggestion("suggestion-1")).resolves.toEqual([
       { suggestionId: "suggestion-1", userId: "user-1", choice: "yes" },
     ]);
   });

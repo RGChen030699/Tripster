@@ -44,13 +44,17 @@ describe("InMemoryTripStore", () => {
     ]);
   });
 
-  it("does not share trips across store instances", async () => {
+  it("keeps a trip when a new store instance is created", async () => {
     const first = new InMemoryTripStore();
     const second = new InMemoryTripStore();
 
     await first.createWithOrganizer(trip, "user-1");
 
-    await expect(second.listForUser("user-1")).resolves.toEqual([]);
-    await expect(first.listForUser("user-1")).resolves.not.toEqual([]);
+    await expect(second.listForUser("user-1")).resolves.toEqual([trip]);
+    await expect(second.findMembership(trip.id, "user-1")).resolves.toEqual({
+      tripId: trip.id,
+      userId: "user-1",
+      role: "organizer",
+    });
   });
 });

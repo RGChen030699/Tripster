@@ -25,14 +25,14 @@ describe("InMemorySuggestionStore", () => {
     await expect(store.listByTrip("trip-2")).resolves.toEqual([]);
   });
 
-  it("does not share suggestions across store instances", async () => {
+  it("keeps a suggestion when a new store instance is created", async () => {
     const first = new InMemorySuggestionStore();
     const second = new InMemorySuggestionStore();
 
     await first.create(suggestion);
 
-    await expect(second.findById(suggestion.id)).resolves.toBeNull();
-    await expect(first.findById(suggestion.id)).resolves.toEqual(suggestion);
+    await expect(second.findById(suggestion.id)).resolves.toEqual(suggestion);
+    await expect(second.listByTrip("trip-1")).resolves.toEqual([suggestion]);
   });
 
   it("updates a suggestion and hides a removed one from the trip list", async () => {
