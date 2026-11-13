@@ -3,7 +3,7 @@
   "info": {
     "title": "Tripster",
     "version": "0.1.0",
-    "description": "Shared trip planning. The email address is the username. Accounts, trips, suggestions, itinerary items, and expenses are stored in memory and disappear when the process restarts. A vote never adds an itinerary item. Expense shares are equal integer cents and total the expense exactly."
+    "description": "Shared trip planning. The email address is the username. Accounts, trips, suggestions, itinerary items, and expenses are stored in PostgreSQL. A vote never adds an itinerary item. Expense shares are equal integer cents and total the expense exactly."
   },
   "servers": [{ "url": "http://localhost:3000" }],
   "components": {
