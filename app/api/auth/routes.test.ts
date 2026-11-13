@@ -40,8 +40,8 @@ function sessionToken(response: Response): string {
 }
 
 describe("auth routes", () => {
-  beforeEach(() => {
-    resetAuthService();
+  beforeEach(async () => {
+    await resetAuthService();
   });
 
   it("registers, sets an httpOnly cookie, and keeps the password and token out of the body", async () => {

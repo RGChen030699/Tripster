@@ -1,0 +1,620 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Tripster",
+    "version": "0.1.0",
+    "description": "Shared trip planning. The email address is the username. Accounts, trips, suggestions, itinerary items, and expenses are stored in PostgreSQL. A vote never adds an itinerary item. Expense shares are equal integer cents and total the expense exactly."
+  },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "tripster_session"
+      }
+    },
+    "parameters": {
+      "tripId": {
+        "name": "tripId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" },
+        "example": "trip-1"
+      },
+      "suggestionId": {
+        "name": "suggestionId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" },
+        "example": "suggestion-1"
+      },
+      "itemId": {
+        "name": "itemId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" },
+        "example": "item-1"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": { "error": { "type": "string" } }
+      },
+      "User": {
+        "type": "object",
+        "required": ["id", "email"],
+        "properties": {
+          "id": { "type": "string" },
+          "email": { "type": "string", "format": "email" }
+        }
+      },
+      "Credentials": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "summary": "Create an account",
+        "description": "The email is the username. The response sets the session cookie. The password is never returned.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Credentials" },
+              "example": { "email": "ada@example.com", "password": "example-password" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "user": { "$ref": "#/components/schemas/User" } }
+                },
+                "example": { "user": { "id": "user-1", "email": "ada@example.com" } }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already registered",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "error": "An account with that email already exists." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Sign in",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Credentials" },
+              "example": { "email": "ada@example.com", "password": "example-password" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in. The response sets the session cookie.",
+            "content": {
+              "application/json": {
+                "example": { "user": { "id": "user-1", "email": "ada@example.com" } }
+              }
+            }
+          },
+          "401": {
+            "description": "Unknown email or wrong password",
+            "content": {
+              "application/json": {
+                "example": { "error": "Invalid email or password." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "Sign out",
+        "security": [{ "sessionCookie": [] }],
+        "responses": { "204": { "description": "Session cleared" } }
+      }
+    },
+    "/api/auth/session": {
+      "get": {
+        "summary": "Read the signed-in user",
+        "security": [{ "sessionCookie": [] }],
+        "responses": {
+          "200": {
+            "description": "Current user",
+            "content": {
+              "application/json": {
+                "example": { "user": { "id": "user-1", "email": "ada@example.com" } }
+              }
+            }
+          },
+          "401": {
+            "description": "No session",
+            "content": {
+              "application/json": { "example": { "error": "Authentication required." } }
+            }
+          }
+        }
+      }
+    },
+    "/api/trips": {
+      "get": {
+        "summary": "List the signed-in user's trips",
+        "security": [{ "sessionCookie": [] }],
+        "responses": {
+          "200": {
+            "description": "Trips the user belongs to",
+            "content": {
+              "application/json": {
+                "example": {
+                  "trips": [
+                    {
+                      "id": "trip-1",
+                      "name": "Lisbon week",
+                      "destination": "Lisbon",
+                      "startDate": "2026-11-01",
+                      "endDate": "2026-11-05",
+                      "role": "organizer"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a trip",
+        "description": "The creator becomes the organizer.",
+        "security": [{ "sessionCookie": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "Lisbon week",
+                "destination": "Lisbon",
+                "startDate": "2026-11-01",
+                "endDate": "2026-11-05"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Trip created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "trip": {
+                    "id": "trip-1",
+                    "name": "Lisbon week",
+                    "destination": "Lisbon",
+                    "startDate": "2026-11-01",
+                    "endDate": "2026-11-05",
+                    "role": "organizer"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing fields or an end date before the start date",
+            "content": {
+              "application/json": {
+                "example": { "error": "The end date cannot be earlier than the start date." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/trips/{tripId}": {
+      "get": {
+        "summary": "Read one trip and its members",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/tripId" }],
+        "responses": {
+          "200": {
+            "description": "Trip details for a member",
+            "content": {
+              "application/json": {
+                "example": {
+                  "trip": {
+                    "id": "trip-1",
+                    "name": "Lisbon week",
+                    "destination": "Lisbon",
+                    "startDate": "2026-11-01",
+                    "endDate": "2026-11-05",
+                    "role": "organizer",
+                    "members": [
+                      { "email": "ada@example.com", "role": "organizer" },
+                      { "email": "bryce@example.com", "role": "member" }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The trip does not exist or the caller is not a member",
+            "content": { "application/json": { "example": { "error": "Trip not found." } } }
+          }
+        }
+      }
+    },
+    "/api/trips/{tripId}/members": {
+      "post": {
+        "summary": "Add an existing account to the trip",
+        "description": "Only the organizer can add a member. The email must already belong to an account.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/tripId" }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "example": { "email": "bryce@example.com" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Member added",
+            "content": {
+              "application/json": {
+                "example": { "member": { "email": "bryce@example.com", "role": "member" } }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown email, or the caller cannot see the trip",
+            "content": {
+              "application/json": { "example": { "error": "No account uses that email address." } }
+            }
+          },
+          "409": {
+            "description": "That person is already a member",
+            "content": {
+              "application/json": { "example": { "error": "That person is already on this trip." } }
+            }
+          }
+        }
+      }
+    },
+    "/api/trips/{tripId}/suggestions": {
+      "get": {
+        "summary": "List suggestions and vote totals",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/tripId" }],
+        "responses": {
+          "200": {
+            "description": "Suggestions visible to a trip member. Removed suggestions are omitted.",
+            "content": { "application/json": { "example": { "suggestions": [] } } }
+          }
+        }
+      },
+      "post": {
+        "summary": "Suggest lodging, an activity, a place, or a restaurant",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/tripId" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "category": "restaurant",
+                "name": "Pastel de nata",
+                "description": "A bakery stop",
+                "address": "Rua da Prata",
+                "link": "https://example.com/nata"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Suggestion created. It is not on the itinerary.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "suggestion": {
+                    "id": "suggestion-1",
+                    "category": "restaurant",
+                    "name": "Pastel de nata",
+                    "description": "A bakery stop",
+                    "address": "Rua da Prata",
+                    "link": "https://example.com/nata",
+                    "authorEmail": "ada@example.com",
+                    "votes": { "yes": 0, "maybe": 0, "no": 0 },
+                    "myVote": null
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/trips/{tripId}/suggestions/{suggestionId}": {
+      "patch": {
+        "summary": "Edit a suggestion the caller created",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/tripId" },
+          { "$ref": "#/components/parameters/suggestionId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": { "category": "activity", "name": "Tram 28", "description": "", "address": "", "link": "" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Suggestion updated. This does not add or remove an itinerary item." },
+          "403": {
+            "description": "Another member tried to change it",
+            "content": {
+              "application/json": {
+                "example": { "error": "Only the person who suggested this can change it." }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a suggestion the caller created",
+        "description": "The suggestion leaves the list and vote totals. An itinerary item already created from it stays.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/tripId" },
+          { "$ref": "#/components/parameters/suggestionId" }
+        ],
+        "responses": { "204": { "description": "Suggestion removed" } }
+      }
+    },
+    "/api/trips/{tripId}/suggestions/{suggestionId}/votes": {
+      "post": {
+        "summary": "Vote Yes, Maybe, or No",
+        "description": "One current vote per member. Voting does not add the suggestion to the itinerary.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/tripId" },
+          { "$ref": "#/components/parameters/suggestionId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "example": { "choice": "yes" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Current vote and group totals",
+            "content": {
+              "application/json": {
+                "example": { "vote": { "choice": "yes" }, "votes": { "yes": 1, "maybe": 0, "no": 0 } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/trips/{tripId}/suggestions/{suggestionId}/itinerary": {
+      "post": {
+        "summary": "Add a suggestion to the itinerary",
+        "description": "The first request creates one unscheduled item and returns 201. A later request returns 200 and the same item.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/tripId" },
+          { "$ref": "#/components/parameters/suggestionId" }
+        ],
+        "responses": {
+          "201": {
+            "description": "Unscheduled itinerary item created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "item": {
+                    "id": "item-1",
+                    "suggestionId": "suggestion-1",
+                    "name": "Pastel de nata",
+                    "category": "restaurant",
+                    "unscheduled": true
+                  }
+                }
+              }
+            }
+          },
+          "200": { "description": "The suggestion was already on the itinerary" }
+        }
+      }
+    },
+    "/api/trips/{tripId}/itinerary": {
+      "get": {
+        "summary": "List itinerary items ordered by date and time",
+        "description": "Unscheduled items are last and omit date and startTime.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/tripId" }],
+        "responses": {
+          "200": {
+            "description": "Itinerary items",
+            "content": { "application/json": { "example": { "items": [] } } }
+          }
+        }
+      }
+    },
+    "/api/trips/{tripId}/itinerary/{itemId}": {
+      "patch": {
+        "summary": "Schedule an itinerary item",
+        "description": "The date must fall inside the trip, inclusive. An empty start time leaves the item dated without a time. Any member can change the schedule.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/tripId" },
+          { "$ref": "#/components/parameters/itemId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "example": { "date": "2026-11-02", "startTime": "09:30" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Schedule saved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "item": {
+                    "id": "item-1",
+                    "suggestionId": "suggestion-1",
+                    "name": "Tram 28",
+                    "category": "activity",
+                    "unscheduled": false,
+                    "date": "2026-11-02",
+                    "startTime": "09:30"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The date is outside the trip or the time is not HH:MM",
+            "content": {
+              "application/json": {
+                "example": { "error": "Choose a date between the trip start and end." }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove an itinerary item",
+        "description": "The source suggestion stays in the suggestion list.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/tripId" },
+          { "$ref": "#/components/parameters/itemId" }
+        ],
+        "responses": { "204": { "description": "Itinerary item removed" } }
+      }
+    },
+    "/api/trips/{tripId}/expenses": {
+      "get": {
+        "summary": "List expenses for a trip member",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/tripId" }],
+        "responses": {
+          "200": {
+            "description": "Recorded expenses. This response does not include balances.",
+            "content": { "application/json": { "example": { "expenses": [] } } }
+          }
+        }
+      },
+      "post": {
+        "summary": "Record an expense and who shares it",
+        "description": "The amount is a positive decimal string with at most two places. It is stored as integer cents in USD. The payer and every participant must be trip members. The payer does not have to be a participant.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/tripId" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "amount": "10.50",
+                "description": "Taxi",
+                "date": "2026-11-02",
+                "payerEmail": "ada@example.com",
+                "participantEmails": ["ada@example.com", "bryce@example.com"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Expense recorded. 10.50 is 1050 cents.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "expense": {
+                    "id": "expense-1",
+                    "amountCents": 1050,
+                    "currency": "USD",
+                    "description": "Taxi",
+                    "date": "2026-11-02",
+                    "payerEmail": "ada@example.com",
+                    "participantEmails": ["ada@example.com", "bryce@example.com"]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The amount, description, date, payer, or participants are not valid",
+            "content": {
+              "application/json": {
+                "example": { "error": "Enter a positive amount in dollars and cents." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/trips/{tripId}/expenses/balances": {
+      "get": {
+        "summary": "Show paid, share, and net balance for each member",
+        "description": "Each expense is split equally. Leftover cents go to the earliest participants so the shares total the expense. balanceCents is paidCents minus shareCents. A positive balance is money the group owes that member.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/tripId" }],
+        "responses": {
+          "200": {
+            "description": "One row per trip member",
+            "content": {
+              "application/json": {
+                "example": {
+                  "balances": [
+                    {
+                      "email": "ada@example.com",
+                      "paidCents": 100,
+                      "shareCents": 0,
+                      "balanceCents": 100
+                    },
+                    {
+                      "email": "bryce@example.com",
+                      "paidCents": 0,
+                      "shareCents": 100,
+                      "balanceCents": -100
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The caller is not a member of the trip",
+            "content": { "application/json": { "example": { "error": "Trip not found." } } }
+          }
+        }
+      }
+    }
+  }
+}

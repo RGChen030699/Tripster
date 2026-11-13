@@ -1,4 +1,5 @@
 import type { StoredUser, UserStore } from "@/lib/auth/types";
+import { getPrisma } from "@/lib/db";
 
 export class DuplicateEmailError extends Error {
   constructor() {
@@ -37,4 +38,42 @@ function copyUser(user: StoredUser | undefined): StoredUser | null {
 
 function cloneUser(user: StoredUser): StoredUser {
   return { id: user.id, email: user.email, passwordHash: user.passwordHash };
+}
+
+export class PrismaUserStore implements UserStore {
+  async findByEmail(email: string): Promise<StoredUser | null> {
+    const user = await getPrisma().user.findUnique({ where: { email } });
+    return user ? toStoredUser(user) : null;
+  }
+
+  async findById(id: string): Promise<StoredUser | null> {
+    const user = await getPrisma().user.findUnique({ where: { id } });
+    return user ? toStoredUser(user) : null;
+  }
+
+  async create(user: StoredUser): Promise<StoredUser> {
+    try {
+      const created = await getPrisma().user.create({
+        data: {
+          id: user.id,
+          email: user.email,
+          passwordHash: user.passwordHash,
+        },
+      });
+      return toStoredUser(created);
+    } catch (error) {
+      if (isUniqueViolation(error)) {
+        throw new DuplicateEmailError();
+      }
+      throw error;
+    }
+  }
+}
+
+function toStoredUser(user: { id: string; email: string; passwordHash: string }): StoredUser {
+  return { id: user.id, email: user.email, passwordHash: user.passwordHash };
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
 }
