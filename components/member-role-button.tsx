@@ -3,12 +3,24 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function MakeOrganizerButton({ tripId, email }: { tripId: string; email: string }) {
+import type { TripRole } from "@/lib/trips/types";
+
+export function MemberRoleButton({
+  tripId,
+  email,
+  role,
+}: {
+  tripId: string;
+  email: string;
+  role: TripRole;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const nextRole: TripRole = role === "organizer" ? "member" : "organizer";
+  const label = role === "organizer" ? "Remove organizer" : "Make organizer";
 
-  async function promote() {
+  async function updateRole() {
     setPending(true);
     setError(null);
     try {
@@ -16,7 +28,7 @@ export function MakeOrganizerButton({ tripId, email }: { tripId: string; email: 
         method: "PATCH",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ email, role: "organizer" }),
+        body: JSON.stringify({ email, role: nextRole }),
       });
       const payload = await readJson(response);
       if (!response.ok) {
@@ -37,11 +49,11 @@ export function MakeOrganizerButton({ tripId, email }: { tripId: string; email: 
         type="button"
         disabled={pending}
         onClick={() => {
-          void promote();
+          void updateRole();
         }}
         className="text-sm font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 disabled:opacity-60"
       >
-        {pending ? "Updating..." : "Make organizer"}
+        {pending ? "Updating..." : label}
       </button>
       {error ? (
         <p role="alert" className="text-sm text-red-950">

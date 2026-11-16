@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { POST as register } from "@/app/api/auth/register/route";
-import { PATCH as updateMember, POST as addMember } from "@/app/api/trips/[id]/members/route";
+import {
+  DELETE as removeMember,
+  PATCH as updateMember,
+  POST as addMember,
+} from "@/app/api/trips/[id]/members/route";
 import { GET as getTrip } from "@/app/api/trips/[id]/route";
 import { GET as listTrips, POST as createTrip } from "@/app/api/trips/route";
 import { resetAuthService } from "@/lib/auth/container";
@@ -125,7 +129,7 @@ describe("trip member routes", () => {
     });
   });
 
-  it("lets the organizer promote a member", async () => {
+  it("lets the organizer promote, demote, and remove a member", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
     const tripId = await createJapan(ada);
@@ -146,6 +150,40 @@ describe("trip member routes", () => {
     await expect(promoted.json()).resolves.toEqual({
       member: { email: "bryce@example.com", role: "organizer" },
     });
+
+    const demoted = await updateMember(
+      jsonRequest(
+        `/api/trips/${tripId}/members`,
+        { email: "bryce@example.com", role: "member" },
+        ada,
+        "PATCH",
+      ),
+      { params: Promise.resolve({ id: tripId }) },
+    );
+    expect(demoted.status).toBe(200);
+    await expect(demoted.json()).resolves.toEqual({
+      member: { email: "bryce@example.com", role: "member" },
+    });
+
+    const blocked = await updateMember(
+      jsonRequest(
+        `/api/trips/${tripId}/members`,
+        { email: "ada@example.com", role: "member" },
+        ada,
+        "PATCH",
+      ),
+      { params: Promise.resolve({ id: tripId }) },
+    );
+    expect(blocked.status).toBe(400);
+    await expect(blocked.json()).resolves.toEqual({
+      error: "Keep at least one organizer on the trip.",
+    });
+
+    const removed = await removeMember(
+      jsonRequest(`/api/trips/${tripId}/members`, { email: "bryce@example.com" }, ada, "DELETE"),
+      { params: Promise.resolve({ id: tripId }) },
+    );
+    expect(removed.status).toBe(204);
   });
 
   it("rejects a member who is not the organizer", async () => {

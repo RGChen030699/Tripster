@@ -40,6 +40,8 @@ describe("TripDetail", () => {
     expect(screen.getByLabelText("Invite by email")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Edit trip" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Delete trip" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Remove organizer" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Remove" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Suggestions" })).toHaveAttribute(
       "href",
       "/trips/trip-1/suggestions",
@@ -80,7 +82,7 @@ describe("TripDetail", () => {
     expect(screen.queryByRole("button", { name: "Make organizer" })).not.toBeInTheDocument();
   });
 
-  it("lets an organizer promote another member", () => {
+  it("lets an organizer promote, demote, and remove members", () => {
     render(
       <TripDetail
         trip={{
@@ -93,11 +95,14 @@ describe("TripDetail", () => {
           members: [
             { email: "ada@example.com", role: "organizer" },
             { email: "bryce@example.com", role: "member" },
+            { email: "cara@example.com", role: "organizer" },
           ],
         }}
       />,
     );
 
     expect(screen.getByRole("button", { name: "Make organizer" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Remove organizer" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "Remove" })).toHaveLength(3);
   });
 });
