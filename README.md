@@ -96,4 +96,4 @@ npm run build
 npm start
 ```
 
-Set `DATABASE_URL` and `JWT_SECRET` in the host environment before `npm start`. Apply migrations with `npx prisma migrate deploy` before serving a new database. Do not commit real tokens, passwords, JWT secrets, or database URLs. On GitHub, prefer the Actions deploy gate plus Vercel’s Git integration over a manual CLI deploy for routine releases.
+Set `DATABASE_URL` and `JWT_SECRET` in the host environment before `npm start`. `npm run build` runs `prisma migrate deploy` before `next build`, so Vercel production builds apply pending migrations automatically. Do not commit real tokens, passwords, JWT secrets, or database URLs. On GitHub, prefer the Actions deploy gate plus Vercel’s Git integration over a manual CLI deploy for routine releases.
