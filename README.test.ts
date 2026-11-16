@@ -17,6 +17,7 @@ describe("README", () => {
     expect(readme).toContain("complex shared state");
     expect(readme).toContain("short polling");
     expect(readme).toContain("does not use WebSockets");
+    expect(readme).toContain("docs/architecture.md");
     expect(readme).not.toContain("correct-horse");
     expect(readme).not.toContain("passwordHash");
     expect(readme).not.toContain("postgres://");
