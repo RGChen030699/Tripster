@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 
+import { secondaryButtonClassName } from "@/components/button-styles";
+
 import { ExpenseBalances } from "@/components/expense-balances";
 import { ExpenseForm } from "@/components/expense-form";
 import { ExpenseList } from "@/components/expense-list";
@@ -45,7 +47,7 @@ export default async function ExpensesPage({ params }: { params: Promise<{ id: s
       <ExpenseBalances balances={balances.balances} />
       <Link
         href={`/trips/${id}`}
-        className="font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+        className={`${secondaryButtonClassName} self-start`}
       >
         Back to trip
       </Link>

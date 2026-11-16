@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { secondaryButtonClassName } from "@/components/button-styles";
 import type { TripRole } from "@/lib/trips/types";
 
 export function MemberRoleButton({
@@ -51,7 +52,7 @@ export function MemberRoleButton({
         onClick={() => {
           void updateRole();
         }}
-        className="text-sm font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 disabled:opacity-60"
+        className={secondaryButtonClassName}
       >
         {pending ? "Updating..." : label}
       </button>

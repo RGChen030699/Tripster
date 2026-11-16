@@ -3,11 +3,34 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function DeleteTripButton({ tripId }: { tripId: string }) {
+import {
+  dangerButtonClassName,
+  primaryButtonClassName,
+  secondaryButtonClassName,
+} from "@/components/button-styles";
+
+export function DeleteTripButton({
+  tripId,
+  confirming: confirmingProp,
+  onConfirmingChange,
+}: {
+  tripId: string;
+  confirming?: boolean;
+  onConfirmingChange?: (confirming: boolean) => void;
+}) {
   const router = useRouter();
-  const [confirming, setConfirming] = useState(false);
+  const controlled = confirmingProp !== undefined;
+  const [uncontrolledConfirming, setUncontrolledConfirming] = useState(false);
+  const confirming = controlled ? confirmingProp : uncontrolledConfirming;
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  function setConfirming(next: boolean) {
+    if (!controlled) {
+      setUncontrolledConfirming(next);
+    }
+    onConfirmingChange?.(next);
+  }
 
   async function remove() {
     setPending(true);
@@ -31,12 +54,11 @@ export function DeleteTripButton({ tripId }: { tripId: string }) {
   }
 
   if (!confirming) {
+    if (controlled) {
+      return null;
+    }
     return (
-      <button
-        type="button"
-        onClick={() => setConfirming(true)}
-        className="text-sm font-medium text-red-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
-      >
+      <button type="button" onClick={() => setConfirming(true)} className={dangerButtonClassName}>
         Delete trip
       </button>
     );
@@ -51,11 +73,7 @@ export function DeleteTripButton({ tripId }: { tripId: string }) {
         </p>
       ) : null}
       <div className="mt-3 flex gap-2">
-        <button
-          type="button"
-          onClick={() => setConfirming(false)}
-          className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
-        >
+        <button type="button" onClick={() => setConfirming(false)} className={secondaryButtonClassName}>
           Cancel
         </button>
         <button
@@ -64,7 +82,7 @@ export function DeleteTripButton({ tripId }: { tripId: string }) {
           onClick={() => {
             void remove();
           }}
-          className="rounded-md bg-red-800 px-3 py-1.5 text-sm font-medium text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800 disabled:opacity-60"
+          className={`${primaryButtonClassName} bg-red-800 focus-visible:outline-red-800`}
         >
           {pending ? "Deleting..." : "Delete trip"}
         </button>
