@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { POST as register } from "@/app/api/auth/register/route";
-import { GET as getTrip } from "@/app/api/trips/[id]/route";
+import { DELETE as deleteTrip, GET as getTrip, PATCH as updateTrip } from "@/app/api/trips/[id]/route";
 import { GET as listTrips, POST as createTrip } from "@/app/api/trips/route";
 import { resetAuthService } from "@/lib/auth/container";
 import { resetTripService } from "@/lib/trips/container";
@@ -132,5 +132,58 @@ describe("trip routes", () => {
     );
     const listText = JSON.stringify(await list.json());
     expect(listText).not.toContain("Japan");
+  });
+
+  it("lets the organizer edit and delete a trip", async () => {
+    const cookie = await registerUser("ada@example.com");
+    const created = await createTrip(
+      jsonRequest(
+        "/api/trips",
+        {
+          name: "Japan week",
+          destination: "Japan",
+          startDate: "2026-11-01",
+          endDate: "2026-11-05",
+        },
+        cookie,
+      ),
+    );
+    const tripId = ((await created.json()) as { trip: { id: string } }).trip.id;
+
+    const updated = await updateTrip(
+      jsonRequest(
+        `/api/trips/${tripId}`,
+        {
+          name: "Tokyo week",
+          destination: "Tokyo",
+          startDate: "2026-12-01",
+          endDate: "2026-12-07",
+        },
+        cookie,
+        "PATCH",
+      ),
+      { params: Promise.resolve({ id: tripId }) },
+    );
+    expect(updated.status).toBe(200);
+    await expect(updated.json()).resolves.toMatchObject({
+      trip: {
+        name: "Tokyo week",
+        destination: "Tokyo",
+        startDate: "2026-12-01",
+        endDate: "2026-12-07",
+      },
+    });
+
+    const deleted = await deleteTrip(
+      new Request(`http://localhost/api/trips/${tripId}`, { method: "DELETE", headers: { cookie } }),
+      { params: Promise.resolve({ id: tripId }) },
+    );
+    expect(deleted.status).toBe(204);
+
+    const missing = await getTrip(
+      new Request(`http://localhost/api/trips/${tripId}`, { headers: { cookie } }),
+      { params: Promise.resolve({ id: tripId }) },
+    );
+    expect(missing.status).toBe(404);
   });
 });

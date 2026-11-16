@@ -14,6 +14,8 @@ const expense: StoredExpense = {
   date: "2026-11-02",
   payerId: "user-1",
   participantIds: ["user-1", "user-2"],
+  participantShares: [525, 525],
+  splitMode: "even",
 };
 
 describe("InMemoryExpenseStore", () => {

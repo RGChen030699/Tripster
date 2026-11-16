@@ -37,6 +37,8 @@ export async function POST(
     date: readField(body, "date"),
     payerEmail: readField(body, "payerEmail"),
     participantEmails: readField(body, "participantEmails"),
+    splitMode: readField(body, "splitMode"),
+    participantShares: readField(body, "participantShares"),
   });
   if (!result.ok) {
     return errorResponse(result.error, result.status);

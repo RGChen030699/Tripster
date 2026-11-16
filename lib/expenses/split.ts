@@ -9,9 +9,29 @@ export function equalShareCents(amountCents: number, participantCount: number): 
   return Array.from({ length: participantCount }, (_, index) => base + (index < remainder ? 1 : 0));
 }
 
+export function resolveParticipantShares(
+  amountCents: number,
+  participantCount: number,
+  storedShares: number[] | null | undefined,
+): number[] {
+  if (
+    storedShares &&
+    storedShares.length === participantCount &&
+    storedShares.reduce((sum, share) => sum + share, 0) === amountCents
+  ) {
+    return storedShares;
+  }
+  return equalShareCents(amountCents, participantCount);
+}
+
 export function memberBalances(
   memberEmails: string[],
-  expenses: { amountCents: number; payerEmail: string; participantEmails: string[] }[],
+  expenses: {
+    amountCents: number;
+    payerEmail: string;
+    participantEmails: string[];
+    participantShares?: number[] | null;
+  }[],
 ): MemberBalance[] {
   const totals = new Map<string, { paidCents: number; shareCents: number }>();
   for (const email of memberEmails) {
@@ -22,7 +42,11 @@ export function memberBalances(
     if (payer) {
       payer.paidCents += expense.amountCents;
     }
-    const shares = equalShareCents(expense.amountCents, expense.participantEmails.length);
+    const shares = resolveParticipantShares(
+      expense.amountCents,
+      expense.participantEmails.length,
+      expense.participantShares,
+    );
     expense.participantEmails.forEach((email, index) => {
       const participant = totals.get(email);
       const share = shares[index];

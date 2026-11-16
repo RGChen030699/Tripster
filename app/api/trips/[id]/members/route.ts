@@ -22,3 +22,26 @@ export async function POST(
   }
   return Response.json({ member: result.member }, { status: 201 });
 }
+
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+): Promise<Response> {
+  const user = await requireUser(request);
+  if (!user.ok) {
+    return user.response;
+  }
+
+  const { id } = await context.params;
+  const body = await readJsonObject(request);
+  const result = await getTripService().setMemberRole(
+    user.user.id,
+    id,
+    readField(body, "email"),
+    readField(body, "role"),
+  );
+  if (!result.ok) {
+    return errorResponse(result.error, result.status);
+  }
+  return Response.json({ member: result.member });
+}

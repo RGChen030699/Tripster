@@ -85,9 +85,10 @@ describe("expense routes", () => {
       description: "Taxi",
       payerEmail: "ada@example.com",
       participantEmails: ["ada@example.com", "bryce@example.com"],
+      splitMode: "even",
+      participantShares: [525, 525],
     });
     expect(body).not.toHaveProperty("balances");
-    expect(JSON.stringify(body)).not.toContain("shares");
 
     const listed = await listExpenses(
       new Request(`http://localhost/api/trips/${tripId}/expenses`, { headers: { cookie: ada } }),

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { POST as register } from "@/app/api/auth/register/route";
-import { POST as addMember } from "@/app/api/trips/[id]/members/route";
+import { PATCH as updateMember, POST as addMember } from "@/app/api/trips/[id]/members/route";
 import { GET as getTrip } from "@/app/api/trips/[id]/route";
 import { GET as listTrips, POST as createTrip } from "@/app/api/trips/route";
 import { resetAuthService } from "@/lib/auth/container";
@@ -23,7 +23,7 @@ function jsonRequest(path: string, body: unknown, cookie?: string, method = "POS
   return new Request(`http://localhost${path}`, {
     method,
     headers,
-    body: JSON.stringify(body),
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
 }
 
@@ -125,6 +125,29 @@ describe("trip member routes", () => {
     });
   });
 
+  it("lets the organizer promote a member", async () => {
+    const ada = await registerUser("ada@example.com");
+    const bryce = await registerUser("bryce@example.com");
+    const tripId = await createJapan(ada);
+    await addMember(jsonRequest(`/api/trips/${tripId}/members`, { email: "bryce@example.com" }, ada), {
+      params: Promise.resolve({ id: tripId }),
+    });
+
+    const promoted = await updateMember(
+      jsonRequest(
+        `/api/trips/${tripId}/members`,
+        { email: "bryce@example.com", role: "organizer" },
+        ada,
+        "PATCH",
+      ),
+      { params: Promise.resolve({ id: tripId }) },
+    );
+    expect(promoted.status).toBe(200);
+    await expect(promoted.json()).resolves.toEqual({
+      member: { email: "bryce@example.com", role: "organizer" },
+    });
+  });
+
   it("rejects a member who is not the organizer", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
@@ -143,7 +166,8 @@ describe("trip member routes", () => {
     );
     expect(denied.status).toBe(403);
     await expect(denied.json()).resolves.toEqual({
-      error: "Only the organizer can invite members.",    });
+      error: "Only the organizer can invite members.",
+    });
   });
 
   it("does not reveal trip details to someone who is not a member", async () => {

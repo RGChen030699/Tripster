@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 
 import { DateField } from "@/components/date-field";
+import type { ExpenseSplitMode } from "@/lib/expenses/types";
 
 const inputClassName =
   "mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
@@ -19,6 +20,14 @@ export function ExpenseForm({
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [splitMode, setSplitMode] = useState<ExpenseSplitMode>("even");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [shares, setShares] = useState<Record<string, string>>({});
+
+  const selectedMembers = useMemo(
+    () => members.filter((member) => selected.includes(member.email)),
+    [members, selected],
+  );
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -28,7 +37,9 @@ export function ExpenseForm({
     const description = String(formData.get("description") ?? "");
     const date = String(formData.get("date") ?? "");
     const payerEmail = String(formData.get("payerEmail") ?? "");
-    const participantEmails = formData.getAll("participant").filter((value): value is string => typeof value === "string");
+    const participantEmails = selectedMembers.map((member) => member.email);
+    const participantShares =
+      splitMode === "manual" ? participantEmails.map((email) => shares[email] ?? "") : undefined;
     setPending(true);
     setError(null);
     try {
@@ -36,7 +47,15 @@ export function ExpenseForm({
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ amount, description, date, payerEmail, participantEmails }),
+        body: JSON.stringify({
+          amount,
+          description,
+          date,
+          payerEmail,
+          participantEmails,
+          splitMode,
+          participantShares,
+        }),
       });
       const payload = await readJson(response);
       if (!response.ok) {
@@ -45,6 +64,9 @@ export function ExpenseForm({
         return;
       }
       form.reset();
+      setSplitMode("even");
+      setSelected([]);
+      setShares({});
       setStatus("Recorded the expense.");
       router.refresh();
     } catch {
@@ -76,11 +98,74 @@ export function ExpenseForm({
         <legend className="text-sm font-medium">Who shares this expense</legend>
         {members.map((member) => (
           <label key={member.email} className="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="participant" value={member.email} />
+            <input
+              type="checkbox"
+              name="participant"
+              value={member.email}
+              checked={selected.includes(member.email)}
+              onChange={(event) => {
+                const checked = event.target.checked;
+                setSelected((current) =>
+                  checked ? [...current, member.email] : current.filter((email) => email !== member.email),
+                );
+              }}
+            />
             {member.email}
           </label>
         ))}
       </fieldset>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm font-medium">Split</legend>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            name="splitMode"
+            value="even"
+            checked={splitMode === "even"}
+            onChange={() => setSplitMode("even")}
+          />
+          Even split
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            name="splitMode"
+            value="manual"
+            checked={splitMode === "manual"}
+            onChange={() => setSplitMode("manual")}
+          />
+          Manual split
+        </label>
+      </fieldset>
+      {splitMode === "manual" ? (
+        <fieldset className="flex flex-col gap-2">
+          <legend className="text-sm font-medium">Share amounts</legend>
+          {selectedMembers.length === 0 ? (
+            <p className="text-sm text-stone-700">Select members above, then enter each person’s share.</p>
+          ) : (
+            selectedMembers.map((member) => (
+              <div key={member.email}>
+                <label htmlFor={`share-${member.email}`} className="block text-sm font-medium">
+                  {member.email}
+                </label>
+                <input
+                  id={`share-${member.email}`}
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  placeholder="0.00"
+                  value={shares[member.email] ?? ""}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setShares((current) => ({ ...current, [member.email]: value }));
+                  }}
+                  className={inputClassName}
+                />
+              </div>
+            ))
+          )}
+        </fieldset>
+      ) : null}
       {error ? (
         <p role="alert" className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-950">
           {error}

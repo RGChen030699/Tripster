@@ -13,6 +13,31 @@ export class InMemoryTripStore implements TripStore {
     this.memberships.set(key, { tripId, userId, role: "member" });
   }
 
+  async updateTrip(trip: StoredTrip): Promise<void> {
+    if (!this.trips.has(trip.id)) {
+      return;
+    }
+    this.trips.set(trip.id, cloneTrip(trip));
+  }
+
+  async deleteTrip(tripId: string): Promise<void> {
+    this.trips.delete(tripId);
+    for (const key of [...this.memberships.keys()]) {
+      if (key.startsWith(`${tripId}\u0000`)) {
+        this.memberships.delete(key);
+      }
+    }
+  }
+
+  async setMemberRole(tripId: string, userId: string, role: TripRole): Promise<void> {
+    const key = membershipKey(tripId, userId);
+    const existing = this.memberships.get(key);
+    if (!existing) {
+      return;
+    }
+    this.memberships.set(key, { ...existing, role });
+  }
+
   async createWithOrganizer(trip: StoredTrip, organizerId: string): Promise<void> {
     const stored = cloneTrip(trip);
     this.trips.set(stored.id, stored);
@@ -89,6 +114,29 @@ export class PrismaTripStore implements TripStore {
       return;
     }
     await getPrisma().membership.create({ data: { tripId, userId, role: "member" } });
+  }
+
+  async updateTrip(trip: StoredTrip): Promise<void> {
+    await getPrisma().trip.update({
+      where: { id: trip.id },
+      data: {
+        name: trip.name,
+        destination: trip.destination,
+        startDate: trip.startDate,
+        endDate: trip.endDate,
+      },
+    });
+  }
+
+  async deleteTrip(tripId: string): Promise<void> {
+    await getPrisma().trip.delete({ where: { id: tripId } });
+  }
+
+  async setMemberRole(tripId: string, userId: string, role: TripRole): Promise<void> {
+    await getPrisma().membership.update({
+      where: { tripId_userId: { tripId, userId } },
+      data: { role },
+    });
   }
 
   async createWithOrganizer(trip: StoredTrip, organizerId: string): Promise<void> {

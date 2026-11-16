@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { equalShareCents, memberBalances } from "@/lib/expenses/split";
+import { equalShareCents, memberBalances, resolveParticipantShares } from "@/lib/expenses/split";
 
 describe("equal expense splits", () => {
   it("gives leftover cents to the earliest participants so shares total the amount", () => {
@@ -10,6 +10,11 @@ describe("equal expense splits", () => {
     expect(equalShareCents(5, 1)).toEqual([5]);
     expect(equalShareCents(100, 3).reduce((sum, share) => sum + share, 0)).toBe(100);
     expect(equalShareCents(1, 2).reduce((sum, share) => sum + share, 0)).toBe(1);
+  });
+
+  it("uses stored manual shares when they total the expense", () => {
+    expect(resolveParticipantShares(1000, 2, [700, 300])).toEqual([700, 300]);
+    expect(resolveParticipantShares(1000, 2, null)).toEqual([500, 500]);
   });
 
   it("counts a payer who is not a participant and keeps balances at zero overall", () => {
@@ -36,5 +41,24 @@ describe("equal expense splits", () => {
     ]);
     expect(balances.reduce((sum, balance) => sum + balance.shareCents, 0)).toBe(101);
     expect(balances.reduce((sum, balance) => sum + balance.balanceCents, 0)).toBe(0);
+  });
+
+  it("applies stored manual shares when computing balances", () => {
+    const balances = memberBalances(
+      ["ada@example.com", "bryce@example.com"],
+      [
+        {
+          amountCents: 1000,
+          payerEmail: "ada@example.com",
+          participantEmails: ["ada@example.com", "bryce@example.com"],
+          participantShares: [700, 300],
+        },
+      ],
+    );
+
+    expect(balances).toEqual([
+      { email: "ada@example.com", paidCents: 1000, shareCents: 700, balanceCents: 300 },
+      { email: "bryce@example.com", paidCents: 0, shareCents: 300, balanceCents: -300 },
+    ]);
   });
 });
