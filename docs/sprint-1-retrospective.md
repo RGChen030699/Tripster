@@ -1,7 +1,7 @@
 # Sprint 1 retrospective
 
 **Sprint:** October 27 – November 4, 2026  
-**Written:** November 16, 2026 (America/New_York)  
+**Written:** November 10, 2026 (America/New_York)  
 **Project:** Tripster (solo)
 
 ## What shipped
