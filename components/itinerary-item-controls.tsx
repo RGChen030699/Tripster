@@ -28,7 +28,7 @@ export function ItineraryItemControls({
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="text-sm font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+          className="text-sm font-medium text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           {item.unscheduled ? "Schedule" : "Edit schedule"}
         </button>

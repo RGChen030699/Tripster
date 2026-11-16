@@ -14,9 +14,9 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
     <article className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">{trip.name}</h1>
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">{trip.name}</h1>
           <p className="mt-3 text-lg">{trip.destination}</p>
-          <p className="mt-1 text-stone-700">
+          <p className="mt-1 text-ink-muted">
             {trip.startDate} to {trip.endDate}
           </p>
         </div>
@@ -55,7 +55,7 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
               <li key={`${member.role}-${member.email}`} className="flex items-start justify-between gap-4">
                 <span>{member.email}</span>
                 <div className="flex flex-col items-end gap-2">
-                  <span className="text-sm text-stone-700">
+                  <span className="text-sm text-ink-muted">
                     {member.role === "organizer" ? "Organizer" : "Member"}
                   </span>
                   <MemberActionsMenu

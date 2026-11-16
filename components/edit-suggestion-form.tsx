@@ -7,7 +7,7 @@ import type { SuggestionView } from "@/lib/suggestions/types";
 import { parseSuggestionInput } from "@/lib/suggestions/validation";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function EditSuggestionForm({
   tripId,
@@ -99,14 +99,14 @@ export function EditSuggestionForm({
         </p>
       ) : null}
       {status ? (
-        <p role="status" className="rounded-md border border-teal-300 bg-teal-50 px-3 py-2 text-sm text-teal-950">
+        <p role="status" className="rounded-md border border-sage bg-sand px-3 py-2 text-sm text-ink">
           {status}
         </p>
       ) : null}
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium outline-none hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 disabled:opacity-60"
+        className="self-start rounded-md border border-sand bg-panel px-3 py-1.5 text-sm font-medium outline-none hover:bg-sand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? "Saving..." : "Save changes"}
       </button>

@@ -59,7 +59,7 @@ export function RemoveSuggestionButton({
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+          className="rounded-md border border-sand bg-panel px-3 py-1.5 text-sm font-medium outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Cancel
         </button>

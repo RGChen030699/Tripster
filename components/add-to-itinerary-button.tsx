@@ -47,7 +47,7 @@ export function AddToItineraryButton({
         </p>
       ) : null}
       {status ? (
-        <p role="status" className="mb-2 rounded-md border border-teal-300 bg-teal-50 px-3 py-2 text-sm text-teal-950">
+        <p role="status" className="mb-2 rounded-md border border-sage bg-sand px-3 py-2 text-sm text-ink">
           {status}
         </p>
       ) : null}
@@ -57,7 +57,7 @@ export function AddToItineraryButton({
           void onAdd();
         }}
         disabled={pending}
-        className="rounded-md bg-teal-800 px-4 py-2 text-sm font-medium text-white outline-none hover:bg-teal-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 disabled:opacity-60"
+        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-fg outline-none hover:bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? "Adding..." : "Add"}
       </button>

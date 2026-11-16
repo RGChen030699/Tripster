@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+/*
+  Palette from the approved warm earth reference:
+  cream canvas, olive ink, sand / sage / clay surfaces.
+*/
+@theme {
+  --color-canvas: #f6f0e4;
+  --color-ink: #555d50;
+  --color-ink-muted: #6b655c;
+  --color-panel: #ffffff;
+  --color-sand: #e5d9c3;
+  --color-sage: #a8b69f;
+  --color-clay: #ccbca2;
+  --color-primary: #555d50;
+  --color-primary-fg: #f6f0e4;
+  --font-sans: var(--font-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), "Fraunces", ui-serif, Georgia, serif;
+}

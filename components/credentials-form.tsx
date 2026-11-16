@@ -6,7 +6,7 @@ import { useState, type FormEvent } from "react";
 import { parseCredentials } from "@/lib/auth/validation";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 type CredentialsFormProps = {
   endpoint: "/api/auth/register" | "/api/auth/login";
@@ -91,7 +91,7 @@ export function CredentialsForm({
           minLength={8}
           className={inputClassName}
         />
-        {passwordHint ? <p className="mt-1 text-sm text-stone-700">{passwordHint}</p> : null}
+        {passwordHint ? <p className="mt-1 text-sm text-ink-muted">{passwordHint}</p> : null}
       </div>
       {error ? (
         <p role="alert" className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-950">
@@ -101,7 +101,7 @@ export function CredentialsForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md bg-teal-800 px-4 py-2 font-medium text-white outline-none hover:bg-teal-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 disabled:opacity-60"
+        className="rounded-md bg-primary px-4 py-2 font-medium text-primary-fg outline-none hover:bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? pendingLabel : submitLabel}
       </button>

@@ -7,7 +7,7 @@ import { DateField } from "@/components/date-field";
 import type { ExpenseSplitMode } from "@/lib/expenses/types";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function ExpenseForm({
   tripId,
@@ -141,7 +141,7 @@ export function ExpenseForm({
         <fieldset className="flex flex-col gap-2">
           <legend className="text-sm font-medium">Share amounts</legend>
           {selectedMembers.length === 0 ? (
-            <p className="text-sm text-stone-700">Select members above, then enter each person’s share.</p>
+            <p className="text-sm text-ink-muted">Select members above, then enter each person’s share.</p>
           ) : (
             selectedMembers.map((member) => (
               <div key={member.email}>
@@ -172,14 +172,14 @@ export function ExpenseForm({
         </p>
       ) : null}
       {status ? (
-        <p role="status" className="rounded-md border border-teal-300 bg-teal-50 px-3 py-2 text-sm text-teal-950">
+        <p role="status" className="rounded-md border border-sage bg-sand px-3 py-2 text-sm text-ink">
           {status}
         </p>
       ) : null}
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-md bg-teal-800 px-3 py-1.5 text-sm font-medium text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 disabled:opacity-60"
+        className="self-start rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? "Recording..." : "Record expense"}
       </button>

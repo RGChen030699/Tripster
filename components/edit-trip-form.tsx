@@ -8,7 +8,7 @@ import { DateField } from "@/components/date-field";
 import { parseTripInput } from "@/lib/trips/validation";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function EditTripForm({
   tripId,
@@ -95,7 +95,7 @@ export function EditTripForm({
   if (!open) {
     if (controlled) {
       return status ? (
-        <p role="status" className="rounded-md border border-teal-300 bg-teal-50 px-3 py-2 text-sm text-teal-950">
+        <p role="status" className="rounded-md border border-sage bg-sand px-3 py-2 text-sm text-ink">
           {status}
         </p>
       ) : null;
@@ -103,7 +103,7 @@ export function EditTripForm({
     return (
       <div className="flex flex-col gap-2">
         {status ? (
-          <p role="status" className="rounded-md border border-teal-300 bg-teal-50 px-3 py-2 text-sm text-teal-950">
+          <p role="status" className="rounded-md border border-sage bg-sand px-3 py-2 text-sm text-ink">
             {status}
           </p>
         ) : null}
@@ -122,7 +122,7 @@ export function EditTripForm({
   }
 
   return (
-    <form noValidate onSubmit={onSubmit} className="w-full rounded-md border border-stone-200 bg-white p-4">
+    <form noValidate onSubmit={onSubmit} className="w-full rounded-md border border-sand bg-panel p-4">
       <h2 className="text-lg font-semibold">Edit trip</h2>
       <div className="mt-4 flex flex-col gap-3">
         <Field id="edit-name" label="Trip name" name="name" defaultValue={name} />

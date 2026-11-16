@@ -24,7 +24,7 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
   }
 
   return (
-    <main className="mx-auto flex max-w-lg flex-col gap-6 px-6 py-16">
+    <main className="mx-auto flex max-w-lg flex-col gap-6 px-6 py-10">
       <TripDetail trip={result.trip} />
       <Link href="/" className={`${secondaryButtonClassName} self-start`}>
         Back to trips
@@ -35,9 +35,9 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
 
 function MissingTrip() {
   return (
-    <main className="mx-auto max-w-lg px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Trip not found</h1>
-      <p className="mt-3 text-stone-700">This trip is not available on your account.</p>
+    <main className="mx-auto max-w-lg px-6 py-10">
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Trip not found</h1>
+      <p className="mt-3 text-ink-muted">This trip is not available on your account.</p>
       <p className="mt-6">
         <Link href="/" className={`${secondaryButtonClassName} self-start`}>
           Back to trips

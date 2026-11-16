@@ -31,9 +31,9 @@ export default async function ItineraryPage({ params }: { params: Promise<{ id: 
   }
 
   return (
-    <main className="mx-auto flex max-w-lg flex-col gap-6 px-6 py-16">
+    <main className="mx-auto flex max-w-lg flex-col gap-6 px-6 py-10">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Itinerary</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Itinerary</h1>
         <p className="mt-3 text-lg">{trip.trip.name}</p>
       </div>
       <ItineraryList tripId={id} items={listed.items} />
@@ -49,10 +49,10 @@ export default async function ItineraryPage({ params }: { params: Promise<{ id: 
 
 function MissingTrip() {
   return (
-    <main className="mx-auto max-w-lg px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Trip not found</h1>
-      <p className="mt-3 text-stone-700">This trip is not available on your account.</p>
-      <Link href="/" className="mt-6 inline-block font-medium text-teal-900 underline">
+    <main className="mx-auto max-w-lg px-6 py-10">
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Trip not found</h1>
+      <p className="mt-3 text-ink-muted">This trip is not available on your account.</p>
+      <Link href="/" className="mt-6 inline-block font-medium text-ink underline">
         Back to trips
       </Link>
     </main>
