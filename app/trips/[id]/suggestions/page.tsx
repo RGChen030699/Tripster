@@ -34,7 +34,7 @@ export default async function SuggestionsPage({ params }: { params: Promise<{ id
   return (
     <main className="mx-auto flex max-w-lg flex-col gap-6 px-6 py-10">
       <div>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Suggestions</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-ink">Suggestions</h1>
         <p className="mt-3 text-lg">{trip.trip.name}</p>
       </div>
       <SuggestionForm tripId={id} />
@@ -52,7 +52,7 @@ export default async function SuggestionsPage({ params }: { params: Promise<{ id
 function MissingTrip() {
   return (
     <main className="mx-auto max-w-lg px-6 py-10">
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Trip not found</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight text-ink">Trip not found</h1>
       <p className="mt-3 text-ink-muted">This trip is not available on your account.</p>
       <p className="mt-6">
         <Link href="/" className={`${secondaryButtonClassName} self-start`}>

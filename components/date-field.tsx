@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
@@ -71,7 +71,7 @@ export function DateField({
 
   return (
     <div ref={rootRef} className="relative">
-      <label htmlFor={id} className="block text-sm font-medium">
+      <label htmlFor={id} className="block text-sm font-bold">
         {label}
       </label>
       <input
@@ -122,7 +122,7 @@ export function DateField({
             >
               Prev
             </button>
-            <p className="text-sm font-medium text-ink">{monthLabel}</p>
+            <p className="text-sm font-bold text-ink">{monthLabel}</p>
             <button
               type="button"
               aria-label="Next month"
@@ -132,7 +132,7 @@ export function DateField({
               Next
             </button>
           </div>
-          <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-ink-muted">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-ink-muted">
             {WEEKDAYS.map((day) => (
               <span key={day}>{day}</span>
             ))}
@@ -151,7 +151,7 @@ export function DateField({
                   }}
                   className={
                     cell === value
-                      ? "rounded-md bg-primary px-1 py-1.5 text-sm font-medium text-primary-fg outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      ? "rounded-md border border-sage bg-sage px-1 py-1.5 text-sm font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       : "rounded-md px-1 py-1.5 text-sm text-ink outline-none hover:bg-sand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   }
                 >

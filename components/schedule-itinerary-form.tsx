@@ -6,7 +6,7 @@ import { useState, type FormEvent } from "react";
 import { DateField } from "@/components/date-field";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function ScheduleItineraryForm({
   tripId,
@@ -58,7 +58,7 @@ export function ScheduleItineraryForm({
     <form noValidate onSubmit={onSubmit} className="flex flex-col gap-3">
       <DateField id={`date-${itemId}`} label="Date" name="date" defaultValue={date ?? ""} />
       <div>
-        <label htmlFor={`time-${itemId}`} className="block text-sm font-medium">
+        <label htmlFor={`time-${itemId}`} className="block text-sm font-bold">
           Time
         </label>
         <input
@@ -84,7 +84,7 @@ export function ScheduleItineraryForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-md border border-sand bg-panel px-3 py-1.5 text-sm font-medium outline-none hover:bg-sand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
+        className="self-start rounded-md border border-sage bg-sage px-3 py-1.5 text-sm font-bold text-ink outline-none hover:bg-clay focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? "Saving..." : "Save schedule"}
       </button>

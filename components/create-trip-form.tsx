@@ -7,7 +7,7 @@ import { DateField } from "@/components/date-field";
 import { parseTripInput } from "@/lib/trips/validation";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function CreateTripForm() {
   const router = useRouter();
@@ -69,7 +69,7 @@ export function CreateTripForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md bg-primary px-4 py-2 font-medium text-primary-fg outline-none hover:bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
+        className="rounded-md border border-sage bg-sage px-4 py-2 font-bold text-ink outline-none hover:bg-clay focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? "Creating trip..." : "Create trip"}
       </button>
@@ -92,7 +92,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium">
+      <label htmlFor={id} className="block text-sm font-bold">
         {label}
       </label>
       <input id={id} name={name} type={type} autoComplete={autoComplete} required className={inputClassName} />

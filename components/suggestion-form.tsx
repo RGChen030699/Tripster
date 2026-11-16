@@ -6,7 +6,7 @@ import { useState, type FormEvent } from "react";
 import { parseSuggestionInput } from "@/lib/suggestions/validation";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function SuggestionForm({ tripId }: { tripId: string }) {
   const router = useRouter();
@@ -59,7 +59,7 @@ export function SuggestionForm({ tripId }: { tripId: string }) {
   return (
     <form noValidate onSubmit={onSubmit} className="flex flex-col gap-4">
       <div>
-        <label htmlFor="suggestion-category" className="block text-sm font-medium">
+        <label htmlFor="suggestion-category" className="block text-sm font-bold">
           Category
         </label>
         <select id="suggestion-category" name="category" required className={inputClassName} defaultValue="">
@@ -72,7 +72,7 @@ export function SuggestionForm({ tripId }: { tripId: string }) {
       </div>
       <Field id="suggestion-name" label="Name" name="name" />
       <div>
-        <label htmlFor="suggestion-description" className="block text-sm font-medium">
+        <label htmlFor="suggestion-description" className="block text-sm font-bold">
           Description
         </label>
         <textarea id="suggestion-description" name="description" rows={3} className={inputClassName} />
@@ -93,7 +93,7 @@ export function SuggestionForm({ tripId }: { tripId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-md bg-primary px-4 py-2 font-medium text-primary-fg outline-none hover:bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
+        className="self-start rounded-md border border-sage bg-sage px-4 py-2 font-bold text-ink outline-none hover:bg-clay focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? "Adding suggestion..." : "Add suggestion"}
       </button>
@@ -104,7 +104,7 @@ export function SuggestionForm({ tripId }: { tripId: string }) {
 function Field({ id, label, name }: { id: string; label: string; name: string }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium">
+      <label htmlFor={id} className="block text-sm font-bold">
         {label}
       </label>
       <input id={id} name={name} type="text" autoComplete="off" className={inputClassName} />

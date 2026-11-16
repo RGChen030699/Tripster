@@ -40,7 +40,7 @@ export function RemoveSuggestionButton({
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="mt-3 text-sm font-medium text-red-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+        className="mt-3 text-sm font-bold text-red-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
       >
         Remove
       </button>
@@ -59,7 +59,7 @@ export function RemoveSuggestionButton({
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="rounded-md border border-sand bg-panel px-3 py-1.5 text-sm font-medium outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="rounded-md border border-sage bg-sage px-3 py-1.5 text-sm font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Cancel
         </button>
@@ -69,7 +69,7 @@ export function RemoveSuggestionButton({
           onClick={() => {
             void remove();
           }}
-          className="rounded-md bg-red-800 px-3 py-1.5 text-sm font-medium text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800 disabled:opacity-60"
+          className="rounded-md bg-red-800 px-3 py-1.5 text-sm font-bold text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800 disabled:opacity-60"
         >
           {pending ? "Removing..." : "Remove suggestion"}
         </button>

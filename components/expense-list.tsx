@@ -9,7 +9,7 @@ export function ExpenseList({ expenses }: { expenses: ExpenseView[] }) {
     <ul className="flex flex-col gap-4">
       {expenses.map((expense) => (
         <li key={expense.id} className="rounded-lg border border-sand bg-panel p-4">
-          <h2 className="text-lg font-semibold">{expense.description}</h2>
+          <h2 className="text-lg font-bold">{expense.description}</h2>
           <p className="mt-1">{formatAmount(expense.amountCents, expense.currency)}</p>
           <p className="mt-1 text-ink-muted">{expense.date}</p>
           <p className="mt-2">Paid by {expense.payerEmail}</p>

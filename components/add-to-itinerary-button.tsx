@@ -57,7 +57,7 @@ export function AddToItineraryButton({
           void onAdd();
         }}
         disabled={pending}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-fg outline-none hover:bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
+        className="rounded-md border border-sage bg-sage px-4 py-2 text-sm font-bold text-ink outline-none hover:bg-clay focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? "Adding..." : "Add"}
       </button>

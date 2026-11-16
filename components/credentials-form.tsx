@@ -6,7 +6,7 @@ import { useState, type FormEvent } from "react";
 import { parseCredentials } from "@/lib/auth/validation";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 type CredentialsFormProps = {
   endpoint: "/api/auth/register" | "/api/auth/login";
@@ -66,7 +66,7 @@ export function CredentialsForm({
   return (
     <form noValidate onSubmit={onSubmit} className="flex flex-col gap-4">
       <div>
-        <label htmlFor="email" className="block text-sm font-medium">
+        <label htmlFor="email" className="block text-sm font-bold">
           Email
         </label>
         <input
@@ -79,7 +79,7 @@ export function CredentialsForm({
         />
       </div>
       <div>
-        <label htmlFor="password" className="block text-sm font-medium">
+        <label htmlFor="password" className="block text-sm font-bold">
           Password
         </label>
         <input
@@ -101,7 +101,7 @@ export function CredentialsForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md bg-primary px-4 py-2 font-medium text-primary-fg outline-none hover:bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
+        className="rounded-md border border-sage bg-sage px-4 py-2 font-bold text-ink outline-none hover:bg-clay focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? pendingLabel : submitLabel}
       </button>

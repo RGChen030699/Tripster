@@ -133,7 +133,7 @@ export function VoteControls({
             onClick={() => {
               void choose(option.choice);
             }}
-            className="rounded-md border border-sand bg-panel px-3 py-1.5 text-sm font-medium text-ink outline-none hover:bg-sand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60 aria-pressed:border-primary aria-pressed:bg-sand"
+            className="rounded-md border border-sage bg-sage px-3 py-1.5 text-sm font-bold text-ink outline-none hover:bg-clay focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60 aria-pressed:border-primary aria-pressed:bg-sand"
           >
             {option.label}
           </button>
