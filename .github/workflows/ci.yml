@@ -1,0 +1,228 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - feature/12-postgres
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  JWT_SECRET: tripster-ci-jwt-secret
+  POSTGRES_USER: tripster
+  POSTGRES_PASSWORD: tripster
+  POSTGRES_HOST: localhost
+  POSTGRES_PORT: "5432"
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+  unit-test:
+    name: Unit and integration tests
+    needs: typecheck
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: tripster
+          POSTGRES_PASSWORD: tripster
+          POSTGRES_DB: tripster_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tripster -d tripster_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://tripster:tripster@localhost:5432/tripster_test
+      DATABASE_URL_TEST: postgresql://tripster:tripster@localhost:5432/tripster_test
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+
+      - name: Run Vitest
+        run: npm test
+
+  e2e:
+    name: End-to-end tests
+    needs: unit-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: tripster
+          POSTGRES_PASSWORD: tripster
+          POSTGRES_DB: tripster
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tripster -d tripster"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://tripster:tripster@localhost:5432/tripster
+      CI: "1"
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+
+  security:
+    name: Security scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm audit (fail on critical)
+        run: npm audit --audit-level=critical
+
+      - name: Write npm audit report
+        if: always()
+        run: npm audit --json > npm-audit.json || true
+
+      - name: Upload npm audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: npm-audit.json
+          if-no-files-found: ignore
+
+      - name: Dependency review
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: critical
+
+  build:
+    name: Production build
+    needs: typecheck
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://tripster:tripster@localhost:5432/tripster
+      JWT_SECRET: tripster-ci-jwt-secret
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  deploy-gate:
+    name: Deploy gate
+    needs:
+      - typecheck
+      - unit-test
+      - e2e
+      - security
+      - build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Require green upstream jobs
+        run: |
+          set -euo pipefail
+          results=(
+            "${{ needs.typecheck.result }}"
+            "${{ needs.unit-test.result }}"
+            "${{ needs.e2e.result }}"
+            "${{ needs.security.result }}"
+            "${{ needs.build.result }}"
+          )
+          for result in "${results[@]}"; do
+            if [[ "$result" != "success" ]]; then
+              echo "Upstream job failed: $result"
+              exit 1
+            fi
+          done
+          echo "All CI stages passed."
+          echo "Production deploy is handled by the Vercel Git integration on merge to the connected production branch."
