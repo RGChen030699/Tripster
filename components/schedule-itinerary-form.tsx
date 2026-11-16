@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { DateField } from "@/components/date-field";
+
 const inputClassName =
   "mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
 
@@ -54,19 +56,7 @@ export function ScheduleItineraryForm({
 
   return (
     <form noValidate onSubmit={onSubmit} className="flex flex-col gap-3">
-      <div>
-        <label htmlFor={`date-${itemId}`} className="block text-sm font-medium">
-          Date
-        </label>
-        <input
-          id={`date-${itemId}`}
-          name="date"
-          type="text"
-          defaultValue={date ?? ""}
-          autoComplete="off"
-          className={inputClassName}
-        />
-      </div>
+      <DateField id={`date-${itemId}`} label="Date" name="date" defaultValue={date ?? ""} />
       <div>
         <label htmlFor={`time-${itemId}`} className="block text-sm font-medium">
           Time

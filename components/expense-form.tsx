@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { DateField } from "@/components/date-field";
+
 const inputClassName =
   "mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
 
@@ -57,7 +59,7 @@ export function ExpenseForm({
     <form noValidate onSubmit={onSubmit} className="flex flex-col gap-3">
       <Field id="expense-amount" label="Amount" name="amount" />
       <Field id="expense-description" label="Description" name="description" />
-      <Field id="expense-date" label="Date" name="date" />
+      <DateField id="expense-date" label="Date" name="date" />
       <div>
         <label htmlFor="expense-payer" className="block text-sm font-medium">
           Payer
