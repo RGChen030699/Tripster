@@ -143,8 +143,7 @@ describe("trip member routes", () => {
     );
     expect(denied.status).toBe(403);
     await expect(denied.json()).resolves.toEqual({
-      error: "Only the organizer can add members.",
-    });
+      error: "Only the organizer can invite members.",    });
   });
 
   it("does not reveal trip details to someone who is not a member", async () => {

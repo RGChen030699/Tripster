@@ -37,16 +37,16 @@ export function AddMemberForm({ tripId }: { tripId: string }) {
       const payload = await readJson(response);
       if (!response.ok) {
         setStatus(null);
-        setError(errorMessage(payload, "Could not add that member. Try again."));
+        setError(errorMessage(payload, "Could not invite that member. Try again."));
         return;
       }
-      const addedEmail = memberEmailFrom(payload);
+      const invitedEmail = memberEmailFrom(payload);
       form.reset();
-      setStatus(addedEmail ? `Added ${addedEmail}.` : "Added the member.");
+      setStatus(invitedEmail ? `Invited ${invitedEmail}.` : "Invited the member.");
       router.refresh();
     } catch {
       setStatus(null);
-      setError("Could not add that member. Try again.");
+      setError("Could not invite that member. Try again.");
     } finally {
       setPending(false);
     }
@@ -56,7 +56,7 @@ export function AddMemberForm({ tripId }: { tripId: string }) {
     <form noValidate onSubmit={onSubmit} className="mt-4 flex flex-col gap-3">
       <div>
         <label htmlFor="member-email" className="block text-sm font-medium">
-          Email
+          Invite by email
         </label>
         <input
           id="member-email"
@@ -64,10 +64,11 @@ export function AddMemberForm({ tripId }: { tripId: string }) {
           type="email"
           autoComplete="off"
           required
+          placeholder="name@example.com"
           className={inputClassName}
         />
       </div>
-      <p className="text-sm text-stone-700">Add someone who already has a Tripster account.</p>
+      <p className="text-sm text-stone-700">Invite members via email.</p>
       {error ? (
         <p role="alert" className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-950">
           {error}
@@ -83,7 +84,7 @@ export function AddMemberForm({ tripId }: { tripId: string }) {
         disabled={pending}
         className="self-start rounded-md bg-teal-800 px-4 py-2 font-medium text-white outline-none hover:bg-teal-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 disabled:opacity-60"
       >
-        {pending ? "Adding member..." : "Add member"}
+        {pending ? "Inviting..." : "Invite member"}
       </button>
     </form>
   );
