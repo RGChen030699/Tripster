@@ -5,8 +5,8 @@ import { TripService } from "@/lib/trips/trip-service";
 import { InMemoryTripStore } from "@/lib/trips/trip-store";
 
 const VALID = {
-  name: "  Lisbon week  ",
-  destination: " Lisbon ",
+  name: "  Japan week  ",
+  destination: " Japan ",
   startDate: "2026-11-01",
   endDate: "2026-11-05",
 };
@@ -35,8 +35,8 @@ describe("TripService", () => {
       return;
     }
     expect(created.trip).toMatchObject({
-      name: "Lisbon week",
-      destination: "Lisbon",
+      name: "Japan week",
+      destination: "Japan",
       startDate: "2026-11-01",
       endDate: "2026-11-05",
       role: "organizer",
@@ -117,7 +117,7 @@ describe("TripService", () => {
 
     const hidden = await service.getTrip("someone-else", created.trip.id);
     expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
-    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+    expect(JSON.stringify(hidden)).not.toContain("Japan");
   });
 
   it("lets the organizer add an existing email and that person sees the trip", async () => {
@@ -156,7 +156,7 @@ describe("TripService", () => {
     expect(details).toMatchObject({
       ok: true,
       trip: {
-        destination: "Lisbon",
+        destination: "Japan",
         role: "member",
         members: [
           { email: "ada@example.com", role: "organizer" },
@@ -211,11 +211,11 @@ describe("TripService", () => {
       status: 403,
       error: "Only the organizer can add members.",
     });
-    expect(JSON.stringify(denied)).not.toContain("Lisbon");
+    expect(JSON.stringify(denied)).not.toContain("Japan");
 
     const hidden = await service.addMember("someone-else", created.trip.id, "cara@example.com");
     expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
-    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+    expect(JSON.stringify(hidden)).not.toContain("Japan");
     expect(JSON.stringify(hidden)).not.toContain("cara@example.com");
   });
 });

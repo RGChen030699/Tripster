@@ -13,8 +13,8 @@ import { resetTripService } from "@/lib/trips/container";
 
 const PASSWORD = "correct-horse";
 const TRIP = {
-  name: "Lisbon week",
-  destination: "Lisbon",
+  name: "Japan week",
+  destination: "Japan",
   startDate: "2026-11-01",
   endDate: "2026-11-05",
 };
@@ -45,7 +45,7 @@ async function registerUser(email: string): Promise<string> {
   return response.headers.get("set-cookie")?.split(";")[0] ?? "";
 }
 
-async function createLisbon(cookie: string): Promise<string> {
+async function createJapan(cookie: string): Promise<string> {
   const response = await createTrip(jsonRequest("/api/trips", TRIP, cookie));
   expect(response.status).toBe(201);
   const body = (await response.json()) as { trip: { id: string } };
@@ -82,7 +82,7 @@ describe("vote routes", () => {
   it("replaces a member's vote, shows totals, and leaves the itinerary empty", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
     const added = await addMember(
       jsonRequest(`/api/trips/${tripId}/members`, { email: "bryce@example.com" }, ada),
       { params: Promise.resolve({ id: tripId }) },
@@ -136,7 +136,7 @@ describe("vote routes", () => {
   it("does not let a non-member vote or read totals", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
     const suggestionId = await suggest(ada, tripId);
 
     const hiddenVote = await vote(
@@ -147,7 +147,7 @@ describe("vote routes", () => {
     const voteText = JSON.stringify(await hiddenVote.json());
     expect(voteText).toBe(JSON.stringify({ error: "Trip not found." }));
     expect(voteText).not.toContain("Pastel");
-    expect(voteText).not.toContain("Lisbon");
+    expect(voteText).not.toContain("Japan");
 
     const hiddenList = await listSuggestions(
       new Request(`http://localhost/api/trips/${tripId}/suggestions`, { headers: { cookie: bryce } }),
@@ -161,6 +161,6 @@ describe("vote routes", () => {
       { params: Promise.resolve({ id: tripId }) },
     );
     expect(hiddenItinerary.status).toBe(404);
-    expect(JSON.stringify(await hiddenItinerary.json())).not.toContain("Lisbon");
+    expect(JSON.stringify(await hiddenItinerary.json())).not.toContain("Japan");
   });
 });

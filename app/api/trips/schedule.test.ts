@@ -54,8 +54,8 @@ describe("itinerary schedule routes", () => {
       jsonRequest(
         "/api/trips",
         {
-          name: "Lisbon week",
-          destination: "Lisbon",
+          name: "Japan week",
+          destination: "Japan",
           startDate: "2026-11-01",
           endDate: "2026-11-05",
         },

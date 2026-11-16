@@ -36,8 +36,8 @@ describe("trip routes", () => {
   it("rejects an unauthenticated create", async () => {
     const response = await createTrip(
       jsonRequest("/api/trips", {
-        name: "Lisbon week",
-        destination: "Lisbon",
+        name: "Japan week",
+        destination: "Japan",
         startDate: "2026-11-01",
         endDate: "2026-11-05",
       }),
@@ -51,8 +51,8 @@ describe("trip routes", () => {
     const cookie = await registerUser("ada@example.com");
     const response = await createTrip(
       jsonRequest("/api/trips", {
-        name: "Lisbon week",
-        destination: "Lisbon",
+        name: "Japan week",
+        destination: "Japan",
         startDate: "2026-11-01",
         endDate: "2026-11-05",
       }, cookie),
@@ -61,8 +61,8 @@ describe("trip routes", () => {
     expect(response.status).toBe(201);
     const body = (await response.json()) as { trip: { id: string; role: string; name: string } };
     expect(body.trip).toMatchObject({
-      name: "Lisbon week",
-      destination: "Lisbon",
+      name: "Japan week",
+      destination: "Japan",
       startDate: "2026-11-01",
       endDate: "2026-11-05",
       role: "organizer",
@@ -92,8 +92,8 @@ describe("trip routes", () => {
     const cookie = await registerUser("ada@example.com");
     const response = await createTrip(
       jsonRequest("/api/trips", {
-        name: "Lisbon week",
-        destination: "Lisbon",
+        name: "Japan week",
+        destination: "Japan",
         startDate: "2026-11-05",
         endDate: "2026-11-01",
       }, cookie),
@@ -109,8 +109,8 @@ describe("trip routes", () => {
     const ada = await registerUser("ada@example.com");
     const created = await createTrip(
       jsonRequest("/api/trips", {
-        name: "Lisbon week",
-        destination: "Lisbon",
+        name: "Japan week",
+        destination: "Japan",
         startDate: "2026-11-01",
         endDate: "2026-11-05",
       }, ada),
@@ -125,12 +125,12 @@ describe("trip routes", () => {
     );
     expect(hidden.status).toBe(404);
     const text = JSON.stringify(await hidden.json());
-    expect(text).not.toContain("Lisbon");
+    expect(text).not.toContain("Japan");
 
     const list = await listTrips(
       new Request("http://localhost/api/trips", { headers: { cookie: bryce } }),
     );
     const listText = JSON.stringify(await list.json());
-    expect(listText).not.toContain("Lisbon");
+    expect(listText).not.toContain("Japan");
   });
 });

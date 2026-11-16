@@ -6,10 +6,10 @@ import { describe, expect, it, vi } from "vitest";
 import { AccountHome } from "@/components/account-home";
 import type { TripSummary } from "@/lib/trips/types";
 
-const lisbon: TripSummary = {
+const japan: TripSummary = {
   id: "trip-1",
-  name: "Lisbon week",
-  destination: "Lisbon",
+  name: "Japan week",
+  destination: "Japan",
   startDate: "2026-11-01",
   endDate: "2026-11-05",
   role: "organizer",
@@ -58,13 +58,13 @@ describe("AccountHome", () => {
   });
 
   it("lists a trip with its destination and dates", () => {
-    render(<AccountHome email="ada@example.com" trips={[lisbon]} />);
+    render(<AccountHome email="ada@example.com" trips={[japan]} />);
 
-    expect(screen.getByRole("link", { name: "Lisbon week" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Japan week" })).toHaveAttribute(
       "href",
       "/trips/trip-1",
     );
-    expect(screen.getByText("Lisbon")).toBeInTheDocument();
+    expect(screen.getByText("Japan")).toBeInTheDocument();
     expect(screen.getByText("2026-11-01 to 2026-11-05")).toBeInTheDocument();
   });
 });
