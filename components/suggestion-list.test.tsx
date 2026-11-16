@@ -69,6 +69,10 @@ describe("SuggestionList", () => {
     );
     expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Remove" })).toBeInTheDocument();
+    expect(screen.getByTestId("suggestion-owner-actions")).toHaveClass("gap-3");
+    expect(screen.getByRole("button", { name: "Edit" }).className).toMatch(/bg-sage/);
+    expect(screen.getByRole("button", { name: "Remove" }).className).toMatch(/text-red-900/);
+    expect(screen.getByRole("button", { name: "Edit" }).className).not.toMatch(/underline/);
 
     rerender(<SuggestionList tripId="trip-1" viewerEmail="bryce@example.com" suggestions={[pastel]} />);
     expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();

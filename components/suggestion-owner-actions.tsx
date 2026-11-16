@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { secondaryButtonClassName } from "@/components/button-styles";
 import { EditSuggestionForm } from "@/components/edit-suggestion-form";
 import { RemoveSuggestionButton } from "@/components/remove-suggestion-button";
 import type { SuggestionView } from "@/lib/suggestions/types";
@@ -20,15 +21,20 @@ export function SuggestionOwnerActions({
       {editing ? (
         <EditSuggestionForm tripId={tripId} suggestion={suggestion} />
       ) : (
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className="text-sm font-bold text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        <div
+          className="flex flex-wrap items-center gap-3"
+          data-testid="suggestion-owner-actions"
         >
-          Edit
-        </button>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className={secondaryButtonClassName}
+          >
+            Edit
+          </button>
+          <RemoveSuggestionButton tripId={tripId} suggestionId={suggestion.id} />
+        </div>
       )}
-      <RemoveSuggestionButton tripId={tripId} suggestionId={suggestion.id} />
     </div>
   );
 }
