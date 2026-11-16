@@ -20,7 +20,7 @@ The broader trip workspace also keeps **complex shared state** on the server:
 
 Those invariants live in `lib/` services and stores and are covered by Vitest and the Playwright journey.
 
-Architecture layers, auth flow, and domain boundaries are documented in [`docs/architecture.md`](docs/architecture.md). The PostgreSQL / Neon entity diagram is in [`docs/database-schema.md`](docs/database-schema.md). Sprint retrospectives: [`docs/sprint-1-retrospective.md`](docs/sprint-1-retrospective.md) and [`docs/sprint-2-retrospective.md`](docs/sprint-2-retrospective.md). Post-hoc story-point estimates for issues #1–#10: [`docs/sprint-estimates.md`](docs/sprint-estimates.md).
+Architecture layers, auth flow, and domain boundaries are documented in [`docs/architecture.md`](docs/architecture.md). The PostgreSQL / Neon entity diagram is in [`docs/database-schema.md`](docs/database-schema.md). Sprint retrospectives: [`docs/sprint-1-retrospective.md`](docs/sprint-1-retrospective.md) and [`docs/sprint-2-retrospective.md`](docs/sprint-2-retrospective.md). Post-hoc story-point estimates for issues #1–#10: [`docs/sprint-estimates.md`](docs/sprint-estimates.md). Optional Stryker mutation testing notes: [`docs/mutation-testing.md`](docs/mutation-testing.md).
 
 ## Local setup
 
@@ -56,10 +56,13 @@ Authentication uses JWT: register and login set an HS256 access token in the htt
 ```sh
 npm test
 npm run test:e2e
+npm run test:mutation
 npm run typecheck
 ```
 
 `npm test` runs Vitest against the isolated test database, not the development database. Create `tripster_test` and apply migrations before running tests. `npm run test:e2e` runs Playwright against a local Next.js server (Chromium). It uses `DATABASE_URL` and `JWT_SECRET` from the environment; set those before the run. `npm run typecheck` runs `tsc --noEmit`.
+
+`npm run test:mutation` runs [Stryker](https://stryker-mutator.io/) against the pure expense-split helpers in `lib/expenses/split.ts` (config: `stryker.config.mjs`, lean Vitest file: `vitest.mutation.config.ts`). It is **optional** and is not part of `npm test`, the production build, or the CI gate. Thresholds do not break the process on a low score. HTML/JSON reports land under `reports/mutation/` (gitignored).
 
 ## API documentation (OpenAPI)
 
