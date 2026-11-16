@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { primaryButtonClassName, secondaryButtonClassName } from "@/components/button-styles";
 import { DateField } from "@/components/date-field";
 
 const inputClassName =
@@ -13,16 +14,30 @@ export function ScheduleItineraryForm({
   itemId,
   date,
   startTime,
+  open: openProp,
+  onOpenChange,
 }: {
   tripId: string;
   itemId: string;
   date?: string;
   startTime?: string | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const router = useRouter();
+  const controlled = openProp !== undefined;
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(true);
+  const open = controlled ? openProp : uncontrolledOpen;
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  function setOpen(next: boolean) {
+    if (!controlled) {
+      setUncontrolledOpen(next);
+    }
+    onOpenChange?.(next);
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,6 +60,7 @@ export function ScheduleItineraryForm({
         return;
       }
       setStatus("Saved the schedule.");
+      setOpen(false);
       router.refresh();
     } catch {
       setStatus(null);
@@ -54,8 +70,16 @@ export function ScheduleItineraryForm({
     }
   }
 
+  if (!open) {
+    return status ? (
+      <p role="status" className="rounded-md border border-sage bg-sand px-3 py-2 text-sm text-ink">
+        {status}
+      </p>
+    ) : null;
+  }
+
   return (
-    <form noValidate onSubmit={onSubmit} className="flex flex-col gap-3">
+    <form noValidate onSubmit={onSubmit} className="flex w-full flex-col gap-3">
       <DateField id={`date-${itemId}`} label="Date" name="date" defaultValue={date ?? ""} />
       <div>
         <label htmlFor={`time-${itemId}`} className="block text-sm font-bold">
@@ -81,13 +105,14 @@ export function ScheduleItineraryForm({
           {status}
         </p>
       ) : null}
-      <button
-        type="submit"
-        disabled={pending}
-        className="self-start rounded-md border border-sage bg-sage px-3 py-1.5 text-sm font-bold text-ink outline-none hover:bg-clay focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
-      >
-        {pending ? "Saving..." : "Save schedule"}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={() => setOpen(false)} className={secondaryButtonClassName}>
+          Cancel
+        </button>
+        <button type="submit" disabled={pending} className={primaryButtonClassName}>
+          {pending ? "Saving..." : "Save schedule"}
+        </button>
+      </div>
     </form>
   );
 }

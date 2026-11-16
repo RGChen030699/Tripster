@@ -3,11 +3,35 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function RemoveItineraryButton({ tripId, itemId }: { tripId: string; itemId: string }) {
+import {
+  dangerButtonClassName,
+  secondaryButtonClassName,
+} from "@/components/button-styles";
+
+export function RemoveItineraryButton({
+  tripId,
+  itemId,
+  confirming: confirmingProp,
+  onConfirmingChange,
+}: {
+  tripId: string;
+  itemId: string;
+  confirming?: boolean;
+  onConfirmingChange?: (confirming: boolean) => void;
+}) {
   const router = useRouter();
-  const [confirming, setConfirming] = useState(false);
+  const controlled = confirmingProp !== undefined;
+  const [uncontrolledConfirming, setUncontrolledConfirming] = useState(false);
+  const confirming = controlled ? confirmingProp : uncontrolledConfirming;
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  function setConfirming(next: boolean) {
+    if (!controlled) {
+      setUncontrolledConfirming(next);
+    }
+    onConfirmingChange?.(next);
+  }
 
   async function remove() {
     setPending(true);
@@ -30,12 +54,11 @@ export function RemoveItineraryButton({ tripId, itemId }: { tripId: string; item
   }
 
   if (!confirming) {
+    if (controlled) {
+      return null;
+    }
     return (
-      <button
-        type="button"
-        onClick={() => setConfirming(true)}
-        className="mt-3 block text-sm font-bold text-red-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
-      >
+      <button type="button" onClick={() => setConfirming(true)} className={dangerButtonClassName}>
         Remove from itinerary
       </button>
     );
@@ -45,7 +68,7 @@ export function RemoveItineraryButton({ tripId, itemId }: { tripId: string; item
     <div
       role="alertdialog"
       aria-label="Remove this itinerary item?"
-      className="mt-3 rounded-md border border-red-300 bg-red-50 p-3"
+      className="rounded-md border border-red-300 bg-red-50 p-3"
     >
       <p>Remove this itinerary item?</p>
       {error ? (
@@ -54,11 +77,7 @@ export function RemoveItineraryButton({ tripId, itemId }: { tripId: string; item
         </p>
       ) : null}
       <div className="mt-3 flex gap-2">
-        <button
-          type="button"
-          onClick={() => setConfirming(false)}
-          className="rounded-md border border-sage bg-sage px-3 py-1.5 text-sm font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
+        <button type="button" onClick={() => setConfirming(false)} className={secondaryButtonClassName}>
           Cancel
         </button>
         <button
@@ -67,7 +86,7 @@ export function RemoveItineraryButton({ tripId, itemId }: { tripId: string; item
           onClick={() => {
             void remove();
           }}
-          className="rounded-md bg-red-800 px-3 py-1.5 text-sm font-bold text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800 disabled:opacity-60"
+          className={`${dangerButtonClassName} border-red-800 bg-red-800 text-white hover:bg-red-900 focus-visible:outline-red-800`}
         >
           {pending ? "Removing..." : "Remove item"}
         </button>
