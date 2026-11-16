@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { DateField } from "@/components/date-field";
 import { parseTripInput } from "@/lib/trips/validation";
 
 const inputClassName =
@@ -58,9 +59,8 @@ export function CreateTripForm() {
     <form noValidate onSubmit={onSubmit} className="flex flex-col gap-4">
       <Field id="name" label="Trip name" name="name" type="text" autoComplete="off" />
       <Field id="destination" label="Destination" name="destination" type="text" autoComplete="off" />
-      <Field id="startDate" label="Start date" name="startDate" type="text" autoComplete="off" />
-      <Field id="endDate" label="End date" name="endDate" type="text" autoComplete="off" />
-      <p className="text-sm text-stone-700">Use dates as YYYY-MM-DD.</p>
+      <DateField id="startDate" label="Start date" name="startDate" required />
+      <DateField id="endDate" label="End date" name="endDate" required />
       {error ? (
         <p role="alert" className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-950">
           {error}
