@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function SiteBanner() {
   return (
-    <header className="w-full border-b border-sand bg-sand">
+    <header className="w-full border-b border-sage bg-sage">
       <div className="flex w-full flex-col items-start px-6 py-5 text-left sm:px-8">
         <Link
           href="/"
