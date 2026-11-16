@@ -54,11 +54,11 @@ Pull requests and pushes to `main` / `feature/12-postgres` run the GitHub Action
 1. Typecheck
 2. Unit and integration tests (Vitest against a Postgres 16 service)
 3. End-to-end tests (Playwright Chromium against the same Postgres service)
-4. Security scan (`npm audit` fails on critical findings; dependency review on pull requests)
+4. Security scan (`npm audit` fails on critical findings; Trivy filesystem scan for critical CVEs)
 5. Production build (`npm run build`)
 6. Deploy gate (all stages must pass)
 
-CI starts its own Postgres containers. It does not need repository secrets for the database. `JWT_SECRET` is set to a CI-only placeholder in the workflow. Vercel deploy previews still run from the Vercel GitHub integration; production deploy is automated by that same integration when the production branch updates.
+Jobs run on `ubuntu-24.04` so Playwright 1.51.1 can install Chromium. CI starts its own Postgres containers. It does not need repository secrets for the database. `JWT_SECRET` is set to a CI-only placeholder in the workflow. Vercel deploy previews still run from the Vercel GitHub integration; production deploy is automated by that same integration when the production branch updates.
 
 ## Deployment
 
