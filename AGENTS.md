@@ -48,6 +48,7 @@ Versions below are the ones resolved in `package-lock.json` for this repository.
 - Unit/component tests: Vitest 5.1.0 and React Testing Library 16.3.3.
 - API documentation: OpenAPI 3.1 at `openapi/tripster.openapi.json`, served by `GET /api/openapi` outside production.
 - End-to-end tests: Playwright 1.51.1 (`@playwright/test`). Run with `npm run test:e2e`.
+- CI/CD: GitHub Actions workflow `.github/workflows/ci.yml` (typecheck → Vitest → Playwright → security scan → production build → deploy gate). Vercel provides deploy previews and production deploys from Git.
 - Persistence: PostgreSQL 16.16 (Homebrew `postgresql@16` on this checkout), Prisma 7.10.1, `@prisma/client` 7.10.1, `@prisma/adapter-pg` 7.10.1, and `pg` 8.23.1. Auth.js is not installed. Authentication uses HS256 JWTs (`JWT_SECRET`) in the `tripster_session` cookie. Accounts stay behind `UserStore`. JWT `jti` values for logout revocation stay behind `SessionStore`.
 
 ### Architecture and folders

@@ -47,6 +47,19 @@ npm run typecheck
 
 The API document is `openapi/tripster.openapi.json`. Outside production, `GET /api/openapi` returns that document. It includes example requests and responses for the main flows.
 
+## Continuous integration
+
+Pull requests and pushes to `main` / `feature/12-postgres` run the GitHub Actions workflow in `.github/workflows/ci.yml`. Stages:
+
+1. Typecheck
+2. Unit and integration tests (Vitest against a Postgres 16 service)
+3. End-to-end tests (Playwright Chromium against the same Postgres service)
+4. Security scan (`npm audit` fails on critical findings; Trivy filesystem scan for critical CVEs)
+5. Production build (`npm run build`)
+6. Deploy gate (all stages must pass)
+
+Jobs run on `ubuntu-24.04` so Playwright 1.51.1 can install Chromium. CI starts its own Postgres containers. It does not need repository secrets for the database. `JWT_SECRET` is set to a CI-only placeholder in the workflow. Vercel deploy previews still run from the Vercel GitHub integration; production deploy is automated by that same integration when the production branch updates.
+
 ## Deployment
 
 ```sh
@@ -54,4 +67,4 @@ npm run build
 npm start
 ```
 
-Set `DATABASE_URL` and `JWT_SECRET` in the host environment before `npm start`. Apply migrations with `npx prisma migrate deploy` before serving a new database. Do not commit real tokens, passwords, JWT secrets, or database URLs.
+Set `DATABASE_URL` and `JWT_SECRET` in the host environment before `npm start`. Apply migrations with `npx prisma migrate deploy` before serving a new database. Do not commit real tokens, passwords, JWT secrets, or database URLs. On GitHub, prefer the Actions deploy gate plus Vercel’s Git integration over a manual CLI deploy for routine releases.
