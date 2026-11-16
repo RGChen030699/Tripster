@@ -440,23 +440,37 @@ describe("SuggestionService", () => {
 
     const openDay = await service.scheduleItinerary("user-1", tripId, hotel.id, {
       date: "2026-11-01",
+      endDate: "2026-11-04",
       startTime: "",
     });
     expect(openDay).toMatchObject({
       ok: true,
-      item: { id: hotel.id, unscheduled: false, date: "2026-11-01", startTime: null },
+      item: {
+        id: hotel.id,
+        unscheduled: false,
+        date: "2026-11-01",
+        startTime: null,
+        endDate: "2026-11-04",
+      },
     });
 
     const listed = await service.listItinerary("user-1", tripId);
     expect(listed).toMatchObject({
       ok: true,
       items: [
-        { id: hotel.id, date: "2026-11-01", startTime: null, unscheduled: false },
+        {
+          id: hotel.id,
+          date: "2026-11-01",
+          startTime: null,
+          endDate: "2026-11-04",
+          unscheduled: false,
+        },
         { id: tram.id, date: "2026-11-02", startTime: "09:30", unscheduled: false },
         { id: pastel.id, name: "Pastel de nata", unscheduled: true },
       ],
     });
     if (listed.ok) {
+      expect(listed.items[1]).toMatchObject({ endDate: null });
       expect(listed.items[2]).not.toHaveProperty("date");
       expect(listed.items[2]).not.toHaveProperty("startTime");
       expect(listed.items[2]).not.toHaveProperty("time");
@@ -474,31 +488,31 @@ describe("SuggestionService", () => {
 
   it("rejects a schedule outside the trip range or without a valid date and time", async () => {
     const { service, tripId } = await setup();
-    const hotel = await addedItem(service, tripId, "user-1", "lodging", "Hotel");
+    const tram = await addedItem(service, tripId, "user-1", "activity", "Tram 28");
 
     await expect(
-      service.scheduleItinerary("user-1", tripId, hotel.id, { date: "2026-10-31", startTime: "" }),
+      service.scheduleItinerary("user-1", tripId, tram.id, { date: "2026-10-31", startTime: "" }),
     ).resolves.toEqual({
       ok: false,
       status: 400,
       error: "Choose a date between the trip start and end.",
     });
     await expect(
-      service.scheduleItinerary("user-1", tripId, hotel.id, { date: "2026-11-06", startTime: "09:00" }),
+      service.scheduleItinerary("user-1", tripId, tram.id, { date: "2026-11-06", startTime: "09:00" }),
     ).resolves.toEqual({
       ok: false,
       status: 400,
       error: "Choose a date between the trip start and end.",
     });
     await expect(
-      service.scheduleItinerary("user-1", tripId, hotel.id, { date: "", startTime: "09:00" }),
+      service.scheduleItinerary("user-1", tripId, tram.id, { date: "", startTime: "09:00" }),
     ).resolves.toEqual({
       ok: false,
       status: 400,
       error: "Choose a date before adding a time.",
     });
     await expect(
-      service.scheduleItinerary("user-1", tripId, hotel.id, { date: "2026-11-01", startTime: "9:30" }),
+      service.scheduleItinerary("user-1", tripId, tram.id, { date: "2026-11-01", startTime: "9:30" }),
     ).resolves.toEqual({
       ok: false,
       status: 400,
@@ -508,17 +522,60 @@ describe("SuggestionService", () => {
     const listed = await service.listItinerary("user-2", tripId);
     expect(listed).toMatchObject({
       ok: true,
-      items: [{ id: hotel.id, unscheduled: true }],
+      items: [{ id: tram.id, unscheduled: true }],
     });
     if (listed.ok) {
       expect(listed.items[0]).not.toHaveProperty("date");
     }
   });
 
+  it("rejects lodging schedules with a check-out before check-in or outside the trip", async () => {
+    const { service, tripId } = await setup();
+    const hotel = await addedItem(service, tripId, "user-1", "lodging", "Hotel");
+
+    await expect(
+      service.scheduleItinerary("user-1", tripId, hotel.id, {
+        date: "2026-11-04",
+        endDate: "2026-11-02",
+        startTime: "",
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Check-out must be on or after check-in.",
+    });
+    await expect(
+      service.scheduleItinerary("user-1", tripId, hotel.id, {
+        date: "2026-10-31",
+        endDate: "2026-11-02",
+        startTime: "",
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Choose a date between the trip start and end.",
+    });
+    await expect(
+      service.scheduleItinerary("user-1", tripId, hotel.id, {
+        date: "2026-11-01",
+        endDate: "2026-11-06",
+        startTime: "",
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Choose a date between the trip start and end.",
+    });
+  });
+
   it("lets a member remove an itinerary item without removing the suggestion", async () => {
     const { service, tripId, messages } = await setup();
     const hotel = await addedItem(service, tripId, "user-1", "lodging", "Hotel");
-    await service.scheduleItinerary("user-1", tripId, hotel.id, { date: "2026-11-03", startTime: "" });
+    await service.scheduleItinerary("user-1", tripId, hotel.id, {
+      date: "2026-11-03",
+      endDate: "2026-11-05",
+      startTime: "",
+    });
 
     const removed = await service.removeItineraryItem("user-2", tripId, hotel.id);
     expect(removed).toEqual({ ok: true });

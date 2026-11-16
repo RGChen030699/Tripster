@@ -52,8 +52,10 @@ export function ItineraryItemControls({
         <ScheduleItineraryForm
           tripId={tripId}
           itemId={item.id}
+          category={item.category}
           date={item.date}
           startTime={item.startTime}
+          endDate={item.endDate}
           open
           onOpenChange={(next) => {
             if (!next) {

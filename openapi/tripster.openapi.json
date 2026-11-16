@@ -486,7 +486,7 @@
     "/api/trips/{tripId}/itinerary/{itemId}": {
       "patch": {
         "summary": "Schedule an itinerary item",
-        "description": "The date must fall inside the trip, inclusive. An empty start time leaves the item dated without a time. Any member can change the schedule.",
+        "description": "Non-lodging items use date plus optional startTime (HH:MM). Lodging items use date as check-in and endDate as check-out (no clock time); check-out must be on or after check-in. All dates must fall inside the trip, inclusive. Any member can change the schedule.",
         "security": [{ "sessionCookie": [] }],
         "parameters": [
           { "$ref": "#/components/parameters/tripId" },
@@ -495,7 +495,15 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "example": { "date": "2026-11-02", "startTime": "09:30" } }
+            "application/json": {
+              "examples": {
+                "activity": { "summary": "Activity with time", "value": { "date": "2026-11-02", "startTime": "09:30" } },
+                "lodging": {
+                  "summary": "Lodging check-in and check-out",
+                  "value": { "date": "2026-11-01", "endDate": "2026-11-05" }
+                }
+              }
+            }
           }
         },
         "responses": {
@@ -511,14 +519,15 @@
                     "category": "activity",
                     "unscheduled": false,
                     "date": "2026-11-02",
-                    "startTime": "09:30"
+                    "startTime": "09:30",
+                    "endDate": null
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "The date is outside the trip or the time is not HH:MM",
+            "description": "The date is outside the trip, the time is not HH:MM, or lodging check-out is before check-in",
             "content": {
               "application/json": {
                 "example": { "error": "Choose a date between the trip start and end." }

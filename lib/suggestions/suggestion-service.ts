@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import type { Logger, UserStore } from "@/lib/auth/types";
 import { compareItineraryItems } from "@/lib/itinerary/order";
+import { isWithinTripRange, parseActivitySchedule, parseLodgingSchedule } from "@/lib/itinerary/schedule";
 import type { StoredItineraryItem } from "@/lib/itinerary/types";
 import type { TripStore } from "@/lib/trips/types";
 import type {
@@ -235,30 +236,50 @@ export class SuggestionService {
     userId: string,
     tripId: string,
     itemId: string,
-    input: { date: unknown; startTime: unknown },
+    input: { date: unknown; startTime: unknown; endDate?: unknown },
   ): Promise<ScheduleItineraryResult> {
     const access = await this.itemAccess(userId, tripId, itemId);
     if (!access.ok) {
       return access;
     }
-    const parsed = parseSchedule(input);
-    if (!parsed.ok) {
-      return parsed;
+    const suggestion = await this.suggestions.findById(access.item.suggestionId);
+    if (!suggestion) {
+      return { ok: false, status: 404, error: "Itinerary item not found." };
     }
     const trip = await this.trips.findById(tripId);
     if (!trip) {
       return { ok: false, status: 404, error: TRIP_NOT_FOUND };
     }
-    if (parsed.date < trip.startDate || parsed.date > trip.endDate) {
+
+    const lodging = suggestion.category === "lodging";
+    const parsed = lodging
+      ? parseLodgingSchedule({ date: input.date, endDate: input.endDate })
+      : parseActivitySchedule({ date: input.date, startTime: input.startTime });
+    if (!parsed.ok) {
+      return parsed;
+    }
+    if (!isWithinTripRange(parsed.date, trip)) {
       return { ok: false, status: 400, error: "Choose a date between the trip start and end." };
     }
-    const next = { ...access.item, date: parsed.date, startTime: parsed.startTime };
+    if (lodging && parsed.endDate && !isWithinTripRange(parsed.endDate, trip)) {
+      return { ok: false, status: 400, error: "Choose a date between the trip start and end." };
+    }
+
+    const next: StoredItineraryItem = lodging
+      ? {
+          ...access.item,
+          date: parsed.date,
+          startTime: null,
+          endDate: parsed.endDate,
+        }
+      : {
+          ...access.item,
+          date: parsed.date,
+          startTime: parsed.startTime,
+          endDate: null,
+        };
     await this.itinerary.update(next);
     this.logger.info("itinerary item scheduled");
-    const suggestion = await this.suggestions.findById(next.suggestionId);
-    if (!suggestion) {
-      return { ok: false, status: 404, error: "Itinerary item not found." };
-    }
     return { ok: true, item: toItineraryView(next, suggestion) };
   }
 
@@ -398,41 +419,9 @@ function toItineraryView(
   if (item.date) {
     view.date = item.date;
     view.startTime = item.startTime ?? null;
+    view.endDate = item.endDate ?? null;
   }
   return view;
-}
-
-const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
-const CLOCK_TIME = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
-
-function parseSchedule(input: {
-  date: unknown;
-  startTime: unknown;
-}): { ok: true; date: string; startTime: string | null } | { ok: false; status: 400; error: string } {
-  const date = typeof input.date === "string" ? input.date.trim() : "";
-  const startTime = typeof input.startTime === "string" ? input.startTime.trim() : "";
-  if (!date && startTime) {
-    return { ok: false, status: 400, error: "Choose a date before adding a time." };
-  }
-  if (!isCalendarDate(date)) {
-    return { ok: false, status: 400, error: "Enter a valid date." };
-  }
-  if (startTime && !CLOCK_TIME.test(startTime)) {
-    return { ok: false, status: 400, error: "Enter a time as HH:MM." };
-  }
-  return { ok: true, date, startTime: startTime || null };
-}
-
-function isCalendarDate(value: string): boolean {
-  const match = ISO_DATE.exec(value);
-  if (!match) {
-    return false;
-  }
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(Date.UTC(year, month - 1, day));
-  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
 function countVotes(votes: StoredVote[]): VoteTotals {

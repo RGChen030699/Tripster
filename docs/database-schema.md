@@ -77,6 +77,7 @@ erDiagram
     string suggestionId FK
     string date
     string startTime
+    string endDate
     datetime createdAt
   }
 
@@ -109,7 +110,7 @@ erDiagram
 | `Membership` | Trip access + role | Composite PK `(tripId, userId)`; `role` is `organizer` or `member` |
 | `Suggestion` | Lodging / activity / place / restaurant idea | Soft-remove via `removed`; author is a user |
 | `Vote` | Preference only (Yes / Maybe / No) | One vote per user per suggestion; **never** creates itinerary rows |
-| `ItineraryItem` | Explicit **Add** from a suggestion | Always linked to `suggestionId`; `date` / `startTime` optional (unscheduled) |
+| `ItineraryItem` | Explicit **Add** from a suggestion | Always linked to `suggestionId`; `date` / `startTime` optional (unscheduled); lodging uses `date` as check-in and `endDate` as check-out |
 | `Expense` | Shared cost on a trip | `amountCents` integer; `payerId` is who paid |
 | `ExpenseParticipant` | Who shares the cost | Optional `shareCents` for manual splits; even split fills shares in the service layer |
 

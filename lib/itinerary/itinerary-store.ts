@@ -53,6 +53,7 @@ function cloneItem(item: StoredItineraryItem): StoredItineraryItem {
   if (item.date) {
     stored.date = item.date;
     stored.startTime = item.startTime ?? null;
+    stored.endDate = item.endDate ?? null;
   }
   return stored;
 }
@@ -104,6 +105,7 @@ function itemData(item: StoredItineraryItem) {
     suggestionId: item.suggestionId,
     date: item.date ?? null,
     startTime: item.date ? (item.startTime ?? null) : null,
+    endDate: item.date ? (item.endDate ?? null) : null,
   };
 }
 
@@ -113,6 +115,7 @@ function toItem(item: {
   suggestionId: string;
   date: string | null;
   startTime: string | null;
+  endDate: string | null;
 }): StoredItineraryItem {
   const stored: StoredItineraryItem = {
     id: item.id,
@@ -122,6 +125,7 @@ function toItem(item: {
   if (item.date) {
     stored.date = item.date;
     stored.startTime = item.startTime;
+    stored.endDate = item.endDate;
   }
   return stored;
 }

@@ -85,6 +85,7 @@ model ItineraryItem {
   suggestionId String
   date         String?
   startTime    String?
+  endDate      String?
   createdAt    DateTime   @default(now())
   trip         Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
   suggestion   Suggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)

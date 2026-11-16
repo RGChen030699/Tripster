@@ -49,11 +49,31 @@ describe("InMemoryItineraryStore", () => {
       ...item,
       date: "2026-11-02",
       startTime: "09:30",
+      endDate: null,
     });
 
     await store.remove("item-1");
 
     await expect(store.listByTrip("trip-1")).resolves.toEqual([]);
     await expect(store.findBySuggestion("trip-1", "suggestion-1")).resolves.toBeNull();
+  });
+
+  it("stores lodging check-in and check-out dates", async () => {
+    const store = new InMemoryItineraryStore();
+    await store.add(item);
+
+    await store.update({
+      ...item,
+      date: "2026-11-01",
+      startTime: null,
+      endDate: "2026-11-05",
+    });
+
+    await expect(store.findById("item-1")).resolves.toEqual({
+      ...item,
+      date: "2026-11-01",
+      startTime: null,
+      endDate: "2026-11-05",
+    });
   });
 });
