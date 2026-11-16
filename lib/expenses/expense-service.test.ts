@@ -206,7 +206,7 @@ describe("ExpenseService", () => {
     expect(JSON.stringify(hidden)).not.toContain("Japan");
   });
 
-  it("records a manual split that must total the expense amount", async () => {
+  it("records a manual split and puts leftover share on the payer", async () => {
     const { service, tripId } = await setup();
 
     const recorded = await service.recordExpense("user-1", tripId, {
@@ -226,28 +226,45 @@ describe("ExpenseService", () => {
       },
     });
 
+    const withRemainder = await service.recordExpense("user-1", tripId, {
+      amount: "10.00",
+      description: "Snacks",
+      date: "2026-11-02",
+      payerEmail: "ada@example.com",
+      participantEmails: ["ada@example.com", "bryce@example.com"],
+      splitMode: "manual",
+      participantShares: ["6.00", "3.00"],
+    });
+    expect(withRemainder).toMatchObject({
+      ok: true,
+      expense: {
+        splitMode: "manual",
+        participantShares: [700, 300],
+      },
+    });
+
     await expect(
       service.recordExpense("user-1", tripId, {
         amount: "10.00",
-        description: "Snacks",
+        description: "Too much",
         date: "2026-11-02",
         payerEmail: "ada@example.com",
         participantEmails: ["ada@example.com", "bryce@example.com"],
         splitMode: "manual",
-        participantShares: ["6.00", "3.00"],
+        participantShares: ["8.00", "3.00"],
       }),
     ).resolves.toEqual({
       ok: false,
       status: 400,
-      error: "Manual shares must add up to the expense amount.",
+      error: "Manual shares cannot exceed the expense amount.",
     });
 
     const balances = await service.listBalances("user-1", tripId);
     expect(balances).toMatchObject({
       ok: true,
       balances: [
-        { email: "ada@example.com", paidCents: 1000, shareCents: 700, balanceCents: 300 },
-        { email: "bryce@example.com", paidCents: 0, shareCents: 300, balanceCents: -300 },
+        { email: "ada@example.com", paidCents: 2000, shareCents: 1400, balanceCents: 600 },
+        { email: "bryce@example.com", paidCents: 0, shareCents: 600, balanceCents: -600 },
       ],
     });
   });

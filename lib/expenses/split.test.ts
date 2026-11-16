@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { equalShareCents, memberBalances, resolveParticipantShares } from "@/lib/expenses/split";
+import {
+  applyPayerRemainder,
+  equalShareCents,
+  memberBalances,
+  resolveParticipantShares,
+} from "@/lib/expenses/split";
 
 describe("equal expense splits", () => {
   it("gives leftover cents to the earliest participants so shares total the amount", () => {
@@ -60,5 +65,46 @@ describe("equal expense splits", () => {
       { email: "ada@example.com", paidCents: 1000, shareCents: 700, balanceCents: 300 },
       { email: "bryce@example.com", paidCents: 0, shareCents: 300, balanceCents: -300 },
     ]);
+  });
+
+  it("puts leftover manual share cents on the payer", () => {
+    expect(
+      applyPayerRemainder({
+        amountCents: 4000,
+        shares: [2000, 1000],
+        participantEmails: ["ada@example.com", "bryce@example.com"],
+        payerEmail: "ada@example.com",
+      }),
+    ).toEqual({ ok: true, shares: [3000, 1000] });
+
+    expect(
+      applyPayerRemainder({
+        amountCents: 1000,
+        shares: [700, 300],
+        participantEmails: ["ada@example.com", "bryce@example.com"],
+        payerEmail: "ada@example.com",
+      }),
+    ).toEqual({ ok: true, shares: [700, 300] });
+
+    expect(
+      applyPayerRemainder({
+        amountCents: 1000,
+        shares: [800, 300],
+        participantEmails: ["ada@example.com", "bryce@example.com"],
+        payerEmail: "ada@example.com",
+      }),
+    ).toEqual({ ok: false, error: "Manual shares cannot exceed the expense amount." });
+
+    expect(
+      applyPayerRemainder({
+        amountCents: 1000,
+        shares: [400],
+        participantEmails: ["bryce@example.com"],
+        payerEmail: "ada@example.com",
+      }),
+    ).toEqual({
+      ok: false,
+      error: "Include the payer among who shares so the remaining amount can go to them.",
+    });
   });
 });

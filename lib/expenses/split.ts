@@ -9,6 +9,40 @@ export function equalShareCents(amountCents: number, participantCount: number): 
   return Array.from({ length: participantCount }, (_, index) => base + (index < remainder ? 1 : 0));
 }
 
+/**
+ * Manual shares that under-total the expense put the leftover on the payer.
+ * Shares that over-total still fail.
+ */
+export function applyPayerRemainder(input: {
+  amountCents: number;
+  shares: number[];
+  participantEmails: string[];
+  payerEmail: string;
+}): { ok: true; shares: number[] } | { ok: false; error: string } {
+  const { amountCents, shares, participantEmails, payerEmail } = input;
+  if (shares.length !== participantEmails.length) {
+    return { ok: false, error: "Enter a share amount for each selected member." };
+  }
+  const total = shares.reduce((sum, share) => sum + share, 0);
+  if (total === amountCents) {
+    return { ok: true, shares };
+  }
+  if (total > amountCents) {
+    return { ok: false, error: "Manual shares cannot exceed the expense amount." };
+  }
+  const payer = payerEmail.trim().toLowerCase();
+  const payerIndex = participantEmails.findIndex((email) => email.trim().toLowerCase() === payer);
+  if (payerIndex < 0) {
+    return {
+      ok: false,
+      error: "Include the payer among who shares so the remaining amount can go to them.",
+    };
+  }
+  const next = [...shares];
+  next[payerIndex] = (next[payerIndex] ?? 0) + (amountCents - total);
+  return { ok: true, shares: next };
+}
+
 export function resolveParticipantShares(
   amountCents: number,
   participantCount: number,
