@@ -24,6 +24,8 @@ describe("RegisterPage", () => {
     render(<RegisterPage />);
 
     expect(screen.getByRole("heading", { name: "Create your account" })).toBeInTheDocument();
+    expect(screen.getByText(/email address as your username/i)).toBeInTheDocument();
+    expect(screen.queryByText(/does not use a database/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Log in" })).toHaveAttribute("href", "/login");

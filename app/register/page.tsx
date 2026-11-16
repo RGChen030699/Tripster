@@ -7,8 +7,7 @@ export default function RegisterPage() {
     <main className="mx-auto max-w-lg px-6 py-10">
       <h1 className="font-display text-3xl font-bold tracking-tight text-ink">Create your account</h1>
       <p className="mt-3 text-ink-muted">
-        Your email address is your username. Saving an account does not use a database, and it
-        is cleared when the app restarts.
+        Use your email address as your username. You can sign in with it after you create an account.
       </p>
       <div className="mt-6 rounded-lg border border-sand bg-panel p-6">
         <RegisterForm />
