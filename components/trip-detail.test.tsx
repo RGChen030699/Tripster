@@ -130,7 +130,11 @@ describe("TripDetail", () => {
     expect(within(bryceMenu).getByRole("menuitem", { name: "Remove" })).toBeInTheDocument();
 
     await user.click(within(bryceMenu).getByRole("menuitem", { name: "Make organizer" }));
+    expect(
+      screen.getByRole("alertdialog", { name: "Make bryce@example.com an organizer?" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Make organizer" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Actions for ada@example.com" }));
     const adaMenu = screen.getByRole("menu", { name: "Actions for ada@example.com" });

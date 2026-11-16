@@ -28,7 +28,7 @@ export function MemberActionsMenu({
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="relative">
       <ActionMenu label="Member actions" ariaLabel={`Actions for ${email}`}>
         {(close) => (
           <>
@@ -62,19 +62,33 @@ export function MemberActionsMenu({
         )}
       </ActionMenu>
       {panel === "role" && canChangeRole ? (
-        <MemberRoleButton tripId={tripId} email={email} role={role} />
+        <div className="absolute right-0 top-full z-20 mt-2 w-72">
+          <MemberRoleButton
+            tripId={tripId}
+            email={email}
+            role={role}
+            confirming
+            onConfirmingChange={(next) => {
+              if (!next) {
+                setPanel("none");
+              }
+            }}
+          />
+        </div>
       ) : null}
       {panel === "remove" && canRemove ? (
-        <RemoveMemberButton
-          tripId={tripId}
-          email={email}
-          confirming
-          onConfirmingChange={(next) => {
-            if (!next) {
-              setPanel("none");
-            }
-          }}
-        />
+        <div className="absolute right-0 top-full z-20 mt-2 w-72">
+          <RemoveMemberButton
+            tripId={tripId}
+            email={email}
+            confirming
+            onConfirmingChange={(next) => {
+              if (!next) {
+                setPanel("none");
+              }
+            }}
+          />
+        </div>
       ) : null}
     </div>
   );

@@ -10,16 +10,24 @@ export function MemberRoleButton({
   tripId,
   email,
   role,
+  confirming = true,
+  onConfirmingChange,
 }: {
   tripId: string;
   email: string;
   role: TripRole;
+  confirming?: boolean;
+  onConfirmingChange?: (confirming: boolean) => void;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const nextRole: TripRole = role === "organizer" ? "member" : "organizer";
-  const label = role === "organizer" ? "Remove organizer" : "Make organizer";
+  const actionLabel = role === "organizer" ? "Remove organizer" : "Make organizer";
+  const prompt =
+    role === "organizer"
+      ? `Remove organizer from ${email}?`
+      : `Make ${email} an organizer?`;
 
   async function updateRole() {
     setPending(true);
@@ -36,6 +44,7 @@ export function MemberRoleButton({
         setError(errorMessage(payload, "Could not update that role. Try again."));
         return;
       }
+      onConfirmingChange?.(false);
       router.refresh();
     } catch {
       setError("Could not update that role. Try again.");
@@ -44,23 +53,41 @@ export function MemberRoleButton({
     }
   }
 
+  if (!confirming) {
+    return null;
+  }
+
   return (
-    <div className="flex flex-col items-end gap-1">
-      <button
-        type="button"
-        disabled={pending}
-        onClick={() => {
-          void updateRole();
-        }}
-        className={secondaryButtonClassName}
-      >
-        {pending ? "Updating..." : label}
-      </button>
+    <div
+      role="alertdialog"
+      aria-label={prompt}
+      className="rounded-md border border-sand bg-panel p-3 text-left"
+    >
+      <p>{prompt}</p>
       {error ? (
-        <p role="alert" className="text-sm text-red-950">
+        <p role="alert" className="mt-2 text-sm text-red-950">
           {error}
         </p>
       ) : null}
+      <div className="mt-3 flex flex-wrap justify-end gap-2">
+        <button
+          type="button"
+          onClick={() => onConfirmingChange?.(false)}
+          className={secondaryButtonClassName}
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => {
+            void updateRole();
+          }}
+          className={secondaryButtonClassName}
+        >
+          {pending ? "Updating..." : actionLabel}
+        </button>
+      </div>
     </div>
   );
 }
