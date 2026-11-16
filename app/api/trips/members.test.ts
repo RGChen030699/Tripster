@@ -125,7 +125,7 @@ describe("trip member routes", () => {
     );
     expect(added.status).toBe(409);
     await expect(added.json()).resolves.toEqual({
-      error: "That person is already on this trip.",
+      error: "That person is already invited to this trip.",
     });
   });
 

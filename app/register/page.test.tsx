@@ -25,6 +25,7 @@ describe("RegisterPage", () => {
 
     expect(screen.getByRole("heading", { name: "Create your account" })).toBeInTheDocument();
     expect(screen.getByText(/email address as your username/i)).toBeInTheDocument();
+    expect(screen.getByText(/email already has an account/i)).toBeInTheDocument();
     expect(screen.queryByText(/does not use a database/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();

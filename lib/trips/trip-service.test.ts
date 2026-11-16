@@ -196,12 +196,12 @@ describe("TripService", () => {
     await expect(service.addMember("user-1", created.trip.id, "bryce@example.com")).resolves.toEqual({
       ok: false,
       status: 409,
-      error: "That person is already on this trip.",
+      error: "That person is already invited to this trip.",
     });
     await expect(service.addMember("user-1", created.trip.id, "ada@example.com")).resolves.toEqual({
       ok: false,
       status: 409,
-      error: "That person is already on this trip.",
+      error: "That person is already invited to this trip.",
     });
 
     await trips.addMember(created.trip.id, "user-2");

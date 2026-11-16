@@ -26,8 +26,10 @@ describe("AddMemberForm", () => {
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
 
-    render(<AddMemberForm tripId="trip-1" />);
-    expect(screen.getByText("Invite members via email.")).toBeInTheDocument();
+    render(<AddMemberForm tripId="trip-1" memberEmails={["ada@example.com"]} />);
+    expect(
+      screen.getByText(/Invite someone who already has a Tripster account/i),
+    ).toBeInTheDocument();
     await user.type(screen.getByLabelText("Invite by email"), "bryce@example.com");
     await user.click(screen.getByRole("button", { name: "Invite member" }));
 
@@ -40,6 +42,43 @@ describe("AddMemberForm", () => {
     );
     expect(await screen.findByRole("status")).toHaveTextContent("Invited bryce@example.com.");
     expect(refresh).toHaveBeenCalled();
+  });
+
+  it("blocks inviting an email that is already on the trip", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+
+    render(
+      <AddMemberForm
+        tripId="trip-1"
+        memberEmails={["ada@example.com", "bryce@example.com"]}
+      />,
+    );
+    await user.type(screen.getByLabelText("Invite by email"), "  Bryce@Example.com ");
+    await user.click(screen.getByRole("button", { name: "Invite member" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "That person is already invited to this trip.",
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("shows the server error when the invite is already a member", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({ error: "That person is already invited to this trip." }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+
+    render(<AddMemberForm tripId="trip-1" />);
+    await user.type(screen.getByLabelText("Invite by email"), "bryce@example.com");
+    await user.click(screen.getByRole("button", { name: "Invite member" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "That person is already invited to this trip.",
+    );
   });
 
   it("shows an invalid email before sending", async () => {
