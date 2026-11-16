@@ -3,6 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import {
+  dangerButtonClassName,
+  secondaryButtonClassName,
+} from "@/components/button-styles";
+
 export function RemoveSuggestionButton({
   tripId,
   suggestionId,
@@ -37,11 +42,7 @@ export function RemoveSuggestionButton({
 
   if (!confirming) {
     return (
-      <button
-        type="button"
-        onClick={() => setConfirming(true)}
-        className="text-sm font-bold text-red-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
-      >
+      <button type="button" onClick={() => setConfirming(true)} className={dangerButtonClassName}>
         Remove
       </button>
     );
@@ -60,11 +61,7 @@ export function RemoveSuggestionButton({
         </p>
       ) : null}
       <div className="mt-3 flex gap-2">
-        <button
-          type="button"
-          onClick={() => setConfirming(false)}
-          className="rounded-md border border-sage bg-sage px-3 py-1.5 text-sm font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
+        <button type="button" onClick={() => setConfirming(false)} className={secondaryButtonClassName}>
           Cancel
         </button>
         <button
