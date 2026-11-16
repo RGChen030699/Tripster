@@ -64,12 +64,13 @@ describe("ItineraryItemControls", () => {
     await user.click(screen.getByRole("button", { name: "Itinerary actions for hotel1" }));
     await user.click(screen.getByRole("menuitem", { name: "Schedule" }));
 
-    expect(screen.getByLabelText("Date")).toBeInTheDocument();
-    expect(screen.getByLabelText("Time")).toBeInTheDocument();
+    expect(screen.getByLabelText("Check-in date")).toBeInTheDocument();
+    expect(screen.getByLabelText("Check-out date")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Time")).not.toBeInTheDocument();
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(screen.queryByLabelText("Date")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Check-in date")).not.toBeInTheDocument();
   });
 
   it("opens remove confirmation from the menu for a scheduled item", async () => {
