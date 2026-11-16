@@ -18,7 +18,7 @@ export function ItineraryList({
   tripId?: string;
 }) {
   if (items.length === 0) {
-    return <p className="text-stone-700">Nothing is on the itinerary yet.</p>;
+    return <p className="text-ink-muted">Nothing is on the itinerary yet.</p>;
   }
 
   const ordered = [...items].sort(compareItineraryItems);
@@ -70,9 +70,9 @@ function ItemCard({
   timeLabel?: string;
 }) {
   return (
-    <li className="rounded-lg border border-stone-200 bg-white p-4">
+    <li className="rounded-lg border border-sand bg-panel p-4">
       <h3 className="text-lg font-semibold">{item.name}</h3>
-      <p className="mt-1 text-sm text-stone-700">{CATEGORY_LABELS[item.category]}</p>
+      <p className="mt-1 text-sm text-ink-muted">{CATEGORY_LABELS[item.category]}</p>
       {timeLabel ? <p className="mt-2">{timeLabel}</p> : null}
       {tripId ? <ItineraryItemControls tripId={tripId} item={item} /> : null}
     </li>

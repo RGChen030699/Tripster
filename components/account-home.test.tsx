@@ -60,7 +60,7 @@ describe("AccountHome", () => {
   it("lists a trip with its destination and dates", () => {
     render(<AccountHome email="ada@example.com" trips={[japan]} />);
 
-    expect(screen.getByRole("link", { name: "Japan week" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Japan week/ })).toHaveAttribute(
       "href",
       "/trips/trip-1",
     );

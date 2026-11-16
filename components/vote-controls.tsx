@@ -118,7 +118,7 @@ export function VoteControls({
 
   return (
     <div className="mt-4">
-      <div className="flex flex-wrap gap-3 text-sm text-stone-700" aria-live="polite">
+      <div className="flex flex-wrap gap-3 text-sm text-ink-muted" aria-live="polite">
         <p>Yes {totals.yes}</p>
         <p>Maybe {totals.maybe}</p>
         <p>No {totals.no}</p>
@@ -133,7 +133,7 @@ export function VoteControls({
             onClick={() => {
               void choose(option.choice);
             }}
-            className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-900 outline-none hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 disabled:opacity-60 aria-pressed:border-teal-800 aria-pressed:bg-teal-50"
+            className="rounded-md border border-sand bg-panel px-3 py-1.5 text-sm font-medium text-ink outline-none hover:bg-sand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60 aria-pressed:border-primary aria-pressed:bg-sand"
           >
             {option.label}
           </button>

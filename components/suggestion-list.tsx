@@ -20,15 +20,15 @@ export function SuggestionList({
   viewerEmail?: string;
 }) {
   if (suggestions.length === 0) {
-    return <p className="text-stone-700">No suggestions yet.</p>;
+    return <p className="text-ink-muted">No suggestions yet.</p>;
   }
 
   return (
     <ul className="flex flex-col gap-4">
       {suggestions.map((suggestion) => (
-        <li key={suggestion.id} className="rounded-lg border border-stone-200 bg-white p-4">
+        <li key={suggestion.id} className="rounded-lg border border-sand bg-panel p-4">
           <h2 className="text-lg font-semibold">{suggestion.name}</h2>
-          <p className="mt-1 text-sm text-stone-700">{CATEGORY_LABELS[suggestion.category]}</p>
+          <p className="mt-1 text-sm text-ink-muted">{CATEGORY_LABELS[suggestion.category]}</p>
           <p className="mt-2">Suggested by {suggestion.authorEmail}</p>
           {suggestion.description ? <p className="mt-2">{suggestion.description}</p> : null}
           {suggestion.address ? <p className="mt-1">{suggestion.address}</p> : null}
@@ -36,7 +36,7 @@ export function SuggestionList({
             <p className="mt-2">
               <a
                 href={suggestion.link}
-                className="font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+                className="font-medium text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 {suggestion.link}
               </a>

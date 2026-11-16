@@ -6,10 +6,10 @@ export function ExpenseBalances({ balances }: { balances: MemberBalance[] }) {
       <h2 id="balances-heading" className="text-lg font-semibold">
         Balances
       </h2>
-      <p className="mt-2 text-sm text-stone-700">A positive balance is money the group owes this member.</p>
+      <p className="mt-2 text-sm text-ink-muted">A positive balance is money the group owes this member.</p>
       <ul className="mt-3 flex flex-col gap-3">
         {balances.map((balance) => (
-          <li key={balance.email} aria-label={balance.email} className="rounded-lg border border-stone-200 bg-white p-4">
+          <li key={balance.email} aria-label={balance.email} className="rounded-lg border border-sand bg-panel p-4">
             <h3 className="font-medium">{balance.email}</h3>
             <p className="mt-1">Paid {formatSignedCents(balance.paidCents)} USD</p>
             <p>Share {formatSignedCents(balance.shareCents)} USD</p>

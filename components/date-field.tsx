@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
@@ -111,28 +111,28 @@ export function DateField({
           id={listboxId}
           role="dialog"
           aria-label={`${label} calendar`}
-          className="absolute z-20 mt-2 w-full rounded-md border border-stone-300 bg-white p-3 shadow-sm"
+          className="absolute z-20 mt-2 w-full rounded-md border border-sand bg-panel p-3 shadow-sm"
         >
           <div className="mb-3 flex items-center justify-between gap-2">
             <button
               type="button"
               aria-label="Previous month"
               onClick={() => setView((current) => shiftMonth(current, -1))}
-              className="rounded-md border border-stone-300 px-2 py-1 text-sm outline-none hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+              className="rounded-md border border-sand px-2 py-1 text-sm outline-none hover:bg-sand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               Prev
             </button>
-            <p className="text-sm font-medium text-stone-900">{monthLabel}</p>
+            <p className="text-sm font-medium text-ink">{monthLabel}</p>
             <button
               type="button"
               aria-label="Next month"
               onClick={() => setView((current) => shiftMonth(current, 1))}
-              className="rounded-md border border-stone-300 px-2 py-1 text-sm outline-none hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+              className="rounded-md border border-sand px-2 py-1 text-sm outline-none hover:bg-sand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               Next
             </button>
           </div>
-          <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-stone-600">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-ink-muted">
             {WEEKDAYS.map((day) => (
               <span key={day}>{day}</span>
             ))}
@@ -151,8 +151,8 @@ export function DateField({
                   }}
                   className={
                     cell === value
-                      ? "rounded-md bg-teal-800 px-1 py-1.5 text-sm font-medium text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
-                      : "rounded-md px-1 py-1.5 text-sm text-stone-900 outline-none hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+                      ? "rounded-md bg-primary px-1 py-1.5 text-sm font-medium text-primary-fg outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      : "rounded-md px-1 py-1.5 text-sm text-ink outline-none hover:bg-sand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   }
                 >
                   {Number(cell.slice(-2))}
