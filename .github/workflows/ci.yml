@@ -178,6 +178,20 @@ jobs:
     name: Production build
     needs: typecheck
     runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: tripster
+          POSTGRES_PASSWORD: tripster
+          POSTGRES_DB: tripster
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tripster -d tripster"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       DATABASE_URL: postgresql://tripster:tripster@localhost:5432/tripster
       JWT_SECRET: tripster-ci-jwt-secret
