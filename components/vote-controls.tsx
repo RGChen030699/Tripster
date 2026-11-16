@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { VoteChoice, VoteTotals } from "@/lib/suggestions/types";
 
@@ -10,6 +10,8 @@ const CHOICES: { choice: VoteChoice; label: string }[] = [
   { choice: "maybe", label: "Maybe" },
   { choice: "no", label: "No" },
 ];
+
+const POLL_MS = 4_000;
 
 export function VoteControls({
   tripId,
@@ -27,6 +29,64 @@ export function VoteControls({
   const [totals, setTotals] = useState(votes);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const pendingRef = useRef(false);
+
+  useEffect(() => {
+    setCurrent(myVote);
+    setTotals(votes);
+  }, [myVote, votes]);
+
+  useEffect(() => {
+    pendingRef.current = pending;
+  }, [pending]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function pollVotes() {
+      if (pendingRef.current || document.visibilityState === "hidden") {
+        return;
+      }
+      try {
+        const response = await fetch(`/api/trips/${tripId}/suggestions/${suggestionId}/votes`, {
+          method: "GET",
+          credentials: "same-origin",
+        });
+        if (!response.ok || cancelled || pendingRef.current) {
+          return;
+        }
+        const payload = await readJson(response);
+        const nextTotals = totalsFrom(payload);
+        const nextVote = voteFrom(payload);
+        if (nextTotals) {
+          setTotals(nextTotals);
+        }
+        if (nextVote !== undefined) {
+          setCurrent(nextVote);
+        }
+      } catch {
+        // Keep the last known totals if a poll fails.
+      }
+    }
+
+    void pollVotes();
+    const timer = window.setInterval(() => {
+      void pollVotes();
+    }, POLL_MS);
+
+    function onVisibility() {
+      if (document.visibilityState === "visible") {
+        void pollVotes();
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [tripId, suggestionId]);
 
   async function choose(choice: VoteChoice) {
     setPending(true);
@@ -58,7 +118,7 @@ export function VoteControls({
 
   return (
     <div className="mt-4">
-      <div className="flex flex-wrap gap-3 text-sm text-stone-700">
+      <div className="flex flex-wrap gap-3 text-sm text-stone-700" aria-live="polite">
         <p>Yes {totals.yes}</p>
         <p>Maybe {totals.maybe}</p>
         <p>No {totals.no}</p>
@@ -125,4 +185,21 @@ function totalsFrom(payload: unknown): VoteTotals | null {
     return null;
   }
   return { yes: candidate.yes, maybe: candidate.maybe, no: candidate.no };
+}
+
+function voteFrom(payload: unknown): VoteChoice | null | undefined {
+  if (typeof payload !== "object" || payload === null || !("vote" in payload)) {
+    return undefined;
+  }
+  if (payload.vote === null) {
+    return null;
+  }
+  if (typeof payload.vote !== "object" || payload.vote === null || !("choice" in payload.vote)) {
+    return undefined;
+  }
+  const choice = payload.vote.choice;
+  if (choice === "yes" || choice === "maybe" || choice === "no") {
+    return choice;
+  }
+  return undefined;
 }

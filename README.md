@@ -6,6 +6,20 @@ Tripster is a shared place for a group to plan a trip. Members create an account
 
 Accounts, trips, suggestions, itinerary items, and expenses are stored in PostgreSQL. Restarting the app keeps them. The email address stays the username. A vote still does not add an itinerary item, and equal expense shares still total the amount in cents.
 
+## Shared trip state
+
+Tripster does not use WebSockets or a paid realtime vendor. Live vote totals use **short polling**: suggestion cards call `GET /api/trips/{tripId}/suggestions/{suggestionId}/votes` about every four seconds while the tab is visible, so another member’s Yes / Maybe / No shows up without a full reload. That endpoint stays membership-gated and still never Adds to the itinerary.
+
+The broader trip workspace also keeps **complex shared state** on the server:
+
+- **Membership** — trip-scoped reads and writes require an authenticated member. The client cannot assert membership; the API checks it.
+- **Suggestions and votes** — members propose lodging, activities, places, or restaurants. Votes are preferences only.
+- **Explicit Add** — a separate Add action creates an itinerary item linked to the source suggestion.
+- **Scheduling** — itinerary items move between unscheduled and day/time groups inside the trip date range.
+- **Expenses and balances** — equal splits use integer cents that sum exactly; each member sees paid, share, and net balance.
+
+Those invariants live in `lib/` services and stores and are covered by Vitest and the Playwright journey.
+
 ## Local setup
 
 This checkout was tested with Node.js 22.15.0 and PostgreSQL 16.16 from Homebrew `postgresql@16`. Application versions are declared in `package.json` and resolved in `package-lock.json`.

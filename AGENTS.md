@@ -69,6 +69,8 @@ The app follows the Next.js App Router layout:
 
 `features/trips/`, `features/suggestions/`, `features/itinerary/`, and `features/expenses/` are not used as folder roots; those domains live under `lib/` and `app/`. End-to-end specs live in `e2e/`. Keep business rules in `lib/auth`, `lib/trips`, `lib/suggestions`, `lib/itinerary`, and `lib/expenses`, not in page components. Check authentication and trip membership on the server and validate input at the API boundary. Keep each store behind its interface: `UserStore`, `SessionStore`, `TripStore`, `SuggestionStore`, `VoteStore`, `ItineraryStore`, and `ExpenseStore`.
 
+Live vote totals use short client polling against `GET .../votes` (see README **Shared trip state**). Shared planning complexity also lives in server-side trip rules: membership checks, vote preferences that never Add, explicit itinerary linking, scheduling within trip dates, and exact-cent expense balances. Do not introduce WebSockets or a paid realtime vendor unless an issue explicitly asks for that.
+
 ## Design references and expected interaction
 
 Use the PRD-derived UI description below as the functional design reference. It describes required screens and behavior, not colors, typography, or exact layout. Make visual choices consistent and accessible, and revise this section if you later create a mockup.
