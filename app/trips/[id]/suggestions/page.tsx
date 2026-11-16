@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 
+import { secondaryButtonClassName } from "@/components/button-styles";
+
 import { SuggestionForm } from "@/components/suggestion-form";
 import { SuggestionList } from "@/components/suggestion-list";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/cookies";
@@ -39,7 +41,7 @@ export default async function SuggestionsPage({ params }: { params: Promise<{ id
       <SuggestionList tripId={id} viewerEmail={session.user.email} suggestions={listed.suggestions} />
       <Link
         href={`/trips/${id}`}
-        className="font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+        className={`${secondaryButtonClassName} self-start`}
       >
         Back to trip
       </Link>
@@ -53,7 +55,7 @@ function MissingTrip() {
       <h1 className="text-3xl font-semibold tracking-tight">Trip not found</h1>
       <p className="mt-3 text-stone-700">This trip is not available on your account.</p>
       <p className="mt-6">
-        <Link href="/" className="font-medium text-teal-900 underline">
+        <Link href="/" className={`${secondaryButtonClassName} self-start`}>
           Back to trips
         </Link>
       </p>

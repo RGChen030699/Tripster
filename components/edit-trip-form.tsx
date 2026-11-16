@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { primaryButtonClassName, secondaryButtonClassName } from "@/components/button-styles";
 import { DateField } from "@/components/date-field";
 import { parseTripInput } from "@/lib/trips/validation";
 
@@ -15,18 +16,31 @@ export function EditTripForm({
   destination,
   startDate,
   endDate,
+  open: openProp,
+  onOpenChange,
 }: {
   tripId: string;
   name: string;
   destination: string;
   startDate: string;
   endDate: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const controlled = openProp !== undefined;
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlled ? openProp : uncontrolledOpen;
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  function setOpen(next: boolean) {
+    if (!controlled) {
+      setUncontrolledOpen(next);
+    }
+    onOpenChange?.(next);
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -79,6 +93,13 @@ export function EditTripForm({
   }
 
   if (!open) {
+    if (controlled) {
+      return status ? (
+        <p role="status" className="rounded-md border border-teal-300 bg-teal-50 px-3 py-2 text-sm text-teal-950">
+          {status}
+        </p>
+      ) : null;
+    }
     return (
       <div className="flex flex-col gap-2">
         {status ? (
@@ -92,7 +113,7 @@ export function EditTripForm({
             setOpen(true);
             setError(null);
           }}
-          className="self-start text-sm font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+          className={secondaryButtonClassName}
         >
           Edit trip
         </button>
@@ -101,7 +122,7 @@ export function EditTripForm({
   }
 
   return (
-    <form noValidate onSubmit={onSubmit} className="rounded-md border border-stone-200 bg-white p-4">
+    <form noValidate onSubmit={onSubmit} className="w-full rounded-md border border-stone-200 bg-white p-4">
       <h2 className="text-lg font-semibold">Edit trip</h2>
       <div className="mt-4 flex flex-col gap-3">
         <Field id="edit-name" label="Trip name" name="name" defaultValue={name} />
@@ -114,18 +135,10 @@ export function EditTripForm({
           </p>
         ) : null}
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
-          >
+          <button type="button" onClick={() => setOpen(false)} className={secondaryButtonClassName}>
             Cancel
           </button>
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-md bg-teal-800 px-3 py-1.5 text-sm font-medium text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 disabled:opacity-60"
-          >
+          <button type="submit" disabled={pending} className={primaryButtonClassName}>
             {pending ? "Saving..." : "Save trip"}
           </button>
         </div>

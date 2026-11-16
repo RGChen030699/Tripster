@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { secondaryButtonClassName } from "@/components/button-styles";
 
 import { CreateTripForm } from "@/components/create-trip-form";
 
@@ -15,7 +16,7 @@ export default function NewTripPage() {
       <p className="mt-6">
         <Link
           href="/"
-          className="font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+          className={`${secondaryButtonClassName} self-start`}
         >
           Back to trips
         </Link>

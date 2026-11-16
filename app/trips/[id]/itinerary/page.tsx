@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 
+import { secondaryButtonClassName } from "@/components/button-styles";
+
 import { ItineraryList } from "@/components/itinerary-list";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/cookies";
 import { getAuthService } from "@/lib/auth/container";
@@ -37,7 +39,7 @@ export default async function ItineraryPage({ params }: { params: Promise<{ id: 
       <ItineraryList tripId={id} items={listed.items} />
       <Link
         href={`/trips/${id}`}
-        className="font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800"
+        className={`${secondaryButtonClassName} self-start`}
       >
         Back to trip
       </Link>
