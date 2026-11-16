@@ -22,8 +22,10 @@ export default defineConfig({
     passWithNoTests: true,
     fileParallelism: false,
     maxWorkers: 1,
+    exclude: ["**/node_modules/**", "**/e2e/**", "**/dist/**", "**/.next/**"],
     env: {
       DATABASE_URL: testDatabaseUrl,
     },
   },
 });
+

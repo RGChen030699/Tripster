@@ -39,10 +39,11 @@ Authentication uses JWT: register and login set an HS256 access token in the htt
 
 ```sh
 npm test
+npm run test:e2e
 npm run typecheck
 ```
 
-`npm test` runs Vitest against the isolated test database, not the development database. Create `tripster_test` and apply migrations before running tests. `npm run typecheck` runs `tsc --noEmit`.
+`npm test` runs Vitest against the isolated test database, not the development database. Create `tripster_test` and apply migrations before running tests. `npm run test:e2e` runs Playwright against a local Next.js server (Chromium). It uses `DATABASE_URL` and `JWT_SECRET` from the environment; set those before the run. `npm run typecheck` runs `tsc --noEmit`.
 
 The API document is `openapi/tripster.openapi.json`. Outside production, `GET /api/openapi` returns that document. It includes example requests and responses for the main flows.
 

@@ -47,7 +47,7 @@ Versions below are the ones resolved in `package-lock.json` for this repository.
 - Validation: Zod 3.25.76 at API boundaries.
 - Unit/component tests: Vitest 5.1.0 and React Testing Library 16.3.3.
 - API documentation: OpenAPI 3.1 at `openapi/tripster.openapi.json`, served by `GET /api/openapi` outside production.
-- End-to-end tests: Playwright is not installed yet. Add it when the trip-planning journey exists.
+- End-to-end tests: Playwright 1.51.1 (`@playwright/test`). Run with `npm run test:e2e`.
 - Persistence: PostgreSQL 16.16 (Homebrew `postgresql@16` on this checkout), Prisma 7.10.1, `@prisma/client` 7.10.1, `@prisma/adapter-pg` 7.10.1, and `pg` 8.23.1. Auth.js is not installed. Authentication uses HS256 JWTs (`JWT_SECRET`) in the `tripster_session` cookie. Accounts stay behind `UserStore`. JWT `jti` values for logout revocation stay behind `SessionStore`.
 
 ### Architecture and folders
@@ -66,7 +66,7 @@ The app follows the Next.js App Router layout:
 - `lib/itinerary/` — the itinerary store. An explicit Add creates one linked item. A vote does not.
 - Colocated `*.test.ts` / `*.test.tsx` files — Vitest and React Testing Library.
 
-`features/trips/`, `features/suggestions/`, `features/itinerary/`, `features/expenses/`, and `e2e/` are not part of the current issues. Keep business rules in `lib/auth`, `lib/trips`, `lib/suggestions`, `lib/itinerary`, and `lib/expenses`, not in page components. Check authentication and trip membership on the server and validate input at the API boundary. Keep each store behind its interface: `UserStore`, `SessionStore`, `TripStore`, `SuggestionStore`, `VoteStore`, `ItineraryStore`, and `ExpenseStore`.
+`features/trips/`, `features/suggestions/`, `features/itinerary/`, and `features/expenses/` are not used as folder roots; those domains live under `lib/` and `app/`. End-to-end specs live in `e2e/`. Keep business rules in `lib/auth`, `lib/trips`, `lib/suggestions`, `lib/itinerary`, and `lib/expenses`, not in page components. Check authentication and trip membership on the server and validate input at the API boundary. Keep each store behind its interface: `UserStore`, `SessionStore`, `TripStore`, `SuggestionStore`, `VoteStore`, `ItineraryStore`, and `ExpenseStore`.
 
 ## Design references and expected interaction
 
