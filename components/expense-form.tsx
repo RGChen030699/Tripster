@@ -193,8 +193,9 @@ export function ExpenseForm({
         <fieldset className="flex flex-col gap-2">
           <legend className="text-sm font-bold">Share amounts</legend>
           <p className="text-sm text-ink-muted">
-            Any amount left after these shares goes to the payer. Shares cannot go over the expense
-            total.
+            Use dollars and cents (for example 20.50). Any amount left after these shares goes to the
+            payer. Leave the payer’s field blank to put the whole leftover on them. Shares cannot go
+            over the expense total.
           </p>
           {selectedMembers.length === 0 ? (
             <p className="text-sm text-ink-muted">Select members above, then enter each person’s share.</p>

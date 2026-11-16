@@ -70,6 +70,15 @@ describe("equal expense splits", () => {
   it("puts leftover manual share cents on the payer", () => {
     expect(
       applyPayerRemainder({
+        amountCents: 4050,
+        shares: [2025, 1000],
+        participantEmails: ["ada@example.com", "bryce@example.com"],
+        payerEmail: "ada@example.com",
+      }),
+    ).toEqual({ ok: true, shares: [3050, 1000] });
+
+    expect(
+      applyPayerRemainder({
         amountCents: 4000,
         shares: [2000, 1000],
         participantEmails: ["ada@example.com", "bryce@example.com"],
