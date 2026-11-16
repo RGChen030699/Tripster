@@ -20,7 +20,7 @@ The broader trip workspace also keeps **complex shared state** on the server:
 
 Those invariants live in `lib/` services and stores and are covered by Vitest and the Playwright journey.
 
-Architecture layers, auth flow, and domain boundaries are documented in [`docs/architecture.md`](docs/architecture.md).
+Architecture layers, auth flow, and domain boundaries are documented in [`docs/architecture.md`](docs/architecture.md). The PostgreSQL / Neon entity diagram is in [`docs/database-schema.md`](docs/database-schema.md).
 
 ## Local setup
 
