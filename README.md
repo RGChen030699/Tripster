@@ -62,6 +62,8 @@ Jobs run on `ubuntu-24.04` so Playwright 1.51.1 can install Chromium. CI starts 
 
 ## Deployment
 
+Production: https://tripster-delta.vercel.app
+
 ```sh
 npm run build
 npm start
