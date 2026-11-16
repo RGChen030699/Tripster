@@ -12,7 +12,12 @@ import type {
   StoredExpense,
 } from "@/lib/expenses/types";
 import { DEFAULT_CURRENCY } from "@/lib/expenses/types";
-import { equalShareCents, memberBalances, resolveParticipantShares } from "@/lib/expenses/split";
+import {
+  applyPayerRemainder,
+  equalShareCents,
+  memberBalances,
+  resolveParticipantShares,
+} from "@/lib/expenses/split";
 import type { TripStore } from "@/lib/trips/types";
 
 const TRIP_NOT_FOUND = "Trip not found.";
@@ -225,9 +230,11 @@ function parseExpenseInput(input: {
   if (!splitMode.ok) {
     return splitMode;
   }
+  const payerEmail = input.payerEmail.trim().toLowerCase();
   const shares = parseShares(
     amount.amountCents,
-    participants.emails.length,
+    participants.emails,
+    payerEmail,
     splitMode.mode,
     input.participantShares,
   );
@@ -239,7 +246,7 @@ function parseExpenseInput(input: {
     amountCents: amount.amountCents,
     description,
     date: input.date.trim(),
-    payerEmail: input.payerEmail.trim().toLowerCase(),
+    payerEmail,
     participantEmails: participants.emails,
     splitMode: splitMode.mode,
     participantShares: shares.shares,
@@ -260,14 +267,15 @@ function parseSplitMode(
 
 function parseShares(
   amountCents: number,
-  participantCount: number,
+  participantEmails: string[],
+  payerEmail: string,
   mode: ExpenseSplitMode,
   value: unknown,
 ): { ok: true; shares: number[] } | { ok: false; status: 400; error: string } {
   if (mode === "even") {
-    return { ok: true, shares: equalShareCents(amountCents, participantCount) };
+    return { ok: true, shares: equalShareCents(amountCents, participantEmails.length) };
   }
-  if (!Array.isArray(value) || value.length !== participantCount) {
+  if (!Array.isArray(value) || value.length !== participantEmails.length) {
     return {
       ok: false,
       status: 400,
@@ -282,15 +290,16 @@ function parseShares(
     }
     shares.push(parsed.amountCents);
   }
-  const total = shares.reduce((sum, share) => sum + share, 0);
-  if (total !== amountCents) {
-    return {
-      ok: false,
-      status: 400,
-      error: "Manual shares must add up to the expense amount.",
-    };
+  const withRemainder = applyPayerRemainder({
+    amountCents,
+    shares,
+    participantEmails,
+    payerEmail,
+  });
+  if (!withRemainder.ok) {
+    return { ok: false, status: 400, error: withRemainder.error };
   }
-  return { ok: true, shares };
+  return { ok: true, shares: withRemainder.shares };
 }
 
 function parseShareAmount(

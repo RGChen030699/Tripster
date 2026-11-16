@@ -123,6 +123,19 @@ describe("ExpenseForm", () => {
     );
   });
 
+  it("explains that leftover manual share goes to the payer", async () => {
+    const user = userEvent.setup();
+    render(
+      <ExpenseForm
+        tripId="trip-1"
+        members={[{ email: "ada@example.com" }, { email: "bryce@example.com" }]}
+      />,
+    );
+
+    await user.click(screen.getByRole("radio", { name: "Manual split" }));
+    expect(screen.getByText(/left after these shares goes to the payer/i)).toBeInTheDocument();
+  });
+
   it("records a manual split with per-member shares", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,

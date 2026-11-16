@@ -192,6 +192,10 @@ export function ExpenseForm({
       {splitMode === "manual" ? (
         <fieldset className="flex flex-col gap-2">
           <legend className="text-sm font-bold">Share amounts</legend>
+          <p className="text-sm text-ink-muted">
+            Any amount left after these shares goes to the payer. Shares cannot go over the expense
+            total.
+          </p>
           {selectedMembers.length === 0 ? (
             <p className="text-sm text-ink-muted">Select members above, then enter each person’s share.</p>
           ) : (
