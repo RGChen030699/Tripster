@@ -21,7 +21,7 @@ import { parseMemberEmail, parseTripInput } from "@/lib/trips/validation";
 
 const TRIP_NOT_FOUND = "Trip not found.";
 const UNKNOWN_EMAIL = "No account uses that email address.";
-const ALREADY_MEMBER = "That person is already on this trip.";
+const ALREADY_MEMBER = "That person is already invited to this trip.";
 const ORGANIZER_ONLY = "Only the organizer can invite members.";
 const ORGANIZER_MANAGE = "Only the organizer can manage this trip.";
 const ORGANIZER_ROLE = "Only the organizer can change member roles.";

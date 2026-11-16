@@ -72,7 +72,12 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
             );
           })}
         </ul>
-        {isOrganizer ? <AddMemberForm tripId={trip.id} /> : null}
+        {isOrganizer ? (
+          <AddMemberForm
+            tripId={trip.id}
+            memberEmails={trip.members.map((member) => member.email)}
+          />
+        ) : null}
       </section>
     </article>
   );

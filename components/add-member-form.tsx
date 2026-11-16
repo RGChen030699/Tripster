@@ -8,7 +8,13 @@ import { parseMemberEmail } from "@/lib/trips/validation";
 const inputClassName =
   "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
-export function AddMemberForm({ tripId }: { tripId: string }) {
+export function AddMemberForm({
+  tripId,
+  memberEmails = [],
+}: {
+  tripId: string;
+  memberEmails?: string[];
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
@@ -22,6 +28,11 @@ export function AddMemberForm({ tripId }: { tripId: string }) {
     if (!parsed.ok) {
       setStatus(null);
       setError(parsed.error);
+      return;
+    }
+    if (memberEmails.some((memberEmail) => memberEmail.trim().toLowerCase() === parsed.email)) {
+      setStatus(null);
+      setError("That person is already invited to this trip.");
       return;
     }
 
@@ -68,7 +79,10 @@ export function AddMemberForm({ tripId }: { tripId: string }) {
           className={inputClassName}
         />
       </div>
-      <p className="text-sm text-ink-muted">Invite members via email.</p>
+      <p className="text-sm text-ink-muted">
+        Invite someone who already has a Tripster account. If they are already on this trip, you will
+        see a clear message instead of a duplicate invite.
+      </p>
       {error ? (
         <p role="alert" className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-950">
           {error}

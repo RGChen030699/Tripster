@@ -296,7 +296,7 @@
           "409": {
             "description": "That person is already a member",
             "content": {
-              "application/json": { "example": { "error": "That person is already on this trip." } }
+              "application/json": { "example": { "error": "That person is already invited to this trip." } }
             }
           }
         }
