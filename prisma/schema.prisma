@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String                @id
+  email          String                @unique
+  passwordHash   String
+  createdAt      DateTime              @default(now())
+  sessions       Session[]
+  memberships    Membership[]
+  suggestions    Suggestion[]
+  votes          Vote[]
+  expensesPaid   Expense[]             @relation("ExpensePayer")
+  participations ExpenseParticipant[]
+}
+
+model Session {
+  token     String   @id
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Trip {
+  id          String         @id
+  name        String
+  destination String
+  startDate   String
+  endDate     String
+  createdAt   DateTime       @default(now())
+  memberships Membership[]
+  suggestions Suggestion[]
+  itinerary   ItineraryItem[]
+  expenses    Expense[]
+}
+
+model Membership {
+  tripId    String
+  userId    String
+  role      String
+  createdAt DateTime @default(now())
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([tripId, userId])
+}
+
+model Suggestion {
+  id          String          @id
+  tripId      String
+  authorId    String
+  category    String
+  name        String
+  description String?
+  address     String?
+  link        String?
+  removed     Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  trip        Trip            @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  author      User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes       Vote[]
+  itinerary   ItineraryItem[]
+}
+
+model Vote {
+  suggestionId String
+  userId       String
+  choice       String
+  createdAt    DateTime   @default(now())
+  suggestion   Suggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([suggestionId, userId])
+}
+
+model ItineraryItem {
+  id           String     @id
+  tripId       String
+  suggestionId String
+  date         String?
+  startTime    String?
+  createdAt    DateTime   @default(now())
+  trip         Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  suggestion   Suggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id           String                @id
+  tripId       String
+  amountCents  Int
+  currency     String
+  description  String
+  date         String
+  payerId      String
+  createdAt    DateTime              @default(now())
+  trip         Trip                  @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  payer        User                  @relation("ExpensePayer", fields: [payerId], references: [id], onDelete: Cascade)
+  participants ExpenseParticipant[]
+}
+
+model ExpenseParticipant {
+  expenseId String
+  userId    String
+  position  Int
+  expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([expenseId, userId])
+}

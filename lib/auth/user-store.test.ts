@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type { StoredUser } from "@/lib/auth/types";
-import { DuplicateEmailError, InMemoryUserStore } from "@/lib/auth/user-store";
+import { DuplicateEmailError, InMemoryUserStore, PrismaUserStore } from "@/lib/auth/user-store";
+import { resetDatabase } from "@/lib/db";
 
 const user: StoredUser = {
   id: "user-1",
@@ -10,6 +11,10 @@ const user: StoredUser = {
 };
 
 describe("InMemoryUserStore", () => {
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
   it("stores a user and returns that user from the same instance", async () => {
     const store = new InMemoryUserStore();
 
@@ -19,14 +24,14 @@ describe("InMemoryUserStore", () => {
     await expect(store.findById(user.id)).resolves.toEqual(user);
   });
 
-  it("does not keep users created in a different store instance", async () => {
-    const first = new InMemoryUserStore();
-    const second = new InMemoryUserStore();
+  it("keeps a user when a new store instance is created", async () => {
+    const first = new PrismaUserStore();
+    const second = new PrismaUserStore();
 
     await first.create(user);
 
-    await expect(second.findByEmail(user.email)).resolves.toBeNull();
-    await expect(first.findByEmail(user.email)).resolves.not.toBeNull();
+    await expect(second.findByEmail(user.email)).resolves.toEqual(user);
+    await expect(second.findById(user.id)).resolves.toEqual(user);
   });
 
   it("rejects a second create for the same email", async () => {
