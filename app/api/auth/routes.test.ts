@@ -56,6 +56,7 @@ describe("auth routes", () => {
     const body: unknown = await response.json();
     const token = sessionToken(response);
     expect(token).not.toBe("");
+    expect(token.split(".")).toHaveLength(3);
     expect(response.headers.get("set-cookie")?.toLowerCase()).toContain("httponly");
     expect(JSON.stringify(body)).not.toContain(PASSWORD);
     expect(JSON.stringify(body)).not.toContain(token);

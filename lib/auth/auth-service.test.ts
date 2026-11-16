@@ -42,6 +42,7 @@ describe("AuthService", () => {
     }
 
     expect(result.token).not.toContain(PASSWORD);
+    expect(result.token.split(".")).toHaveLength(3);
     expect(JSON.stringify(result.user)).not.toContain(PASSWORD);
 
     const stored = await users.findByEmail(EMAIL);
@@ -109,7 +110,7 @@ describe("AuthService", () => {
     expect(JSON.stringify(wrong)).not.toContain(loggedIn.token);
   });
 
-  it("invalidates the session on logout", async () => {
+  it("invalidates the JWT session on logout", async () => {
     const { service } = createHarness();
 
     const registered = await service.register({ email: EMAIL, password: PASSWORD });
@@ -118,6 +119,7 @@ describe("AuthService", () => {
       return;
     }
 
+    expect(registered.token.split(".")).toHaveLength(3);
     await expect(service.getSession(registered.token)).resolves.toMatchObject({
       ok: true,
       user: { email: EMAIL },

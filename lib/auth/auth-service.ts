@@ -1,5 +1,6 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 
+import { signAccessToken, verifyAccessToken } from "@/lib/auth/jwt";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import type {
   AuthResult,
@@ -82,7 +83,10 @@ export class AuthService {
 
   async logout(token: string | null): Promise<void> {
     if (token) {
-      await this.sessions.deleteByToken(token);
+      const claims = verifyAccessToken(token);
+      if (claims) {
+        await this.sessions.deleteByToken(claims.jti);
+      }
     }
     this.logger.info("logged out");
   }
@@ -92,13 +96,18 @@ export class AuthService {
       return { ok: false, status: 401, error: AUTHENTICATION_REQUIRED };
     }
 
-    const session = await this.sessions.findByToken(token);
+    const claims = verifyAccessToken(token);
+    if (!claims) {
+      return { ok: false, status: 401, error: AUTHENTICATION_REQUIRED };
+    }
+
+    const session = await this.sessions.findByToken(claims.jti);
     if (!session) {
       return { ok: false, status: 401, error: AUTHENTICATION_REQUIRED };
     }
 
-    const user = await this.users.findById(session.userId);
-    if (!user) {
+    const user = await this.users.findById(claims.userId);
+    if (!user || user.id !== session.userId) {
       return { ok: false, status: 401, error: AUTHENTICATION_REQUIRED };
     }
 
@@ -106,9 +115,9 @@ export class AuthService {
   }
 
   private async startSession(userId: string): Promise<string> {
-    const token = randomBytes(32).toString("base64url");
-    await this.sessions.create({ token, userId });
-    return token;
+    const signed = signAccessToken({ userId });
+    await this.sessions.create({ token: signed.jti, userId });
+    return signed.token;
   }
 }
 

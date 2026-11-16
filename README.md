@@ -31,9 +31,9 @@ Open http://localhost:3000. If that port is already in use, the dev server print
 
 ## Environment variables
 
-Copy `.env.example` to `.env`. `DATABASE_URL` is the development database. `DATABASE_URL_TEST` is the isolated database Vitest uses. The example file contains placeholders only. Do not commit a real database URL, password, or other secret.
+Copy `.env.example` to `.env`. `DATABASE_URL` is the development database. `DATABASE_URL_TEST` is the isolated database Vitest uses. `JWT_SECRET` signs HS256 access tokens. The example file contains placeholders only. Do not commit a real database URL, password, JWT secret, or other secret.
 
-`NODE_ENV=production` marks the session cookie Secure and stops serving the API document. The session cookie name is `tripster_session`.
+Authentication uses JWT: register and login set an HS256 access token in the httpOnly `tripster_session` cookie. Logout clears the cookie and revokes the token `jti`. `NODE_ENV=production` marks the cookie Secure and stops serving the API document.
 
 ## Tests
 
@@ -53,4 +53,4 @@ npm run build
 npm start
 ```
 
-Set `DATABASE_URL` in the host environment before `npm start`. Apply migrations with `npx prisma migrate deploy` before serving a new database. Do not commit real tokens, passwords, or database URLs.
+Set `DATABASE_URL` and `JWT_SECRET` in the host environment before `npm start`. Apply migrations with `npx prisma migrate deploy` before serving a new database. Do not commit real tokens, passwords, JWT secrets, or database URLs.
