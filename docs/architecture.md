@@ -103,7 +103,7 @@ sequenceDiagram
 
 - Password hashing uses a purpose-built scrypt-based hasher in `lib/auth/password.ts`.
 - Production cookies are `Secure`. Logout clears the cookie and revokes the token `jti`.
-- OpenAPI is served at `GET /api/openapi` outside production (`openapi/tripster.openapi.json`).
+- OpenAPI is served at `GET /api/openapi` in every environment (`openapi/tripster.openapi.json`). A Swagger UI page at `/api-docs` loads that document for graders on production.
 
 ## Domain modules and product invariants
 

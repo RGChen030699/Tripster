@@ -61,7 +61,18 @@ npm run typecheck
 
 `npm test` runs Vitest against the isolated test database, not the development database. Create `tripster_test` and apply migrations before running tests. `npm run test:e2e` runs Playwright against a local Next.js server (Chromium). It uses `DATABASE_URL` and `JWT_SECRET` from the environment; set those before the run. `npm run typecheck` runs `tsc --noEmit`.
 
-The API document is `openapi/tripster.openapi.json`. Outside production, `GET /api/openapi` returns that document. It includes example requests and responses for the main flows.
+## API documentation (OpenAPI)
+
+Graders and reviewers can read the HTTP API without a local checkout:
+
+| Where | Link |
+| --- | --- |
+| Production Swagger UI | https://tripster-delta.vercel.app/api-docs |
+| Production JSON | https://tripster-delta.vercel.app/api/openapi |
+| Repo file | [`openapi/tripster.openapi.json`](openapi/tripster.openapi.json) |
+| Raw GitHub JSON | https://raw.githubusercontent.com/RGChen030699/Tripster/main/openapi/tripster.openapi.json |
+
+Locally, the same routes are `http://localhost:3000/api-docs` and `http://localhost:3000/api/openapi`. The document includes example requests and responses for the main flows.
 
 ## Continuous integration
 
