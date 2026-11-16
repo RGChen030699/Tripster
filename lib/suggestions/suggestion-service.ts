@@ -14,6 +14,7 @@ import type {
 } from "@/lib/itinerary/types";
 import type {
   CreateSuggestionResult,
+  GetVotesResult,
   RemoveSuggestionResult,
   StoredSuggestion,
   StoredVote,
@@ -164,6 +165,25 @@ export class SuggestionService {
       ok: true,
       vote: { choice: parsed.choice },
       votes: countVotes(await this.votes.listBySuggestion(suggestionId)),
+    };
+  }
+
+  async getVotes(userId: string, tripId: string, suggestionId: string): Promise<GetVotesResult> {
+    const membership = await this.trips.findMembership(tripId, userId);
+    if (!membership) {
+      return { ok: false, status: 404, error: TRIP_NOT_FOUND };
+    }
+    const suggestion = await this.suggestions.findById(suggestionId);
+    if (!suggestion || suggestion.tripId !== tripId || suggestion.removed) {
+      return { ok: false, status: 404, error: SUGGESTION_NOT_FOUND };
+    }
+
+    const recorded = await this.votes.listBySuggestion(suggestionId);
+    const mine = recorded.find((vote) => vote.userId === userId);
+    return {
+      ok: true,
+      vote: mine ? { choice: mine.choice } : null,
+      votes: countVotes(recorded),
     };
   }
 

@@ -8,15 +8,17 @@ Accounts, trips, suggestions, itinerary items, and expenses are stored in Postgr
 
 ## Shared trip state
 
-Tripster does not use WebSockets or another live push channel. It meets the project’s **complex shared state** requirement with server-enforced domain rules that several members update through the same trip workspace:
+Tripster does not use WebSockets or a paid realtime vendor. Live vote totals use **short polling**: suggestion cards call `GET /api/trips/{tripId}/suggestions/{suggestionId}/votes` about every four seconds while the tab is visible, so another member’s Yes / Maybe / No shows up without a full reload. That endpoint stays membership-gated and still never Adds to the itinerary.
+
+The broader trip workspace also keeps **complex shared state** on the server:
 
 - **Membership** — trip-scoped reads and writes require an authenticated member. The client cannot assert membership; the API checks it.
-- **Suggestions and votes** — members propose lodging, activities, places, or restaurants. Yes / Maybe / No record preferences only. Changing a vote updates totals and never creates an itinerary item.
-- **Explicit Add** — a separate Add action creates an itinerary item linked to the source suggestion. Voting alone leaves the suggestion in the list.
-- **Scheduling** — itinerary items move between an unscheduled group and day/time groups inside the trip date range.
-- **Expenses and balances** — an expense names a payer and participants. Equal splits use integer cents that sum exactly to the amount. Each member sees paid, share, and net balance.
+- **Suggestions and votes** — members propose lodging, activities, places, or restaurants. Votes are preferences only.
+- **Explicit Add** — a separate Add action creates an itinerary item linked to the source suggestion.
+- **Scheduling** — itinerary items move between unscheduled and day/time groups inside the trip date range.
+- **Expenses and balances** — equal splits use integer cents that sum exactly; each member sees paid, share, and net balance.
 
-Those invariants live in `lib/` services and stores and are covered by Vitest and the Playwright journey. UI pages refresh after mutations; they do not keep a second client-only copy of trip rules.
+Those invariants live in `lib/` services and stores and are covered by Vitest and the Playwright journey.
 
 ## Local setup
 

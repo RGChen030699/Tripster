@@ -5,7 +5,10 @@ import { GET as listItinerary } from "@/app/api/trips/[id]/itinerary/route";
 import { POST as addMember } from "@/app/api/trips/[id]/members/route";
 import { POST as createSuggestion } from "@/app/api/trips/[id]/suggestions/route";
 import { GET as listSuggestions } from "@/app/api/trips/[id]/suggestions/route";
-import { POST as vote } from "@/app/api/trips/[id]/suggestions/[suggestionId]/votes/route";
+import {
+  GET as getVotes,
+  POST as vote,
+} from "@/app/api/trips/[id]/suggestions/[suggestionId]/votes/route";
 import { POST as createTrip } from "@/app/api/trips/route";
 import { resetAuthService } from "@/lib/auth/container";
 import { resetSuggestionService } from "@/lib/suggestions/container";
@@ -77,6 +80,47 @@ describe("vote routes", () => {
 
     expect(response.status).toBe(401);
     await expect(response.json()).resolves.toEqual({ error: "Authentication required." });
+  });
+
+  it("lets a member poll current vote totals", async () => {
+    const ada = await registerUser("ada@example.com");
+    const bryce = await registerUser("bryce@example.com");
+    const tripId = await createJapan(ada);
+    const added = await addMember(
+      jsonRequest(`/api/trips/${tripId}/members`, { email: "bryce@example.com" }, ada),
+      { params: Promise.resolve({ id: tripId }) },
+    );
+    expect(added.status).toBe(201);
+    const suggestionId = await suggest(ada, tripId);
+
+    const empty = await getVotes(
+      new Request(`http://localhost/api/trips/${tripId}/suggestions/${suggestionId}/votes`, {
+        headers: { cookie: ada },
+      }),
+      { params: Promise.resolve({ id: tripId, suggestionId }) },
+    );
+    expect(empty.status).toBe(200);
+    await expect(empty.json()).resolves.toEqual({
+      vote: null,
+      votes: { yes: 0, maybe: 0, no: 0 },
+    });
+
+    await vote(
+      jsonRequest(`/api/trips/${tripId}/suggestions/${suggestionId}/votes`, { choice: "yes" }, bryce),
+      { params: Promise.resolve({ id: tripId, suggestionId }) },
+    );
+
+    const polled = await getVotes(
+      new Request(`http://localhost/api/trips/${tripId}/suggestions/${suggestionId}/votes`, {
+        headers: { cookie: ada },
+      }),
+      { params: Promise.resolve({ id: tripId, suggestionId }) },
+    );
+    expect(polled.status).toBe(200);
+    await expect(polled.json()).resolves.toEqual({
+      vote: null,
+      votes: { yes: 1, maybe: 0, no: 0 },
+    });
   });
 
   it("replaces a member's vote, shows totals, and leaves the itinerary empty", async () => {
