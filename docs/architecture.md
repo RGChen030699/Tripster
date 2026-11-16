@@ -164,4 +164,5 @@ flowchart LR
 - Product rules and stack versions: [`AGENTS.md`](../AGENTS.md)
 - Setup and deployment: [`README.md`](../README.md)
 - Public API document: [`openapi/tripster.openapi.json`](../openapi/tripster.openapi.json)
-- Database models: [`prisma/schema.prisma`](../prisma/schema.prisma) (see also the database schema diagram when present under `docs/`)
+- Database schema diagram: [`docs/database-schema.md`](./database-schema.md)
+- Database models: [`prisma/schema.prisma`](../prisma/schema.prisma)
