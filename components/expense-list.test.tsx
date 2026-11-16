@@ -30,6 +30,8 @@ describe("ExpenseList", () => {
     expect(screen.getByText("2026-11-02")).toBeInTheDocument();
     expect(screen.getByText("Paid by ada@example.com")).toBeInTheDocument();
     expect(screen.getByText("Even split · Shared by ada@example.com, bryce@example.com")).toBeInTheDocument();
+    expect(screen.getByText("ada@example.com: 5.25 USD")).toBeInTheDocument();
+    expect(screen.getByText("bryce@example.com: 5.25 USD")).toBeInTheDocument();
     expect(screen.queryByText(/balance/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/owes/i)).not.toBeInTheDocument();
   });
