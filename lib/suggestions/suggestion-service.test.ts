@@ -9,8 +9,8 @@ import { TripService } from "@/lib/trips/trip-service";
 import { InMemoryTripStore } from "@/lib/trips/trip-store";
 
 const TRIP = {
-  name: "Lisbon week",
-  destination: "Lisbon",
+  name: "Japan week",
+  destination: "Japan",
   startDate: "2026-11-01",
   endDate: "2026-11-05",
 };
@@ -143,12 +143,12 @@ describe("SuggestionService", () => {
     const hiddenCreate = await service.createSuggestion("someone-else", tripId, SUGGESTION);
     expect(hiddenCreate).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hiddenCreate)).not.toContain("Pastel");
-    expect(JSON.stringify(hiddenCreate)).not.toContain("Lisbon");
+    expect(JSON.stringify(hiddenCreate)).not.toContain("Japan");
 
     const hiddenList = await service.listSuggestions("someone-else", tripId);
     expect(hiddenList).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hiddenList)).not.toContain("Pastel");
-    expect(JSON.stringify(hiddenList)).not.toContain("Lisbon");
+    expect(JSON.stringify(hiddenList)).not.toContain("Japan");
   });
 
   it("keeps one current vote per member and does not create an itinerary item", async () => {
@@ -216,12 +216,12 @@ describe("SuggestionService", () => {
     const hidden = await service.vote("someone-else", tripId, created.suggestion.id, "yes");
     expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hidden)).not.toContain("Pastel");
-    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+    expect(JSON.stringify(hidden)).not.toContain("Japan");
 
     const hiddenItinerary = await service.listItinerary("someone-else", tripId);
     expect(hiddenItinerary).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hiddenItinerary)).not.toContain("Pastel");
-    expect(JSON.stringify(hiddenItinerary)).not.toContain("Lisbon");
+    expect(JSON.stringify(hiddenItinerary)).not.toContain("Japan");
   });
 
   it("adds a suggestion once and leaves a voted suggestion off the itinerary", async () => {
@@ -300,7 +300,7 @@ describe("SuggestionService", () => {
     const hidden = await service.addToItinerary("someone-else", tripId, created.suggestion.id);
     expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hidden)).not.toContain("Pastel");
-    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+    expect(JSON.stringify(hidden)).not.toContain("Japan");
 
     const listed = await service.listItinerary("someone-else", tripId);
     expect(listed).toEqual({ ok: false, status: 404, error: "Trip not found." });
@@ -319,7 +319,7 @@ describe("SuggestionService", () => {
       category: "activity",
       name: "  Tram 28  ",
       description: "",
-      address: " Lisbon ",
+      address: " Japan ",
       link: "https://example.com/tram",
     });
     expect(edited).toMatchObject({
@@ -329,7 +329,7 @@ describe("SuggestionService", () => {
         category: "activity",
         name: "Tram 28",
         description: null,
-        address: "Lisbon",
+        address: "Japan",
         link: "https://example.com/tram",
         authorEmail: "ada@example.com",
       },
@@ -408,7 +408,7 @@ describe("SuggestionService", () => {
     const hidden = await service.updateSuggestion("someone-else", tripId, created.suggestion.id, SUGGESTION);
     expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hidden)).not.toContain("Pastel");
-    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+    expect(JSON.stringify(hidden)).not.toContain("Japan");
 
     const hiddenRemove = await service.removeSuggestion("someone-else", tripId, created.suggestion.id);
     expect(hiddenRemove).toEqual({ ok: false, status: 404, error: "Trip not found." });
@@ -534,7 +534,7 @@ describe("SuggestionService", () => {
     const hidden = await service.removeItineraryItem("someone-else", tripId, hotel.id);
     expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hidden)).not.toContain("Hotel");
-    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+    expect(JSON.stringify(hidden)).not.toContain("Japan");
   });
 });
 

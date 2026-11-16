@@ -14,8 +14,8 @@ vi.mock("next/navigation", () => ({
 }));
 
 async function fillTrip(user: ReturnType<typeof userEvent.setup>, endDate: string) {
-  await user.type(screen.getByLabelText("Trip name"), "Lisbon week");
-  await user.type(screen.getByLabelText("Destination"), "Lisbon");
+  await user.type(screen.getByLabelText("Trip name"), "Japan week");
+  await user.type(screen.getByLabelText("Destination"), "Japan");
   await user.type(screen.getByLabelText("Start date"), "2026-11-01");
   await user.type(screen.getByLabelText("End date"), endDate);
 }
@@ -33,8 +33,8 @@ describe("CreateTripForm", () => {
       json: async () => ({
         trip: {
           id: "trip-1",
-          name: "Lisbon week",
-          destination: "Lisbon",
+          name: "Japan week",
+          destination: "Japan",
           startDate: "2026-11-01",
           endDate: "2026-11-05",
           role: "organizer",
@@ -53,8 +53,8 @@ describe("CreateTripForm", () => {
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({
-          name: "Lisbon week",
-          destination: "Lisbon",
+          name: "Japan week",
+          destination: "Japan",
           startDate: "2026-11-01",
           endDate: "2026-11-05",
         }),

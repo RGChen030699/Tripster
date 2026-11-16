@@ -7,8 +7,8 @@ import { TripService } from "@/lib/trips/trip-service";
 import { InMemoryTripStore } from "@/lib/trips/trip-store";
 
 const TRIP = {
-  name: "Lisbon week",
-  destination: "Lisbon",
+  name: "Japan week",
+  destination: "Japan",
   startDate: "2026-11-01",
   endDate: "2026-11-05",
 };
@@ -139,12 +139,12 @@ describe("ExpenseService", () => {
     });
     expect(hiddenRecord).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hiddenRecord)).not.toContain("Taxi");
-    expect(JSON.stringify(hiddenRecord)).not.toContain("Lisbon");
+    expect(JSON.stringify(hiddenRecord)).not.toContain("Japan");
 
     const hiddenList = await service.listExpenses("someone-else", tripId);
     expect(hiddenList).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hiddenList)).not.toContain("Taxi");
-    expect(JSON.stringify(hiddenList)).not.toContain("Lisbon");
+    expect(JSON.stringify(hiddenList)).not.toContain("Japan");
   });
 
   it("shows paid, share, and net balance when a payer is not a participant", async () => {
@@ -202,6 +202,6 @@ describe("ExpenseService", () => {
     const hidden = await service.listBalances("someone-else", tripId);
     expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hidden)).not.toContain("Taxi");
-    expect(JSON.stringify(hidden)).not.toContain("Lisbon");
+    expect(JSON.stringify(hidden)).not.toContain("Japan");
   });
 });

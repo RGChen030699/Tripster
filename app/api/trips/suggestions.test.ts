@@ -10,8 +10,8 @@ import { resetTripService } from "@/lib/trips/container";
 
 const PASSWORD = "correct-horse";
 const TRIP = {
-  name: "Lisbon week",
-  destination: "Lisbon",
+  name: "Japan week",
+  destination: "Japan",
   startDate: "2026-11-01",
   endDate: "2026-11-05",
 };
@@ -42,7 +42,7 @@ async function registerUser(email: string): Promise<string> {
   return response.headers.get("set-cookie")?.split(";")[0] ?? "";
 }
 
-async function createLisbon(cookie: string): Promise<string> {
+async function createJapan(cookie: string): Promise<string> {
   const response = await createTrip(jsonRequest("/api/trips", TRIP, cookie));
   expect(response.status).toBe(201);
   const body = (await response.json()) as { trip: { id: string } };
@@ -69,7 +69,7 @@ describe("suggestion routes", () => {
   it("lets a member create a suggestion that other members can list", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
     const added = await addMember(
       jsonRequest(`/api/trips/${tripId}/members`, { email: "bryce@example.com" }, ada),
       { params: Promise.resolve({ id: tripId }) },
@@ -102,7 +102,7 @@ describe("suggestion routes", () => {
 
   it("rejects an unknown category", async () => {
     const ada = await registerUser("ada@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
     const response = await createSuggestion(
       jsonRequest(`/api/trips/${tripId}/suggestions`, { ...SUGGESTION, category: "hotel" }, ada),
       { params: Promise.resolve({ id: tripId }) },
@@ -117,7 +117,7 @@ describe("suggestion routes", () => {
   it("does not reveal suggestions to someone outside the trip", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
     const created = await createSuggestion(
       jsonRequest(`/api/trips/${tripId}/suggestions`, SUGGESTION, ada),
       { params: Promise.resolve({ id: tripId }) },
@@ -134,7 +134,7 @@ describe("suggestion routes", () => {
     const listText = JSON.stringify(await hiddenList.json());
     expect(listText).toBe(JSON.stringify({ error: "Trip not found." }));
     expect(listText).not.toContain("Pastel");
-    expect(listText).not.toContain("Lisbon");
+    expect(listText).not.toContain("Japan");
 
     const hiddenCreate = await createSuggestion(
       jsonRequest(`/api/trips/${tripId}/suggestions`, SUGGESTION, bryce),
@@ -143,6 +143,6 @@ describe("suggestion routes", () => {
     expect(hiddenCreate.status).toBe(404);
     const createText = JSON.stringify(await hiddenCreate.json());
     expect(createText).not.toContain("Pastel");
-    expect(createText).not.toContain("Lisbon");
+    expect(createText).not.toContain("Japan");
   });
 });

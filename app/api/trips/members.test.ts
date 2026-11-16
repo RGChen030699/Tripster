@@ -9,8 +9,8 @@ import { resetTripService } from "@/lib/trips/container";
 
 const PASSWORD = "correct-horse";
 const TRIP = {
-  name: "Lisbon week",
-  destination: "Lisbon",
+  name: "Japan week",
+  destination: "Japan",
   startDate: "2026-11-01",
   endDate: "2026-11-05",
 };
@@ -34,7 +34,7 @@ async function registerUser(email: string): Promise<string> {
   return response.headers.get("set-cookie")?.split(";")[0] ?? "";
 }
 
-async function createLisbon(cookie: string): Promise<string> {
+async function createJapan(cookie: string): Promise<string> {
   const response = await createTrip(jsonRequest("/api/trips", TRIP, cookie));
   expect(response.status).toBe(201);
   const body = (await response.json()) as { trip: { id: string } };
@@ -60,7 +60,7 @@ describe("trip member routes", () => {
   it("lets the organizer add an existing email and that person sees the trip", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
 
     const response = await addMember(
       jsonRequest(`/api/trips/${tripId}/members`, { email: "  Bryce@Example.com " }, ada),
@@ -78,7 +78,7 @@ describe("trip member routes", () => {
     expect(listed.status).toBe(200);
     const listText = JSON.stringify(await listed.json());
     expect(listText).toContain(tripId);
-    expect(listText).toContain("Lisbon");
+    expect(listText).toContain("Japan");
 
     const details = await getTrip(
       new Request(`http://localhost/api/trips/${tripId}`, { headers: { cookie: bryce } }),
@@ -97,7 +97,7 @@ describe("trip member routes", () => {
 
   it("rejects an unknown email and a duplicate member", async () => {
     const ada = await registerUser("ada@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
 
     const unknown = await addMember(
       jsonRequest(`/api/trips/${tripId}/members`, { email: "missing@example.com" }, ada),
@@ -129,7 +129,7 @@ describe("trip member routes", () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
     await registerUser("cara@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
 
     const added = await addMember(
       jsonRequest(`/api/trips/${tripId}/members`, { email: "bryce@example.com" }, ada),
@@ -150,7 +150,7 @@ describe("trip member routes", () => {
   it("does not reveal trip details to someone who is not a member", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
 
     const hidden = await addMember(
       jsonRequest(`/api/trips/${tripId}/members`, { email: "ada@example.com" }, bryce),
@@ -159,18 +159,18 @@ describe("trip member routes", () => {
     expect(hidden.status).toBe(404);
     const text = JSON.stringify(await hidden.json());
     expect(text).toBe(JSON.stringify({ error: "Trip not found." }));
-    expect(text).not.toContain("Lisbon");
+    expect(text).not.toContain("Japan");
 
     const listed = await listTrips(
       new Request("http://localhost/api/trips", { headers: { cookie: bryce } }),
     );
-    expect(JSON.stringify(await listed.json())).not.toContain("Lisbon");
+    expect(JSON.stringify(await listed.json())).not.toContain("Japan");
 
     const details = await getTrip(
       new Request(`http://localhost/api/trips/${tripId}`, { headers: { cookie: bryce } }),
       { params: Promise.resolve({ id: tripId }) },
     );
     expect(details.status).toBe(404);
-    expect(JSON.stringify(await details.json())).not.toContain("Lisbon");
+    expect(JSON.stringify(await details.json())).not.toContain("Japan");
   });
 });
