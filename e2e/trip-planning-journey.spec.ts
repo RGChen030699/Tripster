@@ -50,7 +50,8 @@ test("plans a trip from register through balances", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Unscheduled" })).toBeVisible();
 
   const itineraryCard = page.locator("li").filter({ hasText: suggestionName });
-  await itineraryCard.getByRole("button", { name: "Schedule" }).click();
+  await itineraryCard.getByRole("button", { name: `Itinerary actions for ${suggestionName}` }).click();
+  await page.getByRole("menuitem", { name: "Schedule" }).click();
   await itineraryCard.getByLabel("Date").fill("2026-11-02");
   await itineraryCard.getByLabel("Time").fill("12:30");
   await itineraryCard.getByRole("button", { name: "Save schedule" }).click();

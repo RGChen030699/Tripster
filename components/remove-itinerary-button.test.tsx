@@ -42,4 +42,34 @@ describe("RemoveItineraryButton", () => {
     );
     expect(refresh).toHaveBeenCalled();
   });
+
+  it("supports a controlled confirming panel without a standalone trigger", async () => {
+    const onConfirmingChange = vi.fn();
+    const user = userEvent.setup();
+
+    const { rerender } = render(
+      <RemoveItineraryButton
+        tripId="trip-1"
+        itemId="item-1"
+        confirming={false}
+        onConfirmingChange={onConfirmingChange}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "Remove from itinerary" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+
+    rerender(
+      <RemoveItineraryButton
+        tripId="trip-1"
+        itemId="item-1"
+        confirming
+        onConfirmingChange={onConfirmingChange}
+      />,
+    );
+
+    expect(screen.getByRole("alertdialog", { name: "Remove this itinerary item?" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(onConfirmingChange).toHaveBeenCalledWith(false);
+  });
 });

@@ -79,9 +79,10 @@ describe("ItineraryList", () => {
     expect(secondDay.compareDocumentPosition(unscheduled) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByText("No time")).toBeInTheDocument();
     expect(screen.getByText("09:30")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: "Schedule" })).toHaveLength(1);
-    expect(screen.getAllByRole("button", { name: "Edit schedule" })).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: "Remove from itinerary" })).toHaveLength(3);
+    expect(screen.getAllByRole("button", { name: /Itinerary actions/ })).toHaveLength(3);
+    expect(screen.queryByRole("button", { name: "Schedule" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Edit schedule" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Remove from itinerary" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Date")).not.toBeInTheDocument();
   });
 });

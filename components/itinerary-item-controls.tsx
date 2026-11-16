@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { ActionMenu } from "@/components/action-menu";
+import { dangerMenuItemClassName, menuItemClassName } from "@/components/button-styles";
 import { RemoveItineraryButton } from "@/components/remove-itinerary-button";
 import { ScheduleItineraryForm } from "@/components/schedule-itinerary-form";
 import type { ItineraryItemView } from "@/lib/itinerary/types";
@@ -13,27 +15,65 @@ export function ItineraryItemControls({
   tripId: string;
   item: ItineraryItemView;
 }) {
-  const [editing, setEditing] = useState(false);
+  const [panel, setPanel] = useState<"none" | "schedule" | "remove">("none");
+  const scheduleLabel = item.unscheduled ? "Schedule" : "Edit schedule";
 
   return (
-    <div className="mt-3">
-      {editing ? (
+    <div className="mt-3 flex flex-col items-start gap-3">
+      <ActionMenu label="Itinerary actions" ariaLabel={`Itinerary actions for ${item.name}`}>
+        {(close) => (
+          <>
+            <button
+              type="button"
+              role="menuitem"
+              className={menuItemClassName}
+              onClick={() => {
+                close();
+                setPanel("schedule");
+              }}
+            >
+              {scheduleLabel}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className={dangerMenuItemClassName}
+              onClick={() => {
+                close();
+                setPanel("remove");
+              }}
+            >
+              Remove from itinerary
+            </button>
+          </>
+        )}
+      </ActionMenu>
+      {panel === "schedule" ? (
         <ScheduleItineraryForm
           tripId={tripId}
           itemId={item.id}
           date={item.date}
           startTime={item.startTime}
+          open
+          onOpenChange={(next) => {
+            if (!next) {
+              setPanel("none");
+            }
+          }}
         />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className="text-sm font-bold text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          {item.unscheduled ? "Schedule" : "Edit schedule"}
-        </button>
-      )}
-      <RemoveItineraryButton tripId={tripId} itemId={item.id} />
+      ) : null}
+      {panel === "remove" ? (
+        <RemoveItineraryButton
+          tripId={tripId}
+          itemId={item.id}
+          confirming
+          onConfirmingChange={(next) => {
+            if (!next) {
+              setPanel("none");
+            }
+          }}
+        />
+      ) : null}
     </div>
   );
 }
