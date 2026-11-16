@@ -45,3 +45,21 @@ export async function PATCH(
   }
   return Response.json({ member: result.member });
 }
+
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+): Promise<Response> {
+  const user = await requireUser(request);
+  if (!user.ok) {
+    return user.response;
+  }
+
+  const { id } = await context.params;
+  const body = await readJsonObject(request);
+  const result = await getTripService().removeMember(user.user.id, id, readField(body, "email"));
+  if (!result.ok) {
+    return errorResponse(result.error, result.status);
+  }
+  return new Response(null, { status: 204 });
+}

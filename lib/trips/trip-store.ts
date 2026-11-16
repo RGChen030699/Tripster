@@ -13,6 +13,10 @@ export class InMemoryTripStore implements TripStore {
     this.memberships.set(key, { tripId, userId, role: "member" });
   }
 
+  async removeMember(tripId: string, userId: string): Promise<void> {
+    this.memberships.delete(membershipKey(tripId, userId));
+  }
+
   async updateTrip(trip: StoredTrip): Promise<void> {
     if (!this.trips.has(trip.id)) {
       return;
@@ -114,6 +118,12 @@ export class PrismaTripStore implements TripStore {
       return;
     }
     await getPrisma().membership.create({ data: { tripId, userId, role: "member" } });
+  }
+
+  async removeMember(tripId: string, userId: string): Promise<void> {
+    await getPrisma().membership.delete({
+      where: { tripId_userId: { tripId, userId } },
+    });
   }
 
   async updateTrip(trip: StoredTrip): Promise<void> {

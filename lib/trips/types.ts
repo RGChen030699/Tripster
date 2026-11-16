@@ -52,9 +52,12 @@ export type DeleteTripResult = { ok: true } | TripFailure;
 
 export type UpdateMemberRoleResult = { ok: true; member: TripMemberView } | TripFailure;
 
+export type RemoveMemberResult = { ok: true } | TripFailure;
+
 export interface TripStore {
   createWithOrganizer(trip: StoredTrip, organizerId: string): Promise<void>;
   addMember(tripId: string, userId: string): Promise<void>;
+  removeMember(tripId: string, userId: string): Promise<void>;
   updateTrip(trip: StoredTrip): Promise<void>;
   deleteTrip(tripId: string): Promise<void>;
   setMemberRole(tripId: string, userId: string, role: TripRole): Promise<void>;

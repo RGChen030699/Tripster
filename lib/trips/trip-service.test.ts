@@ -267,6 +267,35 @@ describe("TripService", () => {
     });
     expect(denied).toEqual({ ok: false, status: 404, error: "Trip not found." });
 
+    const demoted = await service.setMemberRole(
+      "user-1",
+      created.trip.id,
+      "bryce@example.com",
+      "member",
+    );
+    expect(demoted).toEqual({
+      ok: true,
+      member: { email: "bryce@example.com", role: "member" },
+    });
+
+    await expect(
+      service.setMemberRole("user-1", created.trip.id, "ada@example.com", "member"),
+    ).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Keep at least one organizer on the trip.",
+    });
+
+    const removed = await service.removeMember("user-1", created.trip.id, "bryce@example.com");
+    expect(removed).toEqual({ ok: true });
+    await expect(service.listTrips("user-2")).resolves.toEqual({ ok: true, trips: [] });
+
+    await expect(service.removeMember("user-1", created.trip.id, "ada@example.com")).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Keep at least one organizer on the trip.",
+    });
+
     const deleted = await service.deleteTrip("user-1", created.trip.id);
     expect(deleted).toEqual({ ok: true });
     await expect(service.getTrip("user-1", created.trip.id)).resolves.toEqual({

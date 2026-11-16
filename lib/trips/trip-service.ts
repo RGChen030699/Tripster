@@ -5,6 +5,7 @@ import type {
   AddMemberResult,
   CreateTripResult,
   DeleteTripResult,
+  RemoveMemberResult,
   StoredTrip,
   TripDetails,
   TripDetailsResult,
@@ -24,7 +25,9 @@ const ALREADY_MEMBER = "That person is already on this trip.";
 const ORGANIZER_ONLY = "Only the organizer can invite members.";
 const ORGANIZER_MANAGE = "Only the organizer can manage this trip.";
 const ORGANIZER_ROLE = "Only the organizer can change member roles.";
+const ORGANIZER_REMOVE = "Only the organizer can remove members.";
 const NOT_A_MEMBER = "That person is not on this trip.";
+const LAST_ORGANIZER = "Keep at least one organizer on the trip.";
 
 export class TripService {
   private readonly trips: TripStore;
@@ -188,9 +191,48 @@ export class TripService {
     if (!membership) {
       return { ok: false, status: 404, error: NOT_A_MEMBER };
     }
+    if (membership.role === "organizer" && nextRole.role === "member") {
+      const organizers = await this.organizerCount(tripId);
+      if (organizers <= 1) {
+        return { ok: false, status: 400, error: LAST_ORGANIZER };
+      }
+    }
     await this.trips.setMemberRole(tripId, user.id, nextRole.role);
     this.logger.info("member role updated");
     return { ok: true, member: { email: user.email, role: nextRole.role } };
+  }
+
+  async removeMember(userId: string, tripId: string, email: unknown): Promise<RemoveMemberResult> {
+    const access = await this.requireOrganizer(userId, tripId, ORGANIZER_REMOVE);
+    if (!access.ok) {
+      return access;
+    }
+    const parsed = parseMemberEmail(email);
+    if (!parsed.ok) {
+      return parsed;
+    }
+    const user = await this.users.findByEmail(parsed.email);
+    if (!user) {
+      return { ok: false, status: 404, error: UNKNOWN_EMAIL };
+    }
+    const membership = await this.trips.findMembership(tripId, user.id);
+    if (!membership) {
+      return { ok: false, status: 404, error: NOT_A_MEMBER };
+    }
+    if (membership.role === "organizer") {
+      const organizers = await this.organizerCount(tripId);
+      if (organizers <= 1) {
+        return { ok: false, status: 400, error: LAST_ORGANIZER };
+      }
+    }
+    await this.trips.removeMember(tripId, user.id);
+    this.logger.info("member removed");
+    return { ok: true };
+  }
+
+  private async organizerCount(tripId: string): Promise<number> {
+    const members = await this.trips.membersOf(tripId);
+    return members.filter((member) => member.role === "organizer").length;
   }
 
   private async requireOrganizer(
