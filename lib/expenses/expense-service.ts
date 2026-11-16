@@ -305,9 +305,22 @@ function parseShares(
 function parseShareAmount(
   value: unknown,
 ): { ok: true; amountCents: number } | { ok: false; status: 400; error: string } {
-  if (typeof value === "number" && Number.isInteger(value) && value >= 0) {
-    return { ok: true, amountCents: value };
+  // Blank means $0.00 so leftover can still fall on the payer.
+  if (value === null || value === undefined || (typeof value === "string" && value.trim() === "")) {
+    return { ok: true, amountCents: 0 };
   }
+  // Integer cents (API/tests) or dollar floats that map cleanly to cents (e.g. 20.5).
+  if (typeof value === "number" && Number.isFinite(value) && value >= 0) {
+    if (Number.isInteger(value)) {
+      return { ok: true, amountCents: value };
+    }
+    const amountCents = Math.round(value * 100);
+    if (!Number.isSafeInteger(amountCents) || Math.abs(value * 100 - amountCents) > 1e-6) {
+      return { ok: false, status: 400, error: "Enter a valid share amount for each member." };
+    }
+    return { ok: true, amountCents };
+  }
+  // Dollar strings with optional cents: "20", "20.5", "20.50".
   if (typeof value !== "string" || !/^(?:0|[1-9]\d{0,6})(?:\.\d{1,2})?$/.test(value.trim())) {
     return { ok: false, status: 400, error: "Enter a valid share amount for each member." };
   }

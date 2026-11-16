@@ -268,4 +268,44 @@ describe("ExpenseService", () => {
       ],
     });
   });
+
+  it("applies payer remainder with dollar-and-cent share amounts", async () => {
+    const { service, tripId } = await setup();
+
+    const recorded = await service.recordExpense("user-1", tripId, {
+      amount: "40.50",
+      description: "Museum tickets",
+      date: "2026-11-02",
+      payerEmail: "ada@example.com",
+      participantEmails: ["ada@example.com", "bryce@example.com"],
+      splitMode: "manual",
+      participantShares: ["20.25", "10"],
+    });
+    expect(recorded).toMatchObject({
+      ok: true,
+      expense: {
+        amountCents: 4050,
+        splitMode: "manual",
+        // 20.25 + 10.00 = 30.25; leftover 10.25 → payer ada → 30.50 + 10.00
+        participantShares: [3050, 1000],
+      },
+    });
+
+    const blankPayerShare = await service.recordExpense("user-1", tripId, {
+      amount: "12.34",
+      description: "Snacks",
+      date: "2026-11-02",
+      payerEmail: "ada@example.com",
+      participantEmails: ["ada@example.com", "bryce@example.com"],
+      splitMode: "manual",
+      participantShares: ["", "4.50"],
+    });
+    expect(blankPayerShare).toMatchObject({
+      ok: true,
+      expense: {
+        amountCents: 1234,
+        participantShares: [784, 450],
+      },
+    });
+  });
 });
