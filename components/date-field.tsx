@@ -92,10 +92,18 @@ export function DateField({
           const parsed = monthFromValue(next);
           if (parsed) {
             setView(parsed);
+            setOpen(false);
           }
         }}
         onFocus={() => setOpen(true)}
         onClick={() => setOpen(true)}
+        onBlur={() => {
+          window.setTimeout(() => {
+            if (!rootRef.current?.contains(document.activeElement)) {
+              setOpen(false);
+            }
+          }, 0);
+        }}
         className={inputClassName}
       />
       {open ? (

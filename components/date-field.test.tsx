@@ -61,4 +61,23 @@ describe("DateField", () => {
 
     expect(screen.getByLabelText("Trip date")).toHaveValue("");
   });
+
+  it("closes the calendar after a complete typed date", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <form>
+        <DateField id="trip-date" label="Trip date" name="date" defaultValue="" />
+        <button type="submit">Save</button>
+      </form>,
+    );
+
+    await user.click(screen.getByLabelText("Trip date"));
+    expect(screen.getByRole("dialog", { name: "Trip date calendar" })).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Trip date"), "2026-11-02");
+
+    expect(screen.getByLabelText("Trip date")).toHaveValue("2026-11-02");
+    expect(screen.queryByRole("dialog", { name: "Trip date calendar" })).not.toBeInTheDocument();
+  });
 });
