@@ -5,6 +5,23 @@ import { readField, readJsonObject, requireUser } from "@/lib/trips/http";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string; suggestionId: string }> },
+): Promise<Response> {
+  const user = await requireUser(request);
+  if (!user.ok) {
+    return user.response;
+  }
+
+  const { id, suggestionId } = await context.params;
+  const result = await getSuggestionService().getVotes(user.user.id, id, suggestionId);
+  if (!result.ok) {
+    return errorResponse(result.error, result.status);
+  }
+  return Response.json({ vote: result.vote, votes: result.votes });
+}
+
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string; suggestionId: string }> },

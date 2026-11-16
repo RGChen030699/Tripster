@@ -396,6 +396,25 @@
       }
     },
     "/api/trips/{tripId}/suggestions/{suggestionId}/votes": {
+      "get": {
+        "summary": "Read current vote totals",
+        "description": "Members poll this endpoint so suggestion cards can refresh Yes/Maybe/No totals without a full page reload. Voting still does not add the suggestion to the itinerary.",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/tripId" },
+          { "$ref": "#/components/parameters/suggestionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current member vote (if any) and group totals",
+            "content": {
+              "application/json": {
+                "example": { "vote": { "choice": "yes" }, "votes": { "yes": 1, "maybe": 0, "no": 0 } }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "summary": "Vote Yes, Maybe, or No",
         "description": "One current vote per member. Voting does not add the suggestion to the itinerary.",

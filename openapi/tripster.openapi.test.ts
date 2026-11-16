@@ -16,6 +16,7 @@ const MAIN_FLOWS: Array<[string, string]> = [
   ["/api/trips", "post"],
   ["/api/trips/{tripId}/members", "post"],
   ["/api/trips/{tripId}/suggestions", "post"],
+  ["/api/trips/{tripId}/suggestions/{suggestionId}/votes", "get"],
   ["/api/trips/{tripId}/suggestions/{suggestionId}/votes", "post"],
   ["/api/trips/{tripId}/suggestions/{suggestionId}/itinerary", "post"],
   ["/api/trips/{tripId}/itinerary/{itemId}", "patch"],

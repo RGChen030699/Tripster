@@ -58,6 +58,10 @@ export type VoteResult =
   | { ok: true; vote: { choice: VoteChoice }; votes: VoteTotals }
   | SuggestionFailure;
 
+export type GetVotesResult =
+  | { ok: true; vote: { choice: VoteChoice } | null; votes: VoteTotals }
+  | SuggestionFailure;
+
 export interface VoteStore {
   set(vote: StoredVote): Promise<void>;
   listBySuggestion(suggestionId: string): Promise<StoredVote[]>;
