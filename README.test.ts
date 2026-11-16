@@ -14,6 +14,9 @@ describe("README", () => {
     expect(readme).toContain("## Tests");
     expect(readme).toContain("## Deployment");
     expect(readme).toContain("/api/openapi");
+    expect(readme).toContain("/api-docs");
+    expect(readme).toContain("## API documentation (OpenAPI)");
+    expect(readme).toContain("raw.githubusercontent.com/RGChen030699/Tripster/main/openapi/tripster.openapi.json");
     expect(readme).toContain("complex shared state");
     expect(readme).toContain("short polling");
     expect(readme).toContain("does not use WebSockets");

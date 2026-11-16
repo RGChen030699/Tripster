@@ -17,5 +17,8 @@ describe("docs/architecture.md", () => {
     expect(doc).toContain("explicit Add");
     expect(doc).toContain("poll");
     expect(doc).toContain("Vercel");
+    expect(doc).toContain("/api/openapi");
+    expect(doc).toContain("/api-docs");
   });
 });
+

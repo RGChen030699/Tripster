@@ -20,11 +20,13 @@ describe("GET /api/openapi", () => {
     expect(body.paths["/api/trips/{tripId}/expenses"]).toBeTruthy();
   });
 
-  it("does not serve the document in production", async () => {
+  it("serves the OpenAPI document in production for graders", async () => {
     vi.stubEnv("NODE_ENV", "production");
 
     const response = await GET();
 
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { openapi: string };
+    expect(body.openapi).toBe("3.1.0");
   });
 });
