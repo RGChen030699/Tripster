@@ -13,8 +13,8 @@ import { resetTripService } from "@/lib/trips/container";
 
 const PASSWORD = "correct-horse";
 const TRIP = {
-  name: "Lisbon week",
-  destination: "Lisbon",
+  name: "Japan week",
+  destination: "Japan",
   startDate: "2026-11-01",
   endDate: "2026-11-05",
 };
@@ -38,7 +38,7 @@ async function registerUser(email: string): Promise<string> {
   return response.headers.get("set-cookie")?.split(";")[0] ?? "";
 }
 
-async function createLisbon(cookie: string): Promise<string> {
+async function createJapan(cookie: string): Promise<string> {
   const response = await createTrip(jsonRequest("/api/trips", TRIP, cookie));
   expect(response.status).toBe(201);
   const body = (await response.json()) as { trip: { id: string } };
@@ -75,7 +75,7 @@ describe("itinerary routes", () => {
   it("adds a suggestion once and ignores a Yes vote on another suggestion", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
     const addedMember = await addMember(
       jsonRequest(`/api/trips/${tripId}/members`, { email: "bryce@example.com" }, ada),
       { params: Promise.resolve({ id: tripId }) },
@@ -126,7 +126,7 @@ describe("itinerary routes", () => {
   it("does not let a non-member add or read the itinerary", async () => {
     const ada = await registerUser("ada@example.com");
     const bryce = await registerUser("bryce@example.com");
-    const tripId = await createLisbon(ada);
+    const tripId = await createJapan(ada);
     const pastelId = await suggest(ada, tripId, "Pastel de nata", "restaurant");
 
     const hiddenAdd = await addToItinerary(
@@ -137,7 +137,7 @@ describe("itinerary routes", () => {
     const addText = JSON.stringify(await hiddenAdd.json());
     expect(addText).toBe(JSON.stringify({ error: "Trip not found." }));
     expect(addText).not.toContain("Pastel");
-    expect(addText).not.toContain("Lisbon");
+    expect(addText).not.toContain("Japan");
 
     const hiddenList = await listItinerary(
       new Request(`http://localhost/api/trips/${tripId}/itinerary`, { headers: { cookie: bryce } }),

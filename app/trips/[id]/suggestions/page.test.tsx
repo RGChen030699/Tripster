@@ -59,8 +59,8 @@ vi.mock("@/lib/trips/container", () => ({
             ok: true,
             trip: {
               id: "trip-1",
-              name: "Lisbon week",
-              destination: "Lisbon",
+              name: "Japan week",
+              destination: "Japan",
               startDate: "2026-11-01",
               endDate: "2026-11-05",
               role: "organizer",
@@ -89,7 +89,7 @@ describe("SuggestionsPage", () => {
     render(await SuggestionsPage({ params: Promise.resolve({ id: "trip-1" }) }));
 
     expect(screen.getByRole("heading", { name: "Suggestions" })).toBeInTheDocument();
-    expect(screen.getByText("Lisbon week")).toBeInTheDocument();
+    expect(screen.getByText("Japan week")).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Pastel de nata" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Back to trip" })).toHaveAttribute("href", "/trips/trip-1");
@@ -104,6 +104,6 @@ describe("SuggestionsPage", () => {
 
     expect(screen.getByRole("heading", { name: "Trip not found" })).toBeInTheDocument();
     expect(screen.queryByText("Pastel de nata")).not.toBeInTheDocument();
-    expect(screen.queryByText("Lisbon")).not.toBeInTheDocument();
+    expect(screen.queryByText("Japan")).not.toBeInTheDocument();
   });
 });
