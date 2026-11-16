@@ -42,4 +42,22 @@ describe("ScheduleItineraryForm", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Saved the schedule.");
     expect(refresh).toHaveBeenCalled();
   });
+
+  it("notifies onOpenChange when Cancel closes a controlled form", async () => {
+    const onOpenChange = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <ScheduleItineraryForm
+        tripId="trip-1"
+        itemId="item-1"
+        open
+        onOpenChange={onOpenChange}
+      />,
+    );
+
+    expect(screen.getByLabelText("Date")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
 });
