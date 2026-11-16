@@ -6,7 +6,7 @@ export function SiteBanner() {
       <div className="flex w-full flex-col items-start px-6 py-5 text-left sm:px-8">
         <Link
           href="/"
-          className="font-display text-3xl font-semibold tracking-tight text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="font-display text-3xl font-bold tracking-tight text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Tripster
         </Link>

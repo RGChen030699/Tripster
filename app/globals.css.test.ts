@@ -11,3 +11,16 @@ describe("app/globals.css theme", () => {
   });
 });
 
+describe("button styles", () => {
+  it("fills primary and secondary buttons with sage and keeps ink text", async () => {
+    const { primaryButtonClassName, secondaryButtonClassName } = await import(
+      "@/components/button-styles"
+    );
+    expect(primaryButtonClassName).toContain("bg-sage");
+    expect(primaryButtonClassName).toContain("text-ink");
+    expect(primaryButtonClassName).not.toContain("bg-primary");
+    expect(secondaryButtonClassName).toContain("bg-sage");
+    expect(secondaryButtonClassName).toContain("text-ink");
+  });
+});
+

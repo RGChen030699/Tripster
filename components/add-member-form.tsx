@@ -6,7 +6,7 @@ import { useState, type FormEvent } from "react";
 import { parseMemberEmail } from "@/lib/trips/validation";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function AddMemberForm({ tripId }: { tripId: string }) {
   const router = useRouter();
@@ -55,7 +55,7 @@ export function AddMemberForm({ tripId }: { tripId: string }) {
   return (
     <form noValidate onSubmit={onSubmit} className="mt-4 flex flex-col gap-3">
       <div>
-        <label htmlFor="member-email" className="block text-sm font-medium">
+        <label htmlFor="member-email" className="block text-sm font-bold">
           Invite by email
         </label>
         <input
@@ -82,7 +82,7 @@ export function AddMemberForm({ tripId }: { tripId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-md bg-primary px-4 py-2 font-medium text-primary-fg outline-none hover:bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
+        className="self-start rounded-md border border-sage bg-sage px-4 py-2 font-bold text-ink outline-none hover:bg-clay focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? "Inviting..." : "Invite member"}
       </button>

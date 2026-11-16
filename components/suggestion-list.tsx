@@ -27,7 +27,7 @@ export function SuggestionList({
     <ul className="flex flex-col gap-4">
       {suggestions.map((suggestion) => (
         <li key={suggestion.id} className="rounded-lg border border-sand bg-panel p-4">
-          <h2 className="text-lg font-semibold">{suggestion.name}</h2>
+          <h2 className="text-lg font-bold">{suggestion.name}</h2>
           <p className="mt-1 text-sm text-ink-muted">{CATEGORY_LABELS[suggestion.category]}</p>
           <p className="mt-2">Suggested by {suggestion.authorEmail}</p>
           {suggestion.description ? <p className="mt-2">{suggestion.description}</p> : null}
@@ -36,7 +36,7 @@ export function SuggestionList({
             <p className="mt-2">
               <a
                 href={suggestion.link}
-                className="font-medium text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="font-bold text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 {suggestion.link}
               </a>

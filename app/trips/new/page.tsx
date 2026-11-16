@@ -6,7 +6,7 @@ import { CreateTripForm } from "@/components/create-trip-form";
 export default function NewTripPage() {
   return (
     <main className="mx-auto max-w-lg px-6 py-10">
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Create a trip</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight text-ink">Create a trip</h1>
       <p className="mt-3 text-ink-muted">
         Give the trip a name, a destination, and the dates you are traveling.
       </p>

@@ -38,7 +38,7 @@ export function ItineraryList({
     <div className="flex flex-col gap-6">
       {[...scheduled.entries()].map(([date, group]) => (
         <section key={date}>
-          <h2 className="text-lg font-semibold">{date}</h2>
+          <h2 className="text-lg font-bold">{date}</h2>
           <ul className="mt-3 flex flex-col gap-4">
             {group.map((item) => (
               <ItemCard key={item.id} item={item} tripId={tripId} timeLabel={item.startTime ?? "No time"} />
@@ -48,7 +48,7 @@ export function ItineraryList({
       ))}
       {unscheduled.length > 0 ? (
         <section>
-          <h2 className="text-lg font-semibold">Unscheduled</h2>
+          <h2 className="text-lg font-bold">Unscheduled</h2>
           <ul className="mt-3 flex flex-col gap-4">
             {unscheduled.map((item) => (
               <ItemCard key={item.id} item={item} tripId={tripId} />
@@ -71,7 +71,7 @@ function ItemCard({
 }) {
   return (
     <li className="rounded-lg border border-sand bg-panel p-4">
-      <h3 className="text-lg font-semibold">{item.name}</h3>
+      <h3 className="text-lg font-bold">{item.name}</h3>
       <p className="mt-1 text-sm text-ink-muted">{CATEGORY_LABELS[item.category]}</p>
       {timeLabel ? <p className="mt-2">{timeLabel}</p> : null}
       {tripId ? <ItineraryItemControls tripId={tripId} item={item} /> : null}

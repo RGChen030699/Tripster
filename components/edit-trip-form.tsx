@@ -8,7 +8,7 @@ import { DateField } from "@/components/date-field";
 import { parseTripInput } from "@/lib/trips/validation";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function EditTripForm({
   tripId,
@@ -123,7 +123,7 @@ export function EditTripForm({
 
   return (
     <form noValidate onSubmit={onSubmit} className="w-full rounded-md border border-sand bg-panel p-4">
-      <h2 className="text-lg font-semibold">Edit trip</h2>
+      <h2 className="text-lg font-bold">Edit trip</h2>
       <div className="mt-4 flex flex-col gap-3">
         <Field id="edit-name" label="Trip name" name="name" defaultValue={name} />
         <Field id="edit-destination" label="Destination" name="destination" defaultValue={destination} />
@@ -160,7 +160,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium">
+      <label htmlFor={id} className="block text-sm font-bold">
         {label}
       </label>
       <input

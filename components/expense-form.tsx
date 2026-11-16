@@ -7,7 +7,7 @@ import { DateField } from "@/components/date-field";
 import type { ExpenseSplitMode } from "@/lib/expenses/types";
 
 const inputClassName =
-  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function ExpenseForm({
   tripId,
@@ -83,7 +83,7 @@ export function ExpenseForm({
       <Field id="expense-description" label="Description" name="description" />
       <DateField id="expense-date" label="Date" name="date" />
       <div>
-        <label htmlFor="expense-payer" className="block text-sm font-medium">
+        <label htmlFor="expense-payer" className="block text-sm font-bold">
           Payer
         </label>
         <select id="expense-payer" name="payerEmail" defaultValue={members[0]?.email ?? ""} className={inputClassName}>
@@ -95,7 +95,7 @@ export function ExpenseForm({
         </select>
       </div>
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm font-medium">Who shares this expense</legend>
+        <legend className="text-sm font-bold">Who shares this expense</legend>
         {members.map((member) => (
           <label key={member.email} className="flex items-center gap-2 text-sm">
             <input
@@ -115,7 +115,7 @@ export function ExpenseForm({
         ))}
       </fieldset>
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm font-medium">Split</legend>
+        <legend className="text-sm font-bold">Split</legend>
         <label className="flex items-center gap-2 text-sm">
           <input
             type="radio"
@@ -139,13 +139,13 @@ export function ExpenseForm({
       </fieldset>
       {splitMode === "manual" ? (
         <fieldset className="flex flex-col gap-2">
-          <legend className="text-sm font-medium">Share amounts</legend>
+          <legend className="text-sm font-bold">Share amounts</legend>
           {selectedMembers.length === 0 ? (
             <p className="text-sm text-ink-muted">Select members above, then enter each person’s share.</p>
           ) : (
             selectedMembers.map((member) => (
               <div key={member.email}>
-                <label htmlFor={`share-${member.email}`} className="block text-sm font-medium">
+                <label htmlFor={`share-${member.email}`} className="block text-sm font-bold">
                   {member.email}
                 </label>
                 <input
@@ -179,7 +179,7 @@ export function ExpenseForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
+        className="self-start rounded-md border border-sage bg-sage px-3 py-1.5 text-sm font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {pending ? "Recording..." : "Record expense"}
       </button>
@@ -190,7 +190,7 @@ export function ExpenseForm({
 function Field({ id, label, name }: { id: string; label: string; name: string }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium">
+      <label htmlFor={id} className="block text-sm font-bold">
         {label}
       </label>
       <input id={id} name={name} type="text" autoComplete="off" className={inputClassName} />

@@ -5,7 +5,6 @@ import { useState } from "react";
 
 import {
   dangerButtonClassName,
-  primaryButtonClassName,
   secondaryButtonClassName,
 } from "@/components/button-styles";
 
@@ -86,7 +85,7 @@ export function RemoveMemberButton({
           onClick={() => {
             void remove();
           }}
-          className={`${primaryButtonClassName} bg-red-800 focus-visible:outline-red-800`}
+          className={`${dangerButtonClassName} border-red-800 bg-red-800 text-white hover:bg-red-900 focus-visible:outline-red-800`}
         >
           {pending ? "Removing..." : "Remove member"}
         </button>

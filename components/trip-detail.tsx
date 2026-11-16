@@ -14,7 +14,7 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
     <article className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">{trip.name}</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-ink">{trip.name}</h1>
           <p className="mt-3 text-lg">{trip.destination}</p>
           <p className="mt-1 text-ink-muted">
             {trip.startDate} to {trip.endDate}
@@ -42,7 +42,7 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
         </Link>
       </nav>
       <section aria-labelledby="members-heading">
-        <h2 id="members-heading" className="text-lg font-semibold">
+        <h2 id="members-heading" className="text-lg font-bold">
           Members
         </h2>
         <ul className="mt-3 flex flex-col gap-2">

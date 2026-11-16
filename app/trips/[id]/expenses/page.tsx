@@ -39,7 +39,7 @@ export default async function ExpensesPage({ params }: { params: Promise<{ id: s
   return (
     <main className="mx-auto flex max-w-lg flex-col gap-6 px-6 py-10">
       <div>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Expenses</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-ink">Expenses</h1>
         <p className="mt-3 text-lg">{trip.trip.name}</p>
       </div>
       <ExpenseForm tripId={id} members={trip.trip.members} />
@@ -58,9 +58,9 @@ export default async function ExpensesPage({ params }: { params: Promise<{ id: s
 function MissingTrip() {
   return (
     <main className="mx-auto max-w-lg px-6 py-10">
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Trip not found</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight text-ink">Trip not found</h1>
       <p className="mt-3 text-ink-muted">This trip is not available on your account.</p>
-      <Link href="/" className="mt-6 inline-block font-medium text-ink underline">
+      <Link href="/" className="mt-6 inline-block font-bold text-ink underline">
         Back to trips
       </Link>
     </main>

@@ -23,7 +23,7 @@ export function SuggestionOwnerActions({
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="text-sm font-medium text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="text-sm font-bold text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Edit
         </button>
