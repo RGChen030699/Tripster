@@ -20,6 +20,8 @@ The broader trip workspace also keeps **complex shared state** on the server:
 
 Those invariants live in `lib/` services and stores and are covered by Vitest and the Playwright journey.
 
+Architecture layers, auth flow, and domain boundaries are documented in [`docs/architecture.md`](docs/architecture.md).
+
 ## Local setup
 
 This checkout was tested with Node.js 22.15.0 and PostgreSQL 16.16 from Homebrew `postgresql@16`. Application versions are declared in `package.json` and resolved in `package-lock.json`.
