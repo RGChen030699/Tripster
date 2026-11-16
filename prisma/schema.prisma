@@ -105,11 +105,12 @@ model Expense {
 }
 
 model ExpenseParticipant {
-  expenseId String
-  userId    String
-  position  Int
-  expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenseId  String
+  userId     String
+  position   Int
+  shareCents Int?
+  expense    Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([expenseId, userId])
 }

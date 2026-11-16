@@ -13,7 +13,19 @@ export function ExpenseList({ expenses }: { expenses: ExpenseView[] }) {
           <p className="mt-1">{formatAmount(expense.amountCents, expense.currency)}</p>
           <p className="mt-1 text-stone-700">{expense.date}</p>
           <p className="mt-2">Paid by {expense.payerEmail}</p>
-          <p>Shared by {expense.participantEmails.join(", ")}</p>
+          <p>
+            {expense.splitMode === "manual" ? "Manual split" : "Even split"} · Shared by{" "}
+            {expense.participantEmails.join(", ")}
+          </p>
+          {expense.splitMode === "manual" ? (
+            <ul className="mt-2 text-sm text-stone-700">
+              {expense.participantEmails.map((email, index) => (
+                <li key={email}>
+                  {email}: {formatAmount(expense.participantShares[index] ?? 0, expense.currency)}
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </li>
       ))}
     </ul>

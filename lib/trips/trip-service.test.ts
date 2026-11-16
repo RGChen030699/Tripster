@@ -218,4 +218,61 @@ describe("TripService", () => {
     expect(JSON.stringify(hidden)).not.toContain("Japan");
     expect(JSON.stringify(hidden)).not.toContain("cara@example.com");
   });
+
+  it("lets an organizer edit, promote a member, and delete the trip", async () => {
+    const users = new InMemoryUserStore();
+    await users.create({ id: "user-1", email: "ada@example.com", passwordHash: "hashed-secret" });
+    await users.create({ id: "user-2", email: "bryce@example.com", passwordHash: "hashed-secret" });
+    const trips = new InMemoryTripStore();
+    const service = new TripService(trips, users, { info() {}, error() {} });
+    const created = await service.createTrip("user-1", VALID);
+    expect(created.ok).toBe(true);
+    if (!created.ok) {
+      return;
+    }
+    await service.addMember("user-1", created.trip.id, "bryce@example.com");
+
+    const updated = await service.updateTrip("user-1", created.trip.id, {
+      name: "Tokyo week",
+      destination: "Tokyo",
+      startDate: "2026-12-01",
+      endDate: "2026-12-07",
+    });
+    expect(updated).toMatchObject({
+      ok: true,
+      trip: {
+        name: "Tokyo week",
+        destination: "Tokyo",
+        startDate: "2026-12-01",
+        endDate: "2026-12-07",
+      },
+    });
+
+    const promoted = await service.setMemberRole(
+      "user-1",
+      created.trip.id,
+      "bryce@example.com",
+      "organizer",
+    );
+    expect(promoted).toEqual({
+      ok: true,
+      member: { email: "bryce@example.com", role: "organizer" },
+    });
+
+    const denied = await service.updateTrip("someone-else", created.trip.id, {
+      name: "Nope",
+      destination: "Nowhere",
+      startDate: "2026-12-01",
+      endDate: "2026-12-07",
+    });
+    expect(denied).toEqual({ ok: false, status: 404, error: "Trip not found." });
+
+    const deleted = await service.deleteTrip("user-1", created.trip.id);
+    expect(deleted).toEqual({ ok: true });
+    await expect(service.getTrip("user-1", created.trip.id)).resolves.toEqual({
+      ok: false,
+      status: 404,
+      error: "Trip not found.",
+    });
+  });
 });

@@ -5,13 +5,14 @@ import type {
   ExpenseFailure,
   BalanceListResult,
   ExpenseListResult,
+  ExpenseSplitMode,
   ExpenseStore,
   ExpenseView,
   RecordExpenseResult,
   StoredExpense,
 } from "@/lib/expenses/types";
 import { DEFAULT_CURRENCY } from "@/lib/expenses/types";
-import { memberBalances } from "@/lib/expenses/split";
+import { equalShareCents, memberBalances, resolveParticipantShares } from "@/lib/expenses/split";
 import type { TripStore } from "@/lib/trips/types";
 
 const TRIP_NOT_FOUND = "Trip not found.";
@@ -40,6 +41,8 @@ export class ExpenseService {
       date: unknown;
       payerEmail: unknown;
       participantEmails: unknown;
+      splitMode?: unknown;
+      participantShares?: unknown;
     },
   ): Promise<RecordExpenseResult> {
     const membership = await this.trips.findMembership(tripId, userId);
@@ -72,6 +75,8 @@ export class ExpenseService {
       date: parsed.date,
       payerId: payer,
       participantIds,
+      participantShares: parsed.participantShares,
+      splitMode: parsed.splitMode,
     };
     await this.expenses.add(stored);
     this.logger.info("expense recorded");
@@ -112,7 +117,12 @@ export class ExpenseService {
       }
     }
     const stored = await this.expenses.listByTrip(tripId);
-    const expenses: { amountCents: number; payerEmail: string; participantEmails: string[] }[] = [];
+    const expenses: {
+      amountCents: number;
+      payerEmail: string;
+      participantEmails: string[];
+      participantShares: number[];
+    }[] = [];
     for (const expense of stored) {
       const view = await this.present(expense);
       if (view) {
@@ -120,6 +130,7 @@ export class ExpenseService {
           amountCents: view.amountCents,
           payerEmail: view.payerEmail,
           participantEmails: view.participantEmails,
+          participantShares: view.participantShares,
         });
       }
     }
@@ -148,6 +159,11 @@ export class ExpenseService {
       }
       participantEmails.push(participant.email);
     }
+    const participantShares = resolveParticipantShares(
+      expense.amountCents,
+      expense.participantIds.length,
+      expense.participantShares,
+    );
     return {
       id: expense.id,
       amountCents: expense.amountCents,
@@ -156,6 +172,8 @@ export class ExpenseService {
       date: expense.date,
       payerEmail: payer.email,
       participantEmails,
+      participantShares,
+      splitMode: expense.splitMode,
     };
   }
 }
@@ -168,6 +186,8 @@ type ParsedExpense =
       date: string;
       payerEmail: string;
       participantEmails: string[];
+      splitMode: ExpenseSplitMode;
+      participantShares: number[];
     }
   | ExpenseFailure;
 
@@ -177,6 +197,8 @@ function parseExpenseInput(input: {
   date: unknown;
   payerEmail: unknown;
   participantEmails: unknown;
+  splitMode?: unknown;
+  participantShares?: unknown;
 }): ParsedExpense {
   const amount = parseAmount(input.amount);
   if (!amount.ok) {
@@ -199,6 +221,19 @@ function parseExpenseInput(input: {
   if (!participants.ok) {
     return participants;
   }
+  const splitMode = parseSplitMode(input.splitMode);
+  if (!splitMode.ok) {
+    return splitMode;
+  }
+  const shares = parseShares(
+    amount.amountCents,
+    participants.emails.length,
+    splitMode.mode,
+    input.participantShares,
+  );
+  if (!shares.ok) {
+    return shares;
+  }
   return {
     ok: true,
     amountCents: amount.amountCents,
@@ -206,7 +241,73 @@ function parseExpenseInput(input: {
     date: input.date.trim(),
     payerEmail: input.payerEmail.trim().toLowerCase(),
     participantEmails: participants.emails,
+    splitMode: splitMode.mode,
+    participantShares: shares.shares,
   };
+}
+
+function parseSplitMode(
+  value: unknown,
+): { ok: true; mode: ExpenseSplitMode } | { ok: false; status: 400; error: string } {
+  if (value === undefined || value === null || value === "" || value === "even") {
+    return { ok: true, mode: "even" };
+  }
+  if (value === "manual") {
+    return { ok: true, mode: "manual" };
+  }
+  return { ok: false, status: 400, error: "Choose an even or manual split." };
+}
+
+function parseShares(
+  amountCents: number,
+  participantCount: number,
+  mode: ExpenseSplitMode,
+  value: unknown,
+): { ok: true; shares: number[] } | { ok: false; status: 400; error: string } {
+  if (mode === "even") {
+    return { ok: true, shares: equalShareCents(amountCents, participantCount) };
+  }
+  if (!Array.isArray(value) || value.length !== participantCount) {
+    return {
+      ok: false,
+      status: 400,
+      error: "Enter a share amount for each selected member.",
+    };
+  }
+  const shares: number[] = [];
+  for (const entry of value) {
+    const parsed = parseShareAmount(entry);
+    if (!parsed.ok) {
+      return parsed;
+    }
+    shares.push(parsed.amountCents);
+  }
+  const total = shares.reduce((sum, share) => sum + share, 0);
+  if (total !== amountCents) {
+    return {
+      ok: false,
+      status: 400,
+      error: "Manual shares must add up to the expense amount.",
+    };
+  }
+  return { ok: true, shares };
+}
+
+function parseShareAmount(
+  value: unknown,
+): { ok: true; amountCents: number } | { ok: false; status: 400; error: string } {
+  if (typeof value === "number" && Number.isInteger(value) && value >= 0) {
+    return { ok: true, amountCents: value };
+  }
+  if (typeof value !== "string" || !/^(?:0|[1-9]\d{0,6})(?:\.\d{1,2})?$/.test(value.trim())) {
+    return { ok: false, status: 400, error: "Enter a valid share amount for each member." };
+  }
+  const [dollars, fraction = ""] = value.trim().split(".");
+  const amountCents = Number(dollars) * 100 + Number((fraction + "00").slice(0, 2));
+  if (!Number.isSafeInteger(amountCents) || amountCents < 0) {
+    return { ok: false, status: 400, error: "Enter a valid share amount for each member." };
+  }
+  return { ok: true, amountCents };
 }
 
 function parseAmount(

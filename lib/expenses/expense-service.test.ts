@@ -57,12 +57,12 @@ describe("ExpenseService", () => {
         date: "2026-12-01",
         payerEmail: "ada@example.com",
         participantEmails: ["bryce@example.com", "ada@example.com"],
+        participantShares: [525, 525],
+        splitMode: "even",
       },
     });
-    expect(recorded).not.toHaveProperty("shares");
     expect(recorded).not.toHaveProperty("balances");
     if (recorded.ok) {
-      expect(recorded.expense).not.toHaveProperty("shares");
       expect(recorded.expense).not.toHaveProperty("balance");
     }
     expect(messages).toContain("expense recorded");
@@ -175,7 +175,8 @@ describe("ExpenseService", () => {
     });
     expect(taxi.ok).toBe(true);
     if (taxi.ok) {
-      expect(taxi.expense).not.toHaveProperty("shares");
+      expect(taxi.expense.splitMode).toBe("even");
+      expect(taxi.expense.participantShares).toEqual([50, 50]);
     }
     await service.recordExpense("user-3", tripId, {
       amount: "0.01",
@@ -203,5 +204,51 @@ describe("ExpenseService", () => {
     expect(hidden).toEqual({ ok: false, status: 404, error: "Trip not found." });
     expect(JSON.stringify(hidden)).not.toContain("Taxi");
     expect(JSON.stringify(hidden)).not.toContain("Japan");
+  });
+
+  it("records a manual split that must total the expense amount", async () => {
+    const { service, tripId } = await setup();
+
+    const recorded = await service.recordExpense("user-1", tripId, {
+      amount: "10.00",
+      description: "Dinner",
+      date: "2026-11-02",
+      payerEmail: "ada@example.com",
+      participantEmails: ["ada@example.com", "bryce@example.com"],
+      splitMode: "manual",
+      participantShares: ["7.00", "3.00"],
+    });
+    expect(recorded).toMatchObject({
+      ok: true,
+      expense: {
+        splitMode: "manual",
+        participantShares: [700, 300],
+      },
+    });
+
+    await expect(
+      service.recordExpense("user-1", tripId, {
+        amount: "10.00",
+        description: "Snacks",
+        date: "2026-11-02",
+        payerEmail: "ada@example.com",
+        participantEmails: ["ada@example.com", "bryce@example.com"],
+        splitMode: "manual",
+        participantShares: ["6.00", "3.00"],
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      status: 400,
+      error: "Manual shares must add up to the expense amount.",
+    });
+
+    const balances = await service.listBalances("user-1", tripId);
+    expect(balances).toMatchObject({
+      ok: true,
+      balances: [
+        { email: "ada@example.com", paidCents: 1000, shareCents: 700, balanceCents: 300 },
+        { email: "bryce@example.com", paidCents: 0, shareCents: 300, balanceCents: -300 },
+      ],
+    });
   });
 });

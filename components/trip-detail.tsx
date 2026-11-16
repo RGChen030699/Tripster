@@ -1,12 +1,17 @@
 import Link from "next/link";
 
 import { AddMemberForm } from "@/components/add-member-form";
+import { DeleteTripButton } from "@/components/delete-trip-button";
+import { EditTripForm } from "@/components/edit-trip-form";
+import { MakeOrganizerButton } from "@/components/make-organizer-button";
 import type { TripDetails } from "@/lib/trips/types";
 
 const sectionLinkClassName =
   "font-medium text-teal-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800";
 
 export function TripDetail({ trip }: { trip: TripDetails }) {
+  const isOrganizer = trip.role === "organizer";
+
   return (
     <article className="flex flex-col gap-6">
       <div>
@@ -15,6 +20,18 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
         <p className="mt-1 text-stone-700">
           {trip.startDate} to {trip.endDate}
         </p>
+        {isOrganizer ? (
+          <div className="mt-4 flex flex-col gap-3">
+            <EditTripForm
+              tripId={trip.id}
+              name={trip.name}
+              destination={trip.destination}
+              startDate={trip.startDate}
+              endDate={trip.endDate}
+            />
+            <DeleteTripButton tripId={trip.id} />
+          </div>
+        ) : null}
       </div>
       <nav aria-label="Trip sections" className="flex flex-wrap gap-4">
         <Link href={`/trips/${trip.id}/suggestions`} className={sectionLinkClassName}>
@@ -35,13 +52,18 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
           {trip.members.map((member) => (
             <li key={`${member.role}-${member.email}`} className="flex items-center justify-between gap-4">
               <span>{member.email}</span>
-              <span className="text-sm text-stone-700">
-                {member.role === "organizer" ? "Organizer" : "Member"}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-stone-700">
+                  {member.role === "organizer" ? "Organizer" : "Member"}
+                </span>
+                {isOrganizer && member.role === "member" ? (
+                  <MakeOrganizerButton tripId={trip.id} email={member.email} />
+                ) : null}
+              </div>
             </li>
           ))}
         </ul>
-        {trip.role === "organizer" ? <AddMemberForm tripId={trip.id} /> : null}
+        {isOrganizer ? <AddMemberForm tripId={trip.id} /> : null}
       </section>
     </article>
   );

@@ -1,5 +1,5 @@
 import { getPrisma } from "@/lib/db";
-import type { ExpenseCurrency, ExpenseStore, StoredExpense } from "@/lib/expenses/types";
+import type { ExpenseCurrency, ExpenseSplitMode, ExpenseStore, StoredExpense } from "@/lib/expenses/types";
 
 export class InMemoryExpenseStore implements ExpenseStore {
   private readonly expenses = new Map<string, StoredExpense>();
@@ -29,6 +29,8 @@ function cloneExpense(expense: StoredExpense): StoredExpense {
     date: expense.date,
     payerId: expense.payerId,
     participantIds: [...expense.participantIds],
+    participantShares: expense.participantShares ? [...expense.participantShares] : null,
+    splitMode: expense.splitMode,
   };
 }
 
@@ -53,6 +55,7 @@ export class PrismaExpenseStore implements ExpenseStore {
             expenseId: expense.id,
             userId,
             position,
+            shareCents: expense.participantShares?.[position] ?? null,
           })),
         });
       }
@@ -65,15 +68,35 @@ export class PrismaExpenseStore implements ExpenseStore {
       orderBy: { createdAt: "asc" },
       include: { participants: { orderBy: { position: "asc" } } },
     });
-    return expenses.map((expense) => ({
-      id: expense.id,
-      tripId: expense.tripId,
-      amountCents: expense.amountCents,
-      currency: expense.currency as ExpenseCurrency,
-      description: expense.description,
-      date: expense.date,
-      payerId: expense.payerId,
-      participantIds: expense.participants.map((participant) => participant.userId),
-    }));
+    return expenses.map((expense) => {
+      const shares = expense.participants.map((participant) => participant.shareCents);
+      const hasAllShares = shares.every((share): share is number => typeof share === "number");
+      return {
+        id: expense.id,
+        tripId: expense.tripId,
+        amountCents: expense.amountCents,
+        currency: expense.currency as ExpenseCurrency,
+        description: expense.description,
+        date: expense.date,
+        payerId: expense.payerId,
+        participantIds: expense.participants.map((participant) => participant.userId),
+        participantShares: hasAllShares ? shares : null,
+        splitMode: inferSplitMode(expense.amountCents, hasAllShares ? shares : null),
+      };
+    });
   }
+}
+
+function inferSplitMode(amountCents: number, shares: number[] | null): ExpenseSplitMode {
+  if (!shares || shares.length === 0) {
+    return "even";
+  }
+  const equal = equalLike(amountCents, shares.length);
+  return shares.every((share, index) => share === equal[index]) ? "even" : "manual";
+}
+
+function equalLike(amountCents: number, count: number): number[] {
+  const base = Math.floor(amountCents / count);
+  const remainder = amountCents % count;
+  return Array.from({ length: count }, (_, index) => base + (index < remainder ? 1 : 0));
 }

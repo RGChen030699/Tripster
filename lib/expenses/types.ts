@@ -2,6 +2,8 @@ export const DEFAULT_CURRENCY = "USD";
 
 export type ExpenseCurrency = typeof DEFAULT_CURRENCY;
 
+export type ExpenseSplitMode = "even" | "manual";
+
 export type StoredExpense = {
   id: string;
   tripId: string;
@@ -11,6 +13,8 @@ export type StoredExpense = {
   date: string;
   payerId: string;
   participantIds: string[];
+  participantShares: number[] | null;
+  splitMode: ExpenseSplitMode;
 };
 
 export type ExpenseView = {
@@ -21,6 +25,8 @@ export type ExpenseView = {
   date: string;
   payerEmail: string;
   participantEmails: string[];
+  participantShares: number[];
+  splitMode: ExpenseSplitMode;
 };
 
 export type RecordExpenseResult = { ok: true; expense: ExpenseView } | ExpenseFailure;
