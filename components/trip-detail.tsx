@@ -52,19 +52,21 @@ export function TripDetail({ trip }: { trip: TripDetails }) {
             const canRemove =
               isOrganizer && (member.role === "member" || organizerCount > 1);
             return (
-              <li key={`${member.role}-${member.email}`} className="flex items-start justify-between gap-4">
-                <span>{member.email}</span>
-                <div className="flex flex-col items-end gap-2">
-                  <span className="text-sm text-ink-muted">
-                    {member.role === "organizer" ? "Organizer" : "Member"}
-                  </span>
-                  <MemberActionsMenu
-                    tripId={trip.id}
-                    email={member.email}
-                    role={member.role}
-                    canChangeRole={canChangeRole}
-                    canRemove={canRemove}
-                  />
+              <li key={`${member.role}-${member.email}`} className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-4">
+                  <span>{member.email}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-ink-muted">
+                      {member.role === "organizer" ? "Organizer" : "Member"}
+                    </span>
+                    <MemberActionsMenu
+                      tripId={trip.id}
+                      email={member.email}
+                      role={member.role}
+                      canChangeRole={canChangeRole}
+                      canRemove={canRemove}
+                    />
+                  </div>
                 </div>
               </li>
             );
