@@ -3,7 +3,7 @@
   "info": {
     "title": "Tripster",
     "version": "0.1.0",
-    "description": "Shared trip planning. The email address is the username. Accounts, trips, suggestions, itinerary items, and expenses are stored in PostgreSQL. A vote never adds an itinerary item. Expense shares are equal integer cents and total the expense exactly."
+    "description": "Shared trip planning. The email address is the username. Authentication uses HS256 JWTs in the tripster_session httpOnly cookie. Accounts, trips, suggestions, itinerary items, and expenses are stored in PostgreSQL. A vote never adds an itinerary item. Expense shares are equal integer cents and total the expense exactly."
   },
   "servers": [{ "url": "http://localhost:3000" }],
   "components": {
@@ -11,7 +11,8 @@
       "sessionCookie": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "tripster_session"
+        "name": "tripster_session",
+        "description": "HS256 JWT access token issued at register/login. The server also tracks the token jti so logout can revoke it."
       }
     },
     "parameters": {
@@ -65,7 +66,7 @@
     "/api/auth/register": {
       "post": {
         "summary": "Create an account",
-        "description": "The email is the username. The response sets the session cookie. The password is never returned.",
+        "description": "The email is the username. The response sets the tripster_session cookie to an HS256 JWT. The password is never returned.",
         "requestBody": {
           "required": true,
           "content": {
@@ -114,7 +115,7 @@
         },
         "responses": {
           "200": {
-            "description": "Signed in. The response sets the session cookie.",
+            "description": "Signed in. The response sets the tripster_session cookie to an HS256 JWT.",
             "content": {
               "application/json": {
                 "example": { "user": { "id": "user-1", "email": "ada@example.com" } }

@@ -48,7 +48,7 @@ Versions below are the ones resolved in `package-lock.json` for this repository.
 - Unit/component tests: Vitest 5.1.0 and React Testing Library 16.3.3.
 - API documentation: OpenAPI 3.1 at `openapi/tripster.openapi.json`, served by `GET /api/openapi` outside production.
 - End-to-end tests: Playwright is not installed yet. Add it when the trip-planning journey exists.
-- Persistence: PostgreSQL 16.16 (Homebrew `postgresql@16` on this checkout), Prisma 7.10.1, `@prisma/client` 7.10.1, `@prisma/adapter-pg` 7.10.1, and `pg` 8.23.1. Auth.js is not installed. Accounts and sessions stay behind `UserStore` and `SessionStore`.
+- Persistence: PostgreSQL 16.16 (Homebrew `postgresql@16` on this checkout), Prisma 7.10.1, `@prisma/client` 7.10.1, `@prisma/adapter-pg` 7.10.1, and `pg` 8.23.1. Auth.js is not installed. Authentication uses HS256 JWTs (`JWT_SECRET`) in the `tripster_session` cookie. Accounts stay behind `UserStore`. JWT `jti` values for logout revocation stay behind `SessionStore`.
 
 ### Architecture and folders
 
@@ -57,7 +57,7 @@ The app follows the Next.js App Router layout:
 - `app/` — route segments, layouts, and pages.
 - `app/api/` — Route Handlers, request parsing, and response mapping.
 - `components/` — shared presentation components without domain or data-access logic.
-- `lib/auth/` — account validation, password hashing, the user and session store interfaces, and the auth service.
+- `lib/auth/` — account validation, password hashing, JWT access tokens, the user and session store interfaces, and the auth service.
 - `openapi/` — the checked-in OpenAPI document for the account, trip, suggestion, vote, itinerary, and expense routes.
 - `prisma/` — the PostgreSQL schema and checked-in migrations.
 - `lib/expenses/` — expense validation, the expense store, equal-cent splits, and member balances.
@@ -146,7 +146,7 @@ Use the framework already committed to the repository. If none exists, use the p
 - Hash passwords with a maintained, purpose-built password hashing implementation if password authentication is selected; never store plaintext passwords.
 - Keep credentials in environment variables or the deployment provider's secret manager. Commit only an `.env.example` containing placeholder values; never commit real tokens, passwords, or database URLs.
 - Use the ORM's parameterized query mechanisms. Avoid unsafe raw SQL; where it is necessary, parameterize all user input.
-- Do not log passwords, session tokens, invitation secrets, or unnecessary personal data. Return safe, useful errors.
+- Do not log passwords, JWT access tokens, invitation secrets, or unnecessary personal data. Return safe, useful errors.
 - Use semantic HTML, labels connected to form controls, keyboard-operable interactions, visible focus, accessible names for icon-only buttons, and sufficient contrast. Do not communicate status by color alone.
 - Confirm destructive actions and provide understandable loading, empty, success, and error feedback.
 
@@ -169,7 +169,7 @@ Use the framework already committed to the repository. If none exists, use the p
 
 ## Persistence
 
-The account identifier is an email address used as the username. Accounts, sessions, trips, memberships, suggestions, votes, itinerary items, and expenses are stored in PostgreSQL through Prisma. `PrismaUserStore` and `PrismaSessionStore` implement the account boundaries. Passwords stay hashed. Session tokens stay out of logs. Auth.js is not used.
+The account identifier is an email address used as the username. Accounts, JWT session jtis, trips, memberships, suggestions, votes, itinerary items, and expenses are stored in PostgreSQL through Prisma. `PrismaUserStore` and `PrismaSessionStore` implement the account boundaries. Register and login issue an HS256 JWT in the httpOnly `tripster_session` cookie; `SessionStore` keeps the JWT `jti` so logout can revoke it. Passwords stay hashed. JWT access tokens stay out of logs. Auth.js is not used. Set `JWT_SECRET` in every environment.
 
 Checked-in migrations live in `prisma/migrations`. Apply them with `npx prisma migrate deploy`. The development database and the test database are separate. Vitest sets `DATABASE_URL` to the isolated test database named by `DATABASE_URL_TEST`, or `tripster_test` on localhost when that variable is unset, and clears that database between store and API cases. Do not point tests at a development or production database.
 
