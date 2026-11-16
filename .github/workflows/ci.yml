@@ -168,13 +168,11 @@ jobs:
           if-no-files-found: ignore
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          severity: CRITICAL
-          exit-code: "1"
-          ignore-unfixed: true
+        run: |
+          docker run --rm \
+            -v "$PWD:/src" \
+            aquasec/trivy:0.58.1 \
+            fs --severity CRITICAL --exit-code 1 --ignore-unfixed /src
 
   build:
     name: Production build
