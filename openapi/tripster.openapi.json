@@ -174,8 +174,8 @@
                   "trips": [
                     {
                       "id": "trip-1",
-                      "name": "Lisbon week",
-                      "destination": "Lisbon",
+                      "name": "Japan week",
+                      "destination": "Japan",
                       "startDate": "2026-11-01",
                       "endDate": "2026-11-05",
                       "role": "organizer"
@@ -196,8 +196,8 @@
           "content": {
             "application/json": {
               "example": {
-                "name": "Lisbon week",
-                "destination": "Lisbon",
+                "name": "Japan week",
+                "destination": "Japan",
                 "startDate": "2026-11-01",
                 "endDate": "2026-11-05"
               }
@@ -212,8 +212,8 @@
                 "example": {
                   "trip": {
                     "id": "trip-1",
-                    "name": "Lisbon week",
-                    "destination": "Lisbon",
+                    "name": "Japan week",
+                    "destination": "Japan",
                     "startDate": "2026-11-01",
                     "endDate": "2026-11-05",
                     "role": "organizer"
@@ -246,8 +246,8 @@
                 "example": {
                   "trip": {
                     "id": "trip-1",
-                    "name": "Lisbon week",
-                    "destination": "Lisbon",
+                    "name": "Japan week",
+                    "destination": "Japan",
                     "startDate": "2026-11-01",
                     "endDate": "2026-11-05",
                     "role": "organizer",

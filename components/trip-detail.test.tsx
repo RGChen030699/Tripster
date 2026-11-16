@@ -21,8 +21,8 @@ describe("TripDetail", () => {
       <TripDetail
         trip={{
           id: "trip-1",
-          name: "Lisbon week",
-          destination: "Lisbon",
+          name: "Japan week",
+          destination: "Japan",
           startDate: "2026-11-01",
           endDate: "2026-11-05",
           role: "organizer",
@@ -31,8 +31,8 @@ describe("TripDetail", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Lisbon week" })).toBeInTheDocument();
-    expect(screen.getByText("Lisbon")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Japan week" })).toBeInTheDocument();
+    expect(screen.getByText("Japan")).toBeInTheDocument();
     expect(screen.getByText("2026-11-01 to 2026-11-05")).toBeInTheDocument();
     expect(screen.getByText("ada@example.com")).toBeInTheDocument();
     expect(screen.getByText("Organizer")).toBeInTheDocument();
@@ -57,8 +57,8 @@ describe("TripDetail", () => {
       <TripDetail
         trip={{
           id: "trip-1",
-          name: "Lisbon week",
-          destination: "Lisbon",
+          name: "Japan week",
+          destination: "Japan",
           startDate: "2026-11-01",
           endDate: "2026-11-05",
           role: "member",
