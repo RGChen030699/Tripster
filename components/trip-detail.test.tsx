@@ -36,8 +36,8 @@ describe("TripDetail", () => {
     expect(screen.getByText("2026-11-01 to 2026-11-05")).toBeInTheDocument();
     expect(screen.getByText("ada@example.com")).toBeInTheDocument();
     expect(screen.getByText("Organizer")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Add member" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Invite member" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Invite by email")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Suggestions" })).toHaveAttribute(
       "href",
       "/trips/trip-1/suggestions",
@@ -72,6 +72,6 @@ describe("TripDetail", () => {
 
     expect(screen.getByText("bryce@example.com")).toBeInTheDocument();
     expect(screen.getByText("Member")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Add member" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Invite member" })).not.toBeInTheDocument();
   });
 });

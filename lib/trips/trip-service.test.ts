@@ -209,7 +209,7 @@ describe("TripService", () => {
     expect(denied).toEqual({
       ok: false,
       status: 403,
-      error: "Only the organizer can add members.",
+      error: "Only the organizer can invite members.",
     });
     expect(JSON.stringify(denied)).not.toContain("Japan");
 

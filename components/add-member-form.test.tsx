@@ -18,7 +18,7 @@ describe("AddMemberForm", () => {
     vi.unstubAllGlobals();
   });
 
-  it("adds an existing email and confirms it", async () => {
+  it("invites an existing email and confirms it", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ member: { email: "bryce@example.com", role: "member" } }),
@@ -27,8 +27,9 @@ describe("AddMemberForm", () => {
     const user = userEvent.setup();
 
     render(<AddMemberForm tripId="trip-1" />);
-    await user.type(screen.getByLabelText("Email"), "bryce@example.com");
-    await user.click(screen.getByRole("button", { name: "Add member" }));
+    expect(screen.getByText("Invite members via email.")).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Invite by email"), "bryce@example.com");
+    await user.click(screen.getByRole("button", { name: "Invite member" }));
 
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/trips/trip-1/members",
@@ -37,7 +38,7 @@ describe("AddMemberForm", () => {
         body: JSON.stringify({ email: "bryce@example.com" }),
       }),
     );
-    expect(await screen.findByRole("status")).toHaveTextContent("Added bryce@example.com.");
+    expect(await screen.findByRole("status")).toHaveTextContent("Invited bryce@example.com.");
     expect(refresh).toHaveBeenCalled();
   });
 
@@ -47,8 +48,8 @@ describe("AddMemberForm", () => {
     const user = userEvent.setup();
 
     render(<AddMemberForm tripId="trip-1" />);
-    await user.type(screen.getByLabelText("Email"), "not-an-email");
-    await user.click(screen.getByRole("button", { name: "Add member" }));
+    await user.type(screen.getByLabelText("Invite by email"), "not-an-email");
+    await user.click(screen.getByRole("button", { name: "Invite member" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Enter a valid email address.");
     expect(fetchMock).not.toHaveBeenCalled();
@@ -63,8 +64,8 @@ describe("AddMemberForm", () => {
     const user = userEvent.setup();
 
     render(<AddMemberForm tripId="trip-1" />);
-    await user.type(screen.getByLabelText("Email"), "missing@example.com");
-    await user.click(screen.getByRole("button", { name: "Add member" }));
+    await user.type(screen.getByLabelText("Invite by email"), "missing@example.com");
+    await user.click(screen.getByRole("button", { name: "Invite member" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "No account uses that email address.",
