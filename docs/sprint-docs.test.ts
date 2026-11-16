@@ -15,10 +15,10 @@ describe("sprint agile docs", () => {
     );
 
     expect(sprint1).toContain("# Sprint 1 retrospective");
-    expect(sprint1).toContain("Written:** November 16, 2026");
+    expect(sprint1).toContain("Written:** November 10, 2026");
     expect(sprint1).toContain("never Adds to the itinerary");
     expect(sprint2).toContain("# Sprint 2 retrospective");
-    expect(sprint2).toContain("Written:** November 16, 2026");
+    expect(sprint2).toContain("Written:** November 15, 2026");
     expect(sprint2).toContain("equal splits that total exactly in cents");
   });
 
