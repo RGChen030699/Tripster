@@ -60,6 +60,7 @@ describe("ItineraryList", () => {
             unscheduled: false,
             date: "2026-11-01",
             startTime: null,
+            endDate: "2026-11-04",
           },
           {
             id: "item-3",
@@ -77,7 +78,9 @@ describe("ItineraryList", () => {
     const unscheduled = screen.getByRole("heading", { name: "Unscheduled" });
     expect(firstDay.compareDocumentPosition(secondDay) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(secondDay.compareDocumentPosition(unscheduled) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByText("No time")).toBeInTheDocument();
+    expect(screen.getByText("Check-in: 2026-11-01")).toBeInTheDocument();
+    expect(screen.getByText("Check-out: 2026-11-04")).toBeInTheDocument();
+    expect(screen.queryByText("No time")).not.toBeInTheDocument();
     expect(screen.getByText("09:30")).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /Itinerary actions/ })).toHaveLength(3);
     expect(screen.queryByRole("button", { name: "Schedule" })).not.toBeInTheDocument();

@@ -6,6 +6,7 @@ export type StoredItineraryItem = {
   suggestionId: string;
   date?: string;
   startTime?: string | null;
+  endDate?: string | null;
 };
 
 export type ItineraryItemView = {
@@ -16,6 +17,7 @@ export type ItineraryItemView = {
   unscheduled: boolean;
   date?: string;
   startTime?: string | null;
+  endDate?: string | null;
 };
 
 export type ScheduleItineraryResult =

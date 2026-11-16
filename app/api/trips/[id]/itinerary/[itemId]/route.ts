@@ -18,6 +18,7 @@ export async function PATCH(
   const result = await getSuggestionService().scheduleItinerary(user.user.id, id, itemId, {
     date: readField(body, "date"),
     startTime: readField(body, "startTime"),
+    endDate: readField(body, "endDate"),
   });
   if (!result.ok) {
     return errorResponse(result.error, result.status);

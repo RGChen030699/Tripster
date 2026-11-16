@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 
 import { primaryButtonClassName, secondaryButtonClassName } from "@/components/button-styles";
 import { DateField } from "@/components/date-field";
+import type { SuggestionCategory } from "@/lib/suggestions/types";
 
 const inputClassName =
   "mt-1 w-full rounded-md border border-sand bg-panel px-3 py-2 font-bold text-ink outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
@@ -12,15 +13,19 @@ const inputClassName =
 export function ScheduleItineraryForm({
   tripId,
   itemId,
+  category,
   date,
   startTime,
+  endDate,
   open: openProp,
   onOpenChange,
 }: {
   tripId: string;
   itemId: string;
+  category: SuggestionCategory;
   date?: string;
   startTime?: string | null;
+  endDate?: string | null;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
@@ -31,6 +36,7 @@ export function ScheduleItineraryForm({
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const lodging = category === "lodging";
 
   function setOpen(next: boolean) {
     if (!controlled) {
@@ -43,7 +49,9 @@ export function ScheduleItineraryForm({
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const nextDate = String(formData.get("date") ?? "");
-    const nextTime = String(formData.get("startTime") ?? "");
+    const body = lodging
+      ? { date: nextDate, endDate: String(formData.get("endDate") ?? "") }
+      : { date: nextDate, startTime: String(formData.get("startTime") ?? "") };
     setPending(true);
     setError(null);
     try {
@@ -51,7 +59,7 @@ export function ScheduleItineraryForm({
         method: "PATCH",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ date: nextDate, startTime: nextTime }),
+        body: JSON.stringify(body),
       });
       const payload = await readJson(response);
       if (!response.ok) {
@@ -80,21 +88,40 @@ export function ScheduleItineraryForm({
 
   return (
     <form noValidate onSubmit={onSubmit} className="flex w-full flex-col gap-3">
-      <DateField id={`date-${itemId}`} label="Date" name="date" defaultValue={date ?? ""} />
-      <div>
-        <label htmlFor={`time-${itemId}`} className="block text-sm font-bold">
-          Time
-        </label>
-        <input
-          id={`time-${itemId}`}
-          name="startTime"
-          type="text"
-          defaultValue={startTime ?? ""}
-          autoComplete="off"
-          placeholder="HH:MM"
-          className={inputClassName}
-        />
-      </div>
+      {lodging ? (
+        <>
+          <DateField
+            id={`check-in-${itemId}`}
+            label="Check-in date"
+            name="date"
+            defaultValue={date ?? ""}
+          />
+          <DateField
+            id={`check-out-${itemId}`}
+            label="Check-out date"
+            name="endDate"
+            defaultValue={endDate ?? ""}
+          />
+        </>
+      ) : (
+        <>
+          <DateField id={`date-${itemId}`} label="Date" name="date" defaultValue={date ?? ""} />
+          <div>
+            <label htmlFor={`time-${itemId}`} className="block text-sm font-bold">
+              Time
+            </label>
+            <input
+              id={`time-${itemId}`}
+              name="startTime"
+              type="text"
+              defaultValue={startTime ?? ""}
+              autoComplete="off"
+              placeholder="HH:MM"
+              className={inputClassName}
+            />
+          </div>
+        </>
+      )}
       {error ? (
         <p role="alert" className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-950">
           {error}

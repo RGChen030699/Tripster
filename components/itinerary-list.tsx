@@ -41,7 +41,7 @@ export function ItineraryList({
           <h2 className="text-lg font-bold">{date}</h2>
           <ul className="mt-3 flex flex-col gap-4">
             {group.map((item) => (
-              <ItemCard key={item.id} item={item} tripId={tripId} timeLabel={item.startTime ?? "No time"} />
+              <ItemCard key={item.id} item={item} tripId={tripId} />
             ))}
           </ul>
         </section>
@@ -63,18 +63,28 @@ export function ItineraryList({
 function ItemCard({
   item,
   tripId,
-  timeLabel,
 }: {
   item: ItineraryItemView;
   tripId?: string;
-  timeLabel?: string;
 }) {
   return (
     <li className="rounded-lg border border-sand bg-panel p-4">
       <h3 className="text-lg font-bold">{item.name}</h3>
       <p className="mt-1 text-sm text-ink-muted">{CATEGORY_LABELS[item.category]}</p>
-      {timeLabel ? <p className="mt-2">{timeLabel}</p> : null}
+      {item.unscheduled || !item.date ? null : <ScheduleSummary item={item} />}
       {tripId ? <ItineraryItemControls tripId={tripId} item={item} /> : null}
     </li>
   );
+}
+
+function ScheduleSummary({ item }: { item: ItineraryItemView }) {
+  if (item.category === "lodging") {
+    return (
+      <div className="mt-2">
+        <p>Check-in: {item.date}</p>
+        <p>Check-out: {item.endDate ?? "Not set"}</p>
+      </div>
+    );
+  }
+  return <p className="mt-2">{item.startTime ?? "No time"}</p>;
 }
