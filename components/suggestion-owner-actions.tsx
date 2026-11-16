@@ -20,15 +20,20 @@ export function SuggestionOwnerActions({
       {editing ? (
         <EditSuggestionForm tripId={tripId} suggestion={suggestion} />
       ) : (
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className="text-sm font-bold text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        <div
+          className="flex flex-wrap items-center gap-4"
+          data-testid="suggestion-owner-actions"
         >
-          Edit
-        </button>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="text-sm font-bold text-ink underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Edit
+          </button>
+          <RemoveSuggestionButton tripId={tripId} suggestionId={suggestion.id} />
+        </div>
       )}
-      <RemoveSuggestionButton tripId={tripId} suggestionId={suggestion.id} />
     </div>
   );
 }

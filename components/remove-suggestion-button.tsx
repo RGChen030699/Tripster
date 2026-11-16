@@ -40,7 +40,7 @@ export function RemoveSuggestionButton({
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="mt-3 text-sm font-bold text-red-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+        className="text-sm font-bold text-red-900 underline outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
       >
         Remove
       </button>
@@ -48,7 +48,11 @@ export function RemoveSuggestionButton({
   }
 
   return (
-    <div role="alertdialog" aria-label="Remove this suggestion?" className="mt-3 rounded-md border border-red-300 bg-red-50 p-3">
+    <div
+      role="alertdialog"
+      aria-label="Remove this suggestion?"
+      className="w-full rounded-md border border-red-300 bg-red-50 p-3"
+    >
       <p>Remove this suggestion?</p>
       {error ? (
         <p role="alert" className="mt-2 text-sm text-red-950">

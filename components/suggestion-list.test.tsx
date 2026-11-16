@@ -69,6 +69,7 @@ describe("SuggestionList", () => {
     );
     expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Remove" })).toBeInTheDocument();
+    expect(screen.getByTestId("suggestion-owner-actions")).toHaveClass("gap-4");
 
     rerender(<SuggestionList tripId="trip-1" viewerEmail="bryce@example.com" suggestions={[pastel]} />);
     expect(screen.queryByRole("button", { name: "Edit" })).not.toBeInTheDocument();
